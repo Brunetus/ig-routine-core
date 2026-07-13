@@ -21,8 +21,10 @@ they conflict, the ACCOUNT file wins.
 4. Never touch another account's folder. Structural fixes belong in
    `~/Claude Code/ig-routine-core/` — note them in the log for Marcus; do not
    edit core files mid-run.
-5. Never print or commit secrets (.env, tokens). performance.md files are
-   auto-generated — never hand-edit them.
+5. Never print or commit secrets (.env, tokens). A performance file produced
+   by a generator script is never hand-edited — but whether the account uses
+   a generator or a hand-maintained table is defined in the ACCOUNT file's
+   config; follow its stated method.
 6. Log every step's outcome to today's file in `routine/logs/`.
 
 ## Resume discipline (retried runs)

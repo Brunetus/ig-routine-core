@@ -16,6 +16,20 @@
 # through launchd (see CLAUDE.md). Never edit a copy in an account folder.
 
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+# ---- Wrapper contract: refuse to run with missing parameters (an unset DIR
+# would silently cd to $HOME and "run" against nothing) ----
+for v in ACCOUNT NOTIF_TITLE DIR ROUTINE_FILE ROUTINE_DESC ICLOUD_DIR; do
+  if [[ -z "${(P)v}" ]]; then
+    osascript -e "display notification \"run-daily wrapper missing $v - routine did not run\" with title \"IG routine\" sound name \"Basso\"" 2>/dev/null
+    exit 1
+  fi
+done
+if [[ ! -d "$DIR" ]]; then
+  osascript -e "display notification \"$NOTIF_TITLE: DIR not found - routine did not run\" with title \"$NOTIF_TITLE\" sound name \"Basso\"" 2>/dev/null
+  exit 1
+fi
+
 cd "$DIR" || exit 1
 mkdir -p routine/logs
 LOG="routine/logs/$(date +%F).log"
@@ -71,6 +85,7 @@ if [ -f routine/TEST-MODE ]; then
   osascript -e 'tell application "Photos" to get count of albums' >> "$LOG" 2>&1
   mkdir -p routine/icloud-outbox && echo "outbox test $(date)" > "routine/icloud-outbox/TEST-outbox.txt"
   move_outbox
+  rm -f "$HOME/Library/Mobile Documents/com~apple~CloudDocs/$ICLOUD_DIR/TEST-outbox.txt"  # don't pollute the real delivery folder
   osascript -e "display notification \"$NOTIF_TITLE TEST-MODE chain OK - check routine/logs\" with title \"$NOTIF_TITLE\"" >> "$LOG" 2>&1
   echo "===== TEST MODE exit $? at $(date) =====" >> "$LOG"
   exit 0
