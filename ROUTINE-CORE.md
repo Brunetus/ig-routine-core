@@ -81,11 +81,23 @@ draft Marcus can ignore beats a silently skipped day).
 
 ### 4. Trends + trending audio
 WebSearch current IG reel trends + this week's trending audio for the
-account's niche. Note 1-2 usable trend formats and 1 primary audio pick +
-fallback guidance (in-app Trending tab, up-arrow flag — the flag matters more
-than the track). **Variety rule: the pick must NOT appear in the last 5 rows
-of `routine/audio-used.md`** (create the ledger if missing). Append the pick
-there when you stage.
+account's niche. Note 1-2 usable trend formats.
+
+**Name ONE track. A pick is a title and an artist.** "Pick an up-arrow-flagged
+warm acoustic track from the Trending tab" is NOT a pick — it is the job handed
+back to Marcus at the exact moment he is trying to post (his correction,
+2026-07-14). The staged doc must carry a single named track, one line on why it
+fits THIS cut, and where to start it. Rules:
+- It must be a real, currently-trending track you found in the search — never
+  invent a title, and never name a track you cannot source.
+- **Variety rule: it must NOT appear in the last 5 rows of
+  `routine/audio-used.md`** (create the ledger if missing).
+- Append the named pick to that ledger when you stage — the ledger is what
+  makes the variety rule enforceable, so an unnamed pick corrupts it.
+- The up-arrow flag is a bonus to mention, not a substitute for choosing. If
+  the search genuinely surfaces nothing usable, say so explicitly in the
+  notification and name the closest fit anyway — Marcus can overrule a named
+  track in two seconds; he cannot overrule a shrug.
 
 ### 5. Create
 - **Check `routine/next-concept.md` FIRST.** If it exists, that is Marcus's
@@ -106,8 +118,10 @@ there when you stage.
   iCloud TCC permission; the attempt hangs on a prompt nobody can click
   (killed the imabgold 07-13 run). Instead write ONE combined document into
   `routine/icloud-outbox/` (create it), named
-  `<YYYY-MM-DD> <Concept> - caption + audio.txt`: the full caption, then a
-  SUGGESTED AUDIO section (primary + fallback + in-app instructions). **No
+  `<YYYY-MM-DD> <Concept> - caption + audio.txt`: the full caption, then an
+  AUDIO section naming ONE track — "<title>" — <artist> — plus why it fits this
+  cut and where to start it (step 4: a pick is a title and an artist, never a
+  description of how to go find one). **No
   MP4 in iCloud — the reel lives in Photos only** (Marcus, 2026-07-13). The
   launcher moves the doc to iCloud Drive's account folder after you exit.
 - Photos staging (AppleScript is authorized): import the FINAL into the
