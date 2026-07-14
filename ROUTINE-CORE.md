@@ -63,8 +63,21 @@ added since the last run: UUID, filename, duration, created) and previews at
 
 ### 3. Un-posted draft check
 If the most recent staged draft (Photos favorite "…, post this one") was
-never posted (absent from the Graph API media list), do NOT stack a second
-draft. Send the reminder notification and stop after step 2.
+never posted, do NOT stack a second draft. Send the reminder notification and
+stop after step 2.
+
+**"Posted" is a CONCEPT match, not a file match.** Marcus posts through the
+IG app (often finalizing in the Edits app), which re-encodes and re-exports
+the clip — the staged file itself will NEVER appear in the Graph API media
+list, and his re-export may land in Photos under a new name. The draft counts
+as POSTED if any post since staging carries the draft's hook / on-screen text
+/ caption, even with trims or small edits (this exact miss stopped the
+imabgold 07-14 run: the posted reel had the staged draft's text verbatim and
+was still ruled "unposted"). When it matches: mark it posted — un-favorite
+and rename the Photos favorite to "<concept> POSTED <date>" — and continue to
+step 4. Stop only when NO recent post resembles the draft's concept; if it's
+genuinely ambiguous, say so in the notification and continue (a duplicate
+draft Marcus can ignore beats a silently skipped day).
 
 ### 4. Trends + trending audio
 WebSearch current IG reel trends + this week's trending audio for the
