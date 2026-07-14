@@ -79,6 +79,14 @@ step 4. Stop only when NO recent post resembles the draft's concept; if it's
 genuinely ambiguous, say so in the notification and continue (a duplicate
 draft Marcus can ignore beats a silently skipped day).
 
+### 3.5 Skip-creation flag (one-shot)
+If `routine/skip-creation.txt` exists, Marcus has already handled the next
+post himself (e.g. scheduled a staged draft in-app) and today needs NO new
+draft. Run steps 1-3 as normal first — measurement never skips — then STOP:
+no trends, no creation, no staging. Delete the flag file (it applies to
+exactly one run), and say what was skipped and why (quote the file's note) in
+the log and the notification.
+
 ### 4. Trends + trending audio
 WebSearch current IG reel trends + this week's trending audio for the
 account's niche. Note 1-2 usable trend formats.
