@@ -17,6 +17,11 @@
 
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
+# This file's own directory — we get sourced from an account folder, so $0 and
+# $PWD both point at the ACCOUNT, not here. ${(%):-%x} is the sourced script's
+# path in zsh. Needed to call sibling helpers (dump-labels.py).
+CORE_DIR="${${(%):-%x}:A:h}"
+
 # ---- Wrapper contract: refuse to run with missing parameters (an unset DIR
 # would silently cd to $HOME and "run" against nothing) ----
 for v in ACCOUNT NOTIF_TITLE DIR ROUTINE_FILE ROUTINE_DESC ICLOUD_DIR; do
@@ -58,6 +63,31 @@ dump_manifest() {
       || cp "$LIB/resources/derivatives/masters/$first/${uuid}_4_5005_c.jpeg" "routine/previews/${uuid}.jpeg" 2>/dev/null
   done < routine/photos-manifest.tsv
   echo "manifest: $(wc -l < routine/photos-manifest.tsv | tr -d ' ') new videos, $(ls routine/previews 2>/dev/null | wc -l | tr -d ' ') previews" >> "$LOG"
+  dump_archive
+}
+
+# ---- Archive manifest (the fallback lane when the fresh window is empty) ----
+# The session has no FDA, so it cannot go dig through the catalogue itself —
+# without this dump, "look further back" is impossible and the run has no
+# honest option but to declare exhaustion (or, as on 2026-07-16, improvise).
+# So: dump EVERY video in the library, oldest included, with the moment's place
+# name — filename + duration + date + place is enough to pick candidates, and
+# AppleScript export (authorized) + ffmpeg frame-sampling does the rest.
+# TSV only, no previews: 4k+ derivative copies would cost more than it's worth.
+# NEVER commit this file (real localities + the whole family catalogue): it is
+# gitignored in every account repo. Keep it that way.
+dump_archive() {
+  local LIB="$HOME/Pictures/Photos Library.photoslibrary"
+  sqlite3 -readonly -separator $'\t' \
+    "file:$LIB/database/Photos.sqlite?immutable=1" \
+    "SELECT a.ZUUID, aa.ZORIGINALFILENAME, ROUND(a.ZDURATION,1), datetime(a.ZDATECREATED+978307200,'unixepoch','localtime'), COALESCE(m.ZTITLE,'') FROM ZASSET a LEFT JOIN ZADDITIONALASSETATTRIBUTES aa ON aa.ZASSET=a.Z_PK LEFT JOIN ZMOMENT m ON a.ZMOMENT=m.Z_PK WHERE a.ZKIND=1 AND a.ZTRASHEDSTATE=0 ORDER BY a.ZDATECREATED DESC;" \
+    > routine/photos-archive.tsv 2>> "$LOG"
+  echo "archive: $(wc -l < routine/photos-archive.tsv | tr -d ' ') videos catalogued (fallback lane)" >> "$LOG"
+  # Photos' OWN scene labels ("High Chair", "Restaurant", "Baby", "Meal"...) so
+  # the session can search the archive by CONTENT, not by guessing at
+  # IMG_9128.MOV. Non-fatal: a missing labels file just costs search quality.
+  python3 "$CORE_DIR/dump-labels.py" >> "$LOG" 2>&1 || \
+    echo "labels: dump failed (non-fatal; archive search falls back to date/place)" >> "$LOG"
 }
 
 # ---- iCloud outbox mover (claude has no iCloud TCC permission; we do) ----

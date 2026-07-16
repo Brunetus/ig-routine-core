@@ -58,6 +58,36 @@ added since the last run: UUID, filename, duration, created) and previews at
 - Respect the account's used-material ledger: never re-cut a used segment,
   never touch ranges marked BURNED.
 
+**The material ladder — climb it in order; "exhausted" is only true at the
+bottom** (Marcus, 2026-07-16: "if there is no footage the fallback is to go
+back further in my photos catalogue to find something or generate it on nano
+banana"). Empty fresh manifest is rung 1 of 3, not a verdict:
+1. **Fresh manifest** (`routine/photos-manifest.tsv` + previews) — timeboxed
+   scout above.
+2. **The archive** — `routine/photos-archive.tsv` lists EVERY video in the
+   catalogue (uuid, filename, duration, created, place), dumped by the
+   launcher because this session has no FDA to go digging itself.
+   **`routine/photos-labels.tsv` is how you SEARCH it** (`<uuid>\t<labels>`):
+   Photos' own scene tags — "High Chair", "Restaurant", "Baby", "Meal",
+   "Brunch", "Stroller" — the same index the Photos app searches. Grep it for
+   the concept, join to the archive on uuid for date/place/duration. This is
+   the difference between a searchable catalogue and 4k rows of IMG_9128.MOV:
+   on 2026-07-16 the run declared exhaustion while the library held 47 videos
+   Photos had already tagged "High Chair". Labels are a strong hint, not
+   truth — they get you to ~20 candidates; frames decide.
+   Then AppleScript-export the 2-3 best (export is authorized) and
+   frame-sample with ffmpeg to judge — there are no previews for archive rows,
+   so judging means actually looking at frames, never a filename or a label.
+   Old footage is not stale: it has never been cut, and the ledger only burns
+   SEGMENTS, not clips. Check the ledger before cutting, as always.
+3. **Generation** — the account's generation lane (e.g. nano banana), inside
+   its stated budget cap. Nothing in the catalogue fits, or what fits fails
+   the privacy rules, is exactly what this rung is for.
+
+Only after all three rungs come up empty is "material exhausted" a true
+statement, and only then may you declare the no-reel day (step 5). Reporting
+exhaustion at rung 1 is a false report.
+
 ### 2. Verify the leaderboard
 - Pull Graph API insights (per the account file's method), refresh its
   performance file.
@@ -134,7 +164,9 @@ rendered the caption system. If you can't honestly write "why this concept"
 and an exact source-cut table for beats YOU cut, you have no reel.
 
 **When material is exhausted, DECLARE IT — never improvise a substitute.**
-If the lanes are empty, the correct output is a clean no-reel day: log it,
+Exhausted means you climbed all three rungs of the step-1 ladder (fresh
+manifest -> archive -> generation) and came up empty — not that the fresh
+window was thin. If it IS truly empty, the correct output is a clean no-reel day: log it,
 notification says exhausted + names the ONE recording that unblocks tomorrow,
 stop. Do NOT go looking for something reel-shaped to stage instead. A missed
 day is a known cost Marcus accepts (see guard 2); a recycled reel is worse
