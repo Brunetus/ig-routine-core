@@ -17,6 +17,14 @@ they conflict, the ACCOUNT file wins.
    a NEW independent agent with zero context on how the piece was cut. If QA
    fails twice, stop and leave a note in the log + notification; a missed day
    is better than a bad post.
+   **The QA brief must state the provenance gate: "this reel was cut today
+   from raw material — verify that."** Hand the reviewer the source-cut table
+   and tell it to FAIL a reel that looks pre-made (baked-in captions it can't
+   trace to today's cuts, a single unbroken clip, an edit style that isn't the
+   account's). A reviewer only checks what it's handed: on 2026-07-16 an
+   independent Opus reviewer returned SHIP on a video the run hadn't cut at
+   all, because the brief only asked "is this a good reel?" — it was. Never
+   let a PASS on craft launder a failure of provenance.
 3. Do not delete anything from the Photos library. Never repost old content.
 4. Never touch another account's folder. Structural fixes belong in
    `~/Claude Code/ig-routine-core/` — note them in the log for Marcus; do not
@@ -108,6 +116,33 @@ fits THIS cut, and where to start it. Rules:
   track in two seconds; he cannot overrule a shrug.
 
 ### 5. Create
+
+**You must CUT a new reel. Every single day. There is no other output.**
+Staging a video you did not cut today is not a deliverable — it is a NULL
+result wearing a deliverable's clothes (Marcus, 2026-07-16, after a run
+renamed his own unposted Edits-app export "travel-tips v1, post this one"
+and called the day complete). Specifically banned, no exceptions:
+- Staging any pre-made/finished video as-is — an Edits-app export, a clip
+  Marcus cut himself, an old draft, anything already carrying baked-in
+  captions. Marcus's own footage is RAW MATERIAL to cut from, never a
+  finished reel to hand back to him.
+- Re-staging, re-titling, or lightly re-encoding a previously staged draft.
+- Any output where the day's work was choosing and renaming rather than
+  cutting.
+A reel is new when today's run selected the beats, made the cuts, and
+rendered the caption system. If you can't honestly write "why this concept"
+and an exact source-cut table for beats YOU cut, you have no reel.
+
+**When material is exhausted, DECLARE IT — never improvise a substitute.**
+If the lanes are empty, the correct output is a clean no-reel day: log it,
+notification says exhausted + names the ONE recording that unblocks tomorrow,
+stop. Do NOT go looking for something reel-shaped to stage instead. A missed
+day is a known cost Marcus accepts (see guard 2); a recycled reel is worse
+than nothing because it burns a ledger row, spends an audio pick, and lies to
+the leaderboard — the next run then "learns" from a post that never happened.
+The pull to produce something is exactly the pressure this rule exists to
+overrule.
+
 - **Check `routine/next-concept.md` FIRST.** If it exists, that is Marcus's
   requested subject for today — build it (it overrides free concept choice;
   every craft/QA/privacy rule still applies). After successful staging, move
