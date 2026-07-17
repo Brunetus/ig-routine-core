@@ -191,18 +191,31 @@ overrule.
 ### 6. Stage + notify + close the loop
 - **Never copy anything to iCloud Drive yourself** — this session has no
   iCloud TCC permission; the attempt hangs on a prompt nobody can click
-  (killed the imabgold 07-13 run). Instead write ONE combined document into
-  `routine/icloud-outbox/` (create it), named
-  `<YYYY-MM-DD> <Concept> - caption + audio.txt`: the full caption, then an
-  AUDIO section naming ONE track — "<title>" — <artist> — plus why it fits this
-  cut and where to start it (step 4: a pick is a title and an artist, never a
-  description of how to go find one). **No
-  MP4 in iCloud — the reel lives in Photos only** (Marcus, 2026-07-13). The
-  launcher moves the doc to iCloud Drive's account folder after you exit.
-- Photos staging (AppleScript is authorized): import the FINAL into the
-  account's album, favorite it, name it "<concept> vN, post this one";
-  un-favorite + rename the previous one. Use variables (theNew/theOld),
-  never `it`.
+  (killed the imabgold 07-13 run). Instead write into `routine/icloud-outbox/`
+  (create it) and let the launcher move it to iCloud Drive's account folder
+  after you exit — it moves EVERY file in that folder, running as Marcus, who
+  has the access this session lacks. Put TWO things there:
+  1. The finished reel MP4 — copy it into the outbox, **date-stamped** as
+     `<YYYY-MM-DD> <concept>_FINAL.mp4` (same date prefix as the doc below). The
+     date matters: the phone imports the NEWEST `.mp4`, so on a day that
+     produces no new reel (footage exhausted, QA double-fail, crash before this
+     step) an undated name could leave yesterday's already-posted clip as the
+     "newest" one and trigger a re-post — the date makes staleness detectable.
+     iCloud is the DEFAULT delivery path: it syncs to the phone, where a
+     Shortcuts automation drops the newest MP4 into Photos for posting (Marcus,
+     2026-07-17). An account file MAY opt out of MP4-in-iCloud (precedence rule
+     up top) — then skip this and rely on Photos staging only.
+  2. ONE combined document named `<YYYY-MM-DD> <Concept> - caption + audio.txt`:
+     the full caption, then an AUDIO section naming ONE track — "<title>" —
+     <artist> — plus why it fits this cut and where to start it (step 4: a pick
+     is a title and an artist, never a description of how to go find one).
+- Photos staging (Mac album) is now **best-effort only and must NEVER block** —
+  iCloud→phone (above) is the real delivery. If AppleScript to Photos is
+  authorized, import the FINAL into the account's album, favorite it, name it
+  "<concept> vN, post this one", un-favorite + rename the previous one (use
+  variables theNew/theOld, never `it`). If the Automation/AppleEvents permission
+  is missing (headless 9am run — the event hangs on an unclickable prompt), SKIP
+  it immediately, note it in the log, and move on. Never wait on that prompt.
 - Append to the account's ledgers (used material/topics, audio-used).
 - If the account folder is a git repo: commit the ledgers/captions/learning
   files the account file lists (never drafts/media/secrets) and push;
