@@ -53,7 +53,9 @@ outcome, never a failure.
    read the frames. Note what story the set
    tells: a trip, a build, a kid, a business, a vibe.
 2. **Architect the cut.** Pick an order that has a beginning and a payoff
-   (best moment LAST). 3–10 beats, 0.8–2.5s each. At least 2 hard cuts —
+   (best moment LAST). 3–10 beats, 0.8–2.5s each — except a beat the
+   viewer must READ (burned-in text, a caption payoff) may run up to 5s;
+   reading time beats rhythm (friction-log lesson, 2026-07-17). At least 2 hard cuts —
    never one static slideshow drift (structural law from the account
    routines). Subtle Ken Burns (zoompan) on stills so nothing is frozen.
 3. **Bank check (optional).** Read the viral-bank catalog. Splice ONLY if
