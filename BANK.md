@@ -60,11 +60,20 @@ Paths: BANK=`~/Claude Code/viral-bank/` — `watchlist.md` (input),
    exists to lend joke-setups, and an ad lends someone else's marketing.
    Borderline meme-with-a-logo? Judge by intent: made to be funny → keep;
    made to sell → skip. If still torn, skip — a missed clip costs nothing.
-8. Hashtag budget: the app allows 30 UNIQUE hashtags per rolling 7 days
-   (app-wide, shared with anything else using the system token's app).
-   Query at most 12 unique hashtags per scan; two scans/week keeps
-   headroom. Log every hashtag queried (`hashtag-query: #tag`) so the
-   next scan can count the window's usage from the last 7 days of logs.
+8. Hashtag budget — HARD STOP, not vibes: the app allows 30 UNIQUE
+   hashtags per rolling 7 days (app-wide, shared with anything else using
+   the system token's app; the cap counts DISTINCT tags, so re-querying a
+   tag already charged this window is free). Bookkeeping law:
+   - `hashtag-query: #tag` is THE quota token. Write it to the log
+     IMMEDIATELY BEFORE the `ig_hashtag_search` call — never after
+     processing (a crash after the call but before the log would leak
+     quota invisibly).
+   - Before step 2b, collect the set of unique tags in `hashtag-query`
+     lines across the last 7 days of logs = `used`. Tags in `used` may be
+     re-queried freely. NEW tags are allowed only while
+     `|used| + new ≤ 30`, and total tags queried this scan ≤ 12.
+   - Therefore PREFER a stable, repeating lane set over rotating fresh
+     tags — reuse costs nothing, novelty burns the window.
 
 ## The scan
 
@@ -89,6 +98,11 @@ exception to "never overwrite"; history lives in git):
 An account whose insights call fails is logged (`taste-miss: <account>
 <reason>`) and skipped — never fatal. taste.md is architect-readable:
 keep it under ~80 lines.
+
+Time box (scheduled runs): banking clips is the job; taste refresh is
+optional garnish. If it is past 08:20 when step 0 would start, or you
+are still inside it at 08:30, abandon it — log `taste-skip: time`,
+leave the previous taste.md standing, and go straight to step 1.
 
 ### 1. Read the watchlist
 Parse `watchlist.md`: every non-comment line starting with `@` is a handle,
@@ -119,10 +133,15 @@ Build the hashtag pool, ≤12 unique per scan (guard 8), in priority order:
    `?fields=id,name` with the system token — hashtags Marcus searched in
    the IG app in the last 7 days. These are STEERING: always include
    them first. Empty list is normal.
-2. Fill remaining slots from lane defaults: tech/AI lane (e.g. #ai,
-   #claudeai, #buildinpublic, #techtok), family lane (e.g. #parentsofinstagram,
-   #dadlife, #toddlermom), general meme lane (e.g. #memes, #reelsviral).
-   Skip any queried within the last 7 days per the logs (guard 8).
+2. Fill remaining slots from the STANDING lane set — same tags every
+   scan (guard 8: reuse is free, novelty burns the window): tech/AI
+   (#ai, #claudeai, #buildinpublic, #techtok), family
+   (#parentsofinstagram, #dadlife, #toddlermom), general meme (#memes,
+   #reelsviral). Swap a standing tag only when its lane keeps producing
+   nothing bankable, and note the swap in the log.
+Steering hygiene: if the steering list is empty or a tag is garbled,
+fall back to the standing set silently. URL-encode every `q` value
+(steering tags can contain non-ASCII).
 For each: `ig_hashtag_search?user_id=17841480076308621&q=<tag>` → id,
 then `<id>/top_media?user_id=17841480076308621&fields=id,media_type,`
 `media_product_type,media_url,permalink,caption,like_count,comments_count,`
@@ -131,7 +150,8 @@ curl `-g`. Do NOT request `username` — hashtag media has no username
 field (privacy-stripped, verified 2026-07-17) and asking breaks the call.
 Keep REELS/VIDEO posted within the last 10 days, run the guard-7 ad
 filter (generic hashtags are ad-heavy — expect to skip a lot), and log
-`hashtag-scanned: #tag, N kept`.
+`hashtag-scanned: #tag, N kept` (a processing note — the quota token
+remains the `hashtag-query` line written before the search, guard 8).
 
 ### 3. Rank for spikes
 Per account: engagement = like_count + comments_count; compute the account's
@@ -151,7 +171,16 @@ Hashtag candidates (step 2b) have no account baseline — top_media is
 already Instagram's own "this is spiking" signal. They enter the candidate
 pool directly, ranked among themselves by like_count.
 
-**Taste gate before spending downloads:** read `taste.md`, then pick the
+**Ad gate first (guard 7, BOTH pools):** before any taste judgment, drop
+every candidate whose caption reads promotional — the watchlist pool too,
+not just hashtags (the 2026-07-17 morning scan banked watchlist ads;
+that's the regression this line closes). The taste gate below selects
+only among survivors and can NEVER reinstate an ad, however well it
+"fits".
+
+**Taste gate before spending downloads:** read `taste.md` (if missing or
+empty — e.g. step 0 failed or was time-skipped — degrade to pure
+ranking; never fatal), then pick the
 ≤6 downloads across BOTH pools (watchlist + hashtag; aim for a mix when
 both have candidates, never a quota). Prefer candidates whose joke
 mechanism fits what taste.md says works for the accounts; drop a
@@ -184,7 +213,7 @@ below the header comment):
 - source: @handle | <permalink>          <- hashtag finds: `#hashtag | <permalink>` (no username on hashtag media)
 - lane: <the watchlist lane tag of the source account>   <- hashtag finds: the lane the hashtag was queried under
 - first-seen: <today> | status: FRESH
-- stats-at-capture: <likes> likes / <comments> comments (<ratio>x account median)
+- stats-at-capture: <likes> likes / <comments> comments (<ratio>x account median)   <- hashtag finds: `(top_media, no account baseline)` instead of a ratio
 - joke-structure: <the mechanism, e.g. "hype setup, anticlimax payoff">
 - the-beat: <where the laugh lands + where to cut, e.g. "setup 0:00-0:03, cut on the turn at 0:03">
 - pairs-with: <kinds of user moments this sets up, 1-2 concrete examples>
@@ -198,12 +227,16 @@ are working files; clips and catalog are the durable assets).
 Any entry with `first-seen` older than 21 days and `status: FRESH` → edit
 its status to `STALE`. Touch nothing else about it.
 
-Retro ad sweep (same pass): any existing entry that fails the guard-7 ad
-filter — judge from its own catalog text and caption; re-frame-sample only
-if genuinely ambiguous — gets `status: AD-REJECTED` (never deletion; guard
-3 protects history, and the status line IS the record of why it left the
-canon). Log `ad-reject-retro: <shortcode>`. An AD-REJECTED entry keeps its
-clip file but is dead to architects.
+Retro ad sweep (same pass): any entry still `status: FRESH` whose own
+catalog text fails the guard-7 ad filter gets `status: AD-REJECTED`
+(never deletion; guard 3 protects history, and the status line IS the
+record of why it left the canon). Judge from the catalog text you already
+have — no re-fetching captions, no extra API calls; re-frame-sample the
+local clip only if genuinely ambiguous, and if the clip file is gone and
+it's ambiguous, leave the status untouched. STALE and AD-REJECTED entries
+are skipped (already out of the canon). Log `ad-reject-retro:
+<shortcode>`. An AD-REJECTED entry keeps its clip file but is dead to
+architects.
 
 ### 7. Close out
 Write `last-scan.txt`: first line `<today> — scanned N accounts + H

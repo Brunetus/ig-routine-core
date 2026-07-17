@@ -73,7 +73,7 @@ STATUS=1
 for ATTEMPT in 1 2; do
   EXTRA=""
   if [ "$ATTEMPT" -gt 1 ]; then
-    EXTRA=" NOTE: an earlier attempt today failed partway (API drop). Read today's log in logs/ and check catalog.md + clips/ before each step so you never duplicate a download or a catalog entry. Continue from the first incomplete step."
+    EXTRA=" NOTE: an earlier attempt today failed partway (API drop). Read today's log in logs/ and check catalog.md + clips/ before each step so you never duplicate a download or a catalog entry. Hashtag quota was already charged for every hashtag-query line in today's log — those tags may be re-queried freely but count once; never treat them as unused budget. Continue from the first incomplete step."
     echo "===== retry attempt $ATTEMPT $(date) =====" >> "$LOG"
     sleep 60
   fi
