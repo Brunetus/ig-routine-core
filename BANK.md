@@ -46,7 +46,9 @@ Paths: BANK=`~/Claude Code/viral-bank/` — `watchlist.md` (input),
 ## The scan
 
 ### 1. Read the watchlist
-Parse `watchlist.md`: every non-comment line starting with `@` is a handle.
+Parse `watchlist.md`: every non-comment line starting with `@` is a handle,
+with a `[lane]` tag (tech/general/sports/family) that you copy into that
+account's catalog entries — it's how architects filter for relevance.
 `[DRAFT]` markers are curation notes for Marcus — ignore them.
 
 ### 2. Pull each account's recent reels
@@ -103,6 +105,7 @@ below the header comment):
 ```
 ## <shortcode> — <one line: what literally happens in the clip>
 - source: @handle | <permalink>
+- lane: <the watchlist lane tag of the source account>
 - first-seen: <today> | status: FRESH
 - stats-at-capture: <likes> likes / <comments> comments (<ratio>x account median)
 - joke-structure: <the mechanism, e.g. "hype setup, anticlimax payoff">
