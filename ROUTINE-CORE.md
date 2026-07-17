@@ -129,6 +129,18 @@ the log and the notification.
 WebSearch current IG reel trends + this week's trending audio for the
 account's niche. Note 1-2 usable trend formats.
 
+**Clip bank (optional tool).** Also read
+`~/Claude Code/viral-bank/catalog.md` if it exists (missing/empty bank →
+skip silently, it is never a failure). Banked clips are OPTIONAL splice
+candidates under the consumption law in `BANK.md` (this repo) — the short
+version: decide from the account's own material FIRST; splice only if a
+clip makes the cut better; the account's material always gets the majority
+of screen time AND the payoff beat, the famous clip is setup only; prefer
+FRESH entries (STALE needs one written line of justification); name the
+shortcode in the staged notes and hand QA the splice provenance to verify.
+Never scrape a clip ad hoc mid-run — if it's not in the bank, it's not
+available today.
+
 **Name ONE track. A pick is a title and an artist.** "Pick an up-arrow-flagged
 warm acoustic track from the Trending tab" is NOT a pick — it is the job handed
 back to Marcus at the exact moment he is trying to post (his correction,

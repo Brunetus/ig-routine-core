@@ -42,7 +42,13 @@ EVERY account's next run — no per-account copying.
 
 ## Schedule map (LaunchAgents, unchanged by this repo)
 
+- com.marcus.viral-scan → Mon+Thu 8:00 AM → ig-routine-core/run-viral-scan.sh
+  (viral clip bank scan per BANK.md; data in ~/Claude Code/viral-bank/; NOT
+  an account wrapper — it must never source run-daily-core.sh. Test:
+  `touch ~/Claude\ Code/viral-bank/TEST-MODE && launchctl kickstart gui/501/com.marcus.viral-scan`)
 - com.marcus.imabgold-daily → 9:00 AM → imabgold-ig/routine/run-daily.sh
 - com.marcus.bambi-daily → 9:30 AM → bambi-highchair-ig/routine/run-daily.sh
   (bambi additionally waits for imabgold via WAIT_FOR; imabgold never waits —
   this asymmetry is deliberate, it prevents deadlock on simultaneous wake)
+- (com.bambi.outreach-discovery + outreach-send are PAUSED as of 2026-07-17,
+  renamed .plist.disabled — the Mon 8:00 slot now belongs to viral-scan)
