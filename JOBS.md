@@ -18,8 +18,11 @@ outcome, never a failure.
 1. NEVER post, publish, upload, or touch any network. No API calls, no
    WebFetch of media, no scraping. Local files only.
 2. The ONLY paths readable outside this folder:
-   `~/Claude Code/viral-bank/catalog.md`, `~/Claude Code/viral-bank/taste.md`,
-   and, if the outline splices, `~/Claude Code/viral-bank/clips/<shortcode>.mp4`
+   `~/Claude Code/viral-bank/catalog.md`, `~/Claude Code/viral-bank/taste.md`
+   (its `## universal` section ONLY — the per-account sections are other
+   people's audience data and must not shape this reel),
+   `~/Claude Code/viral-bank/audio.md`, and, if the outline splices,
+   `~/Claude Code/viral-bank/clips/<shortcode>.mp4`
    (copy the needed segment into the job folder; never modify the bank).
    The only path anyone writes is this job folder. Never touch account
    folders or core.
@@ -54,10 +57,13 @@ outcome, never a failure.
    frame-sample each input (images directly; videos at 1fps) and actually
    read the frames. Note what story the set tells: a trip, a build, a
    kid, a business, a vibe.
-2. **Taste input.** Read `~/Claude Code/viral-bank/taste.md` if it exists —
-   the engine's accumulated sense of what earns watch-time (hooks, pacing,
-   payoff shapes). It informs your craft; the customer's material still
-   decides the story. Missing file → skip silently.
+2. **Taste input.** Read the `## universal` section of
+   `~/Claude Code/viral-bank/taste.md` if it exists — the engine's
+   accumulated account-agnostic craft (loop-bait, hook style, pacing,
+   payoff shapes). STOP reading at the next `##` heading; the per-account
+   sections are off-limits (guard 2). It informs your craft; the
+   customer's material still decides the story. Missing file/section →
+   skip silently.
 3. **Bank check (optional tool).** Read the viral-bank catalog. Splice
    ONLY if a FRESH entry's joke-structure genuinely sets up THIS
    customer's material (the entry's `pairs-with` line is your test). If
@@ -80,6 +86,26 @@ outcome, never a failure.
    or `no-splice + why`), the hook text with exact y-position and fade
    timing, and the watermark spec from the Render spec below. Log the
    decision summary to log.txt.
+6. **Write `out/delivery.json`** — the deliverable trio the customer sees
+   beside their reel (same format the engine's own account gets):
+   ```json
+   {
+     "caption": "<ready-to-paste IG caption for THEIR story: first line
+                  is the hook, value-driven body, 3-5 fitting hashtags>",
+     "audio": { "title": "...", "artist": "...",
+                "why": "<one line: why this track fits THIS cut>",
+                "start": "<where to start it, e.g. 'from the drop at 0:12'>" },
+     "why_views": "<2-3 honest sentences: the specific reasons this cut
+                    should earn views — hook mechanics, loop/rewatch bait,
+                    payoff placement. Craft reasons, not flattery.>"
+   }
+   ```
+   The audio pick comes from `~/Claude Code/viral-bank/audio.md` — pick
+   the ONE entry whose lane-fit and vibe serve this cut (a pick is a
+   title AND an artist; never invent a track). If audio.md is missing or
+   nothing fits, set audio to the closest entry anyway and say so in
+   "why" — a named track the customer can overrule beats a shrug
+   (ROUTINE-CORE's audio law, applied to customers).
 
 ## Phase B — BUILDER: execute exactly
 
@@ -98,10 +124,13 @@ stated problem and spawn a FRESH builder. A second BUILDER-NOTE →
 **Render spec (builder):** two files —
 - `out/reel-clean.mp4` — no watermark.
 - `out/reel-watermarked.mp4` — same cut plus the watermark: drawtext
-  `reels.ibuildapp.ca` centered, y≈1560 (inside the visible zone, above
-  IG's UI band), fontsize≈40, white @ alpha 0.55, subtle shadow, faint
-  box if needed for legibility on light footage. The watermark is
-  marketing — never crop-able, never obnoxious.
+  `reels.ibuildapp.ca` bottom-LEFT (x=44, y≈1545), fontsize 30, white @
+  alpha 0.45 with a soft shadow (shadowcolor black@0.5, shadowx/y 1) —
+  NO box, no background plate. It should read like a quiet signature,
+  not a stamp: discreet, premium, still uncroppable (IG's 9:16 shows it,
+  and a crop that removes it ruins the frame). If the bottom-left of the
+  footage is blown-out white across most beats, drop alpha to 0.6 —
+  never add a box.
 
 ## Phase C — QA: fresh eyes, mandatory
 
@@ -113,9 +142,11 @@ present in watermarked + absent in clean; **the delivered files match the
 outline** — beat count, order, and splice usage; a deviation is a FAIL
 even if the reel is good (an outline that wasn't followed means the
 decision on record is a lie). If a splice is declared: customer material
-has majority screen time AND the payoff, famous clip is setup only. And
-the overall bar: "would a stranger be happy to post this?" PASS/FAIL +
-reasons.
+has majority screen time AND the payoff, famous clip is setup only. Also
+verify `out/delivery.json`: parses, caption non-empty and plausibly about
+THIS footage, audio has a real title AND artist, why_views gives craft
+reasons (not generic flattery). And the overall bar: "would a stranger be
+happy to post this?" PASS/FAIL + reasons.
 
 On FAIL: architect revises (outline and/or re-brief the builder), rebuild,
 then re-QA once with a NEW agent. Two FAILs → `out/FAILED` with the

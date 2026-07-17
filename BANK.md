@@ -91,6 +91,15 @@ exception to "never overwrite"; history lives in git):
 - a distilled "what works / what dies" section per account (3-5 bullets
   each) — concrete craft observations (hook style, pacing, subject),
   not platitudes;
+- a `## universal` section (FIRST in the file): 4-6 bullets of
+  account-STRIPPED craft — lessons that hold for any creator ("short
+  loop-bait beats that make viewers rewatch", "identity-confession hooks
+  beat announcements", "payoff last", "text beats need reading time").
+  No account names, no audience references, no niche assumptions — this
+  section is what CUSTOMER jobs read (JOBS.md), and a stranger's reel
+  must never be shaped by what @imabgold's or @bambi.map's audience
+  specifically rewards. Promote a per-account lesson here only when it
+  has held on BOTH accounts or is obviously craft, not audience.
 - a `steering:` line listing hashtags currently in
   `/recently_searched_hashtags` (see step 2b) — Marcus searching a
   hashtag in the IG app is a deliberate nudge and taste.md should show
@@ -109,6 +118,12 @@ Parse `watchlist.md`: every non-comment line starting with `@` is a handle,
 with a `[lane]` tag (tech/general/sports/family) that you copy into that
 account's catalog entries — it's how architects filter for relevance.
 `[DRAFT]` markers are curation notes for Marcus — ignore them.
+
+Lanes follow CUSTOMER SEGMENTS, not Marcus's accounts: when the paying
+funnel brings a cohort whose niche the bank doesn't cover, that's a
+watchlist-expansion note for Marcus in the log — never a reason for an
+architect to splice a badly-fitting clip ("photos alone are stronger"
+already covers the gap).
 
 ### 2. Pull each account's recent reels
 For each handle, one `business_discovery` call (the tested read surface):
@@ -238,13 +253,26 @@ are skipped (already out of the canon). Log `ad-reject-retro:
 <shortcode>`. An AD-REJECTED entry keeps its clip file but is dead to
 architects.
 
+### 6c. Trending-audio shortlist — the customer jobs' audio source
+Customer reel jobs (JOBS.md) have NO network access, so their audio pick
+comes from a shortlist you refresh here. WebSearch current IG trending
+audio and rewrite `audio.md` (full overwrite, derived data like taste.md):
+≤10 tracks, each one line —
+`"<title>" — <artist> | lane-fit: <tech/general/family/any> | why: <one line> | start: <where>`
+Rules inherited from the dailies' audio law (ROUTINE-CORE step 4): every
+entry is a REAL, currently-trending track found in the search — never
+invented, never unsourced; a pick is a title AND an artist. Keep it
+account-agnostic: lane-fit describes the track's vibe, not an account.
+Time box like step 0: past 08:20 → `audio-skip: time`, keep the previous
+audio.md standing.
+
 ### 7. Close out
 Write `last-scan.txt`: first line `<today> — scanned N accounts + H
 hashtags, M new clips banked, K entries went stale, A ads skipped, X
 misses`. Log the same line. Commit the bank repo
 (`git -C ~/Claude\ Code/viral-bank add -A && git commit`) with that
-summary as the message — catalog.md, watchlist.md and taste.md are
-tracked; clips and logs are gitignored.
+summary as the message — catalog.md, watchlist.md, taste.md and audio.md
+are tracked; clips and logs are gitignored.
 
 ## Consumption law (for architects / daily routines — not the scan)
 
@@ -261,7 +289,9 @@ tracked; clips and logs are gitignored.
   never used, no exceptions — it's promotional material.
 - `taste.md` is architect-readable context (what each account's audience
   rewards, distilled from real insights) — read it alongside catalog.md
-  in the trends step.
+  in the trends step. Account routines read the whole file; CUSTOMER jobs
+  read ONLY the `## universal` section (and `audio.md` for their audio
+  pick) — account-audience knowledge never shapes a stranger's reel.
 - QA brief addition when a splice is present: verify the famous clip is
   setup-only, the hero material is the account's/user's own, and the clip
   came from `viral-bank/clips/` (not scraped ad hoc mid-run).
