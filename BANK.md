@@ -21,12 +21,19 @@ Paths: BANK=`~/Claude Code/viral-bank/` — `watchlist.md` (input),
 1. **Read-only API use. NEVER post, publish, comment, DM, follow, or like
    via any surface.** You touch Instagram only to read metadata and fetch
    video files.
-2. Token: read ONLY the `META_SYSTEM_USER_TOKEN` line from
-   `~/Claude Code/reel-app/.env` — the long-lived system user token, the
-   only credential business_discovery accepts (the accounts' IGAA tokens
-   return "nonexisting field", verified 2026-07-17). This read is the
-   single sanctioned exception to folder isolation. Never print a token,
-   never write to ANY account folder, never read anything else from one.
+2. Tokens: exactly THREE sanctioned reads, nothing else, and they are the
+   only exceptions to folder isolation:
+   - `META_SYSTEM_USER_TOKEN` line from `~/Claude Code/reel-app/.env` —
+     the long-lived system user token, the only credential
+     business_discovery and hashtag search accept (the accounts' IGAA
+     tokens return "nonexisting field", verified 2026-07-17).
+   - `IG_ACCESS_TOKEN` line from `~/Claude Code/imabgold-ig/.env` and from
+     `~/Claude Code/bambi-highchair-ig/.env` — the per-account IGAA
+     tokens, used ONLY for step 0's own-account insights reads on
+     `graph.instagram.com` (insights need the account's own token; the
+     system token can't read them).
+   Never print a token, never write to ANY account folder, never read
+   anything else from one.
 3. Never delete or overwrite a clip file or a catalog entry's history.
    Stale entries get `status: STALE`, not removal. Exception: a download
    that fails the step-4 `file` MP4 check is not a clip, it's an error
@@ -42,8 +49,46 @@ Paths: BANK=`~/Claude Code/viral-bank/` — `watchlist.md` (input),
    gracefully: write the catalog entries you've completed, write
    last-scan.txt noting the early stop, commit what you have (step 7's
    commit), and exit.
+7. **AD FILTER — no promotional content enters the bank.** A candidate is
+   an ad if its caption (or, once frame-sampled, its footage) is selling
+   something: product launches/availability ("available now", "drops",
+   "shop", "order"), discount/promo codes, "link in bio" product pushes,
+   #ad / #sponsored / #partner / paid-partnership markers, or an account
+   promoting its own product/service. Skip it BEFORE downloading, log
+   `ad-skip: <shortcode/permalink> <trigger>`. This guard applies to every
+   source (watchlist, hashtags, anything future). Rationale: the bank
+   exists to lend joke-setups, and an ad lends someone else's marketing.
+   Borderline meme-with-a-logo? Judge by intent: made to be funny → keep;
+   made to sell → skip. If still torn, skip — a missed clip costs nothing.
+8. Hashtag budget: the app allows 30 UNIQUE hashtags per rolling 7 days
+   (app-wide, shared with anything else using the system token's app).
+   Query at most 12 unique hashtags per scan; two scans/week keeps
+   headroom. Log every hashtag queried (`hashtag-query: #tag`) so the
+   next scan can count the window's usage from the last 7 days of logs.
 
 ## The scan
+
+### 0. Taste refresh — ground taste.md in what the audiences reward
+Using each account's own IGAA token on `graph.instagram.com`
+(host/token gotcha is real — see guard 2): pull `/me/media` (last ~25
+REELS) then per-reel `/insights?metric=views,reach,saved,shares,likes,`
+`comments,total_interactions,ig_reels_avg_watch_time,reels_skip_rate`.
+Rewrite `taste.md` (full overwrite, it's derived data — this file is the
+exception to "never overwrite"; history lives in git):
+- per account: top 3 and bottom 3 reels by avg-watch-time and by
+  saves+shares, each with permalink, the numbers, and a one-line
+  hypothesis of WHY (read the caption; frame-sample only if the numbers
+  make no sense from the caption alone);
+- a distilled "what works / what dies" section per account (3-5 bullets
+  each) — concrete craft observations (hook style, pacing, subject),
+  not platitudes;
+- a `steering:` line listing hashtags currently in
+  `/recently_searched_hashtags` (see step 2b) — Marcus searching a
+  hashtag in the IG app is a deliberate nudge and taste.md should show
+  it was heard.
+An account whose insights call fails is logged (`taste-miss: <account>
+<reason>`) and skipped — never fatal. taste.md is architect-readable:
+keep it under ~80 lines.
 
 ### 1. Read the watchlist
 Parse `watchlist.md`: every non-comment line starting with `@` is a handle,
@@ -68,6 +113,26 @@ and the API returns error 2500.)
 Keep only `media_product_type=REELS` (or VIDEO). Log per-account:
 `scanned: @handle, N reels`.
 
+### 2b. Hashtag trend sweep — trends beyond the watchlist
+Build the hashtag pool, ≤12 unique per scan (guard 8), in priority order:
+1. `graph.facebook.com/v21.0/17841480076308621/recently_searched_hashtags`
+   `?fields=id,name` with the system token — hashtags Marcus searched in
+   the IG app in the last 7 days. These are STEERING: always include
+   them first. Empty list is normal.
+2. Fill remaining slots from lane defaults: tech/AI lane (e.g. #ai,
+   #claudeai, #buildinpublic, #techtok), family lane (e.g. #parentsofinstagram,
+   #dadlife, #toddlermom), general meme lane (e.g. #memes, #reelsviral).
+   Skip any queried within the last 7 days per the logs (guard 8).
+For each: `ig_hashtag_search?user_id=17841480076308621&q=<tag>` → id,
+then `<id>/top_media?user_id=17841480076308621&fields=id,media_type,`
+`media_product_type,media_url,permalink,caption,like_count,comments_count,`
+`timestamp&limit=25`. Both calls: system token, `graph.facebook.com`,
+curl `-g`. Do NOT request `username` — hashtag media has no username
+field (privacy-stripped, verified 2026-07-17) and asking breaks the call.
+Keep REELS/VIDEO posted within the last 10 days, run the guard-7 ad
+filter (generic hashtags are ad-heavy — expect to skip a lot), and log
+`hashtag-scanned: #tag, N kept`.
+
 ### 3. Rank for spikes
 Per account: engagement = like_count + comments_count; compute the account's
 median engagement across its fetched reels. A **candidate** is a reel posted
@@ -81,6 +146,18 @@ Degenerate baselines: if an account has fewer than 5 kept reels or a median
 engagement of 0, log `rank-skip: @handle (thin/zero baseline)` and produce
 NO candidates from it — a ratio against a thin or zero median is not a
 spike signal, and `inf`/`NaN` must never reach the catalog.
+
+Hashtag candidates (step 2b) have no account baseline — top_media is
+already Instagram's own "this is spiking" signal. They enter the candidate
+pool directly, ranked among themselves by like_count.
+
+**Taste gate before spending downloads:** read `taste.md`, then pick the
+≤6 downloads across BOTH pools (watchlist + hashtag; aim for a mix when
+both have candidates, never a quota). Prefer candidates whose joke
+mechanism fits what taste.md says works for the accounts; drop a
+higher-ranked candidate for a lower one when the fit is clearly better,
+and say so in the log (`taste-pick: <shortcode> over <shortcode>:
+<one-line reason>`). Numbers propose, taste disposes.
 
 ### 4. Download
 Each candidate's `media_url` from the step-2 response is a signed CDN link
@@ -104,8 +181,8 @@ below the header comment):
 
 ```
 ## <shortcode> — <one line: what literally happens in the clip>
-- source: @handle | <permalink>
-- lane: <the watchlist lane tag of the source account>
+- source: @handle | <permalink>          <- hashtag finds: `#hashtag | <permalink>` (no username on hashtag media)
+- lane: <the watchlist lane tag of the source account>   <- hashtag finds: the lane the hashtag was queried under
 - first-seen: <today> | status: FRESH
 - stats-at-capture: <likes> likes / <comments> comments (<ratio>x account median)
 - joke-structure: <the mechanism, e.g. "hype setup, anticlimax payoff">
@@ -121,11 +198,19 @@ are working files; clips and catalog are the durable assets).
 Any entry with `first-seen` older than 21 days and `status: FRESH` → edit
 its status to `STALE`. Touch nothing else about it.
 
+Retro ad sweep (same pass): any existing entry that fails the guard-7 ad
+filter — judge from its own catalog text and caption; re-frame-sample only
+if genuinely ambiguous — gets `status: AD-REJECTED` (never deletion; guard
+3 protects history, and the status line IS the record of why it left the
+canon). Log `ad-reject-retro: <shortcode>`. An AD-REJECTED entry keeps its
+clip file but is dead to architects.
+
 ### 7. Close out
-Write `last-scan.txt`: first line `<today> — scanned N accounts, M new
-clips banked, K entries went stale, X misses`. Log the same line. Commit
-the bank repo (`git -C ~/Claude\ Code/viral-bank add -A && git commit`)
-with that summary as the message — catalog.md and watchlist.md are
+Write `last-scan.txt`: first line `<today> — scanned N accounts + H
+hashtags, M new clips banked, K entries went stale, A ads skipped, X
+misses`. Log the same line. Commit the bank repo
+(`git -C ~/Claude\ Code/viral-bank add -A && git commit`) with that
+summary as the message — catalog.md, watchlist.md and taste.md are
 tracked; clips and logs are gitignored.
 
 ## Consumption law (for architects / daily routines — not the scan)
@@ -139,7 +224,11 @@ tracked; clips and logs are gitignored.
   staged notes which clip you used (shortcode) so QA can verify provenance
   of every frame.
 - FRESH entries are preferred; using a STALE entry requires one written
-  line of justification in the staged notes.
+  line of justification in the staged notes. An `AD-REJECTED` entry is
+  never used, no exceptions — it's promotional material.
+- `taste.md` is architect-readable context (what each account's audience
+  rewards, distilled from real insights) — read it alongside catalog.md
+  in the trends step.
 - QA brief addition when a splice is present: verify the famous clip is
   setup-only, the hero material is the account's/user's own, and the clip
   came from `viral-bank/clips/` (not scraped ad hoc mid-run).
