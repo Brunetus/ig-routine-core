@@ -45,8 +45,12 @@ outcome, never a failure.
 
 ## The build
 
-1. **Look at everything.** Frame-sample each input (images directly;
-   videos at 1fps) and actually read the frames. Note what story the set
+1. **Look at everything.** FIRST: convert any `.heic`/`.heif` inputs to
+   JPEG with macOS `sips -s format jpeg <in> --out <in>.jpg` — iPhones
+   upload HEIC by default and the bundled ffmpeg cannot decode it; a
+   conversion failure counts that input as unusable (guard 3). Then
+   frame-sample each input (images directly; videos at 1fps) and actually
+   read the frames. Note what story the set
    tells: a trip, a build, a kid, a business, a vibe.
 2. **Architect the cut.** Pick an order that has a beginning and a payoff
    (best moment LAST). 3–10 beats, 0.8–2.5s each. At least 2 hard cuts —

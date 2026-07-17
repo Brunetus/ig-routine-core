@@ -47,7 +47,7 @@ fi
 # ---- Never contend with the daily routines (08:30-10:30 is theirs), and
 # never run alongside a daily/scan/second worker instance ----
 HM=$(date +%H%M)
-if [ "$HM" -gt 0830 ] && [ "$HM" -lt 1030 ]; then
+if [ "$HM" -ge 0830 ] && [ "$HM" -le 1030 ]; then
   exit 0  # silent: this fires every 10 min, logging it would be noise
 fi
 if pgrep -f "run-daily-core.sh|run-viral-scan.sh" > /dev/null; then
@@ -56,15 +56,17 @@ if pgrep -f "run-daily-core.sh|run-viral-scan.sh" > /dev/null; then
 fi
 LOCK="$JOBS_DIR/.worker-lock"
 if ! mkdir "$LOCK" 2>/dev/null; then
-  # stale-lock: a crashed run leaves the dir; reclaim after 2h
-  if [ -n "$(find "$LOCK" -maxdepth 0 -mmin +120 2>/dev/null)" ]; then
-    rmdir "$LOCK" 2>/dev/null; mkdir "$LOCK" 2>/dev/null || exit 0
-    echo "$(date): reclaimed stale lock" >> "$LOG"
-  else
-    exit 0  # another instance is live
+  # stale-lock: reclaim ONLY if the holding process is dead (PID check) —
+  # a time-only reclaim could run alongside a still-alive hung instance.
+  HOLDER=$(cat "$LOCK/pid" 2>/dev/null)
+  if [ -n "$HOLDER" ] && kill -0 "$HOLDER" 2>/dev/null; then
+    exit 0  # holder is alive
   fi
+  rm -rf "$LOCK" 2>/dev/null; mkdir "$LOCK" 2>/dev/null || exit 0
+  echo "$(date): reclaimed stale lock (holder ${HOLDER:-unknown} dead)" >> "$LOG"
 fi
-trap 'rmdir "$LOCK" 2>/dev/null' EXIT
+echo $$ > "$LOCK/pid"
+trap 'rm -rf "$LOCK" 2>/dev/null' EXIT
 
 DONE_COUNT=0
 while [ "$DONE_COUNT" -lt "$MAX_JOBS_PER_WAKE" ]; do
@@ -76,24 +78,39 @@ while [ "$DONE_COUNT" -lt "$MAX_JOBS_PER_WAKE" ]; do
 
   JOB="$JOBS_DIR/$ID"
   mkdir -p "$JOB/photos" "$JOB/out"
-  api "$API/job/$ID" > "$JOB/job.json"
-  EMAIL=$(/usr/bin/python3 -c "import json;print(json.load(open('$JOB/job.json'))['email'])" 2>/dev/null)
-  PHONE=$(/usr/bin/python3 -c "import json;print(json.load(open('$JOB/job.json'))['phone'])" 2>/dev/null)
-
-  # download originals (names only, listed in job.json)
-  /usr/bin/python3 -c "import json;[print(k.split('/')[-1]) for k in json.load(open('$JOB/job.json'))['photos']]" | while read -r F; do
+  # Contact info stays OUT of the job folder (the session's cwd) — the session
+  # must never see it. Full record goes only to shell vars; the folder gets a
+  # scrubbed copy.
+  RAW="$JOBS_DIR/.job-$ID.json"
+  api "$API/job/$ID" > "$RAW"
+  EMAIL=$(/usr/bin/python3 -c "import json;print(json.load(open('$RAW'))['email'])" 2>/dev/null)
+  PHONE=$(/usr/bin/python3 -c "import json;print(json.load(open('$RAW'))['phone'])" 2>/dev/null)
+  /usr/bin/python3 -c "
+import json
+j = json.load(open('$RAW'))
+for k in ('email','phone','env'): j.pop(k, None)
+json.dump(j, open('$JOB/job.json','w'), indent=2)
+[print(k.split('/')[-1]) for k in j['photos']]
+" | while read -r F; do
     api -o "$JOB/photos/$F" "$API/photo/$ID/$F"
   done
+  rm -f "$RAW"
   N=$(ls "$JOB/photos" | wc -l | tr -d ' ')
   echo "downloaded $N inputs" >> "$LOG"
 
-  # ---- the session: local files only, per JOBS.md ----
+  # ---- the session: local files only, per JOBS.md. Hard 25-min watchdog —
+  # a hung session must not hold the lock and burn opus forever. ----
   ( cd "$JOB" && claude -p "You are running one customer reel job. Read the file '$CORE_DIR/JOBS.md' and execute it exactly, start to finish. Your working directory is this job folder. Today's date: $(date +%F)." \
       --permission-mode acceptEdits \
       --allowedTools "Bash,Read,Write,Edit,Glob,Grep,Task,Agent" \
-      --model opus >> "$LOG" 2>&1 )
+      --model opus >> "$LOG" 2>&1 ) &
+  SPID=$!
+  ( /bin/sleep 1500; kill -TERM $SPID 2>/dev/null && echo "$(date): session watchdog fired (25min)" >> "$LOG" ) &
+  WPID=$!
+  wait $SPID
+  kill $WPID 2>/dev/null; wait $WPID 2>/dev/null
 
-  if [ -f "$JOB/out/DONE" ] && [ -f "$JOB/out/reel-watermarked.mp4" ]; then
+  if [ -f "$JOB/out/DONE" ] && [ -f "$JOB/out/reel-watermarked.mp4" ] && [ -f "$JOB/out/reel-clean.mp4" ]; then
     RES=$(api -X POST -F "reel=@$JOB/out/reel-watermarked.mp4;type=video/mp4" \
                      -F "clean=@$JOB/out/reel-clean.mp4;type=video/mp4" \
                      "$API/complete/$ID")
