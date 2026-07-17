@@ -62,6 +62,9 @@ if ! mkdir "$LOCK" 2>/dev/null; then
   if [ -n "$HOLDER" ] && kill -0 "$HOLDER" 2>/dev/null; then
     exit 0  # holder is alive
   fi
+  if [ -z "$HOLDER" ] && [ -z "$(find "$LOCK" -maxdepth 0 -mmin +5 2>/dev/null)" ]; then
+    exit 0  # empty pid on a FRESH lock = another instance mid-acquire, not stale
+  fi
   rm -rf "$LOCK" 2>/dev/null; mkdir "$LOCK" 2>/dev/null || exit 0
   echo "$(date): reclaimed stale lock (holder ${HOLDER:-unknown} dead)" >> "$LOG"
 fi
@@ -105,7 +108,11 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
       --allowedTools "Bash,Read,Write,Edit,Glob,Grep,Task,Agent" \
       --model opus >> "$LOG" 2>&1 ) &
   SPID=$!
-  ( /bin/sleep 1500; kill -TERM $SPID 2>/dev/null && echo "$(date): session watchdog fired (25min)" >> "$LOG" ) &
+  # Watchdog must kill the claude process itself (child of the wrapper
+  # subshell), not just the wrapper — else the runaway keeps burning opus.
+  ( /bin/sleep 1500; pkill -TERM -P $SPID 2>/dev/null; kill -TERM $SPID 2>/dev/null \
+      && echo "$(date): session watchdog fired (25min)" >> "$LOG"; \
+    /bin/sleep 10; pkill -KILL -P $SPID 2>/dev/null ) &
   WPID=$!
   wait $SPID
   kill $WPID 2>/dev/null; wait $WPID 2>/dev/null
