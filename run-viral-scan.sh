@@ -20,7 +20,7 @@ cd "$BANK" || {
 mkdir -p logs clips
 LOG="logs/$(date +%F).log"
 
-# ---- TEST MODE: exercise launchd -> token -> Graph API -> yt-dlp -> ffmpeg
+# ---- TEST MODE: exercise launchd -> token -> Graph API -> ffmpeg
 # -> notification without a real scan, then self-disarm ----
 if [ -f TEST-MODE ]; then
   echo "===== TEST MODE run $(date) =====" >> "$LOG"
@@ -57,6 +57,14 @@ for i in {1..8}; do
   [ $i -eq 1 ] && echo "$(date): Anthropic API unreachable, waiting…" >> "$LOG"
   sleep 300
 done
+
+# ---- Hard wall clock: never bleed into the 9:00 daily window. A scan that
+# would start after 8:45 (API-outage wait, wake re-fire) skips entirely —
+# a missed scan is "no new clips today", a contended daily is a bad post. ----
+if [ "$(date +%H%M)" -gt 0845 ] && [ "$(date +%H)" -lt 12 ]; then
+  echo "$(date): past 08:45, skipping to protect the daily window" >> "$LOG"
+  exit 0
+fi
 
 echo "===== viral scan start $(date) =====" >> "$LOG"
 

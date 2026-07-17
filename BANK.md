@@ -28,7 +28,9 @@ Paths: BANK=`~/Claude Code/viral-bank/` — `watchlist.md` (input),
    single sanctioned exception to folder isolation. Never print a token,
    never write to ANY account folder, never read anything else from one.
 3. Never delete or overwrite a clip file or a catalog entry's history.
-   Stale entries get `status: STALE`, not removal.
+   Stale entries get `status: STALE`, not removal. Exception: a download
+   that fails the step-4 `file` MP4 check is not a clip, it's an error
+   body — delete it; this guard protects verified clips only.
 4. API modesty: ≤25 recent media queried per watchlist account, ≤6 new
    clip downloads per scan. No paid APIs, no scraping, no cookies — the
    Graph API is the ONLY Instagram surface you touch.
@@ -38,7 +40,8 @@ Paths: BANK=`~/Claude Code/viral-bank/` — `watchlist.md` (input),
 6. Stay lean: the whole scan should finish well before 9:00 AM when the
    daily routines start. If you are somehow still running past 8:50, stop
    gracefully: write the catalog entries you've completed, write
-   last-scan.txt noting the early stop, and exit.
+   last-scan.txt noting the early stop, commit what you have (step 7's
+   commit), and exit.
 
 ## The scan
 
@@ -72,6 +75,11 @@ ones). Rank all candidates across all accounts by their ratio
 (engagement ÷ account median). Take the top candidates that are NOT already
 in `catalog.md` (match by permalink/shortcode), up to the 6-download cap.
 
+Degenerate baselines: if an account has fewer than 5 kept reels or a median
+engagement of 0, log `rank-skip: @handle (thin/zero baseline)` and produce
+NO candidates from it — a ratio against a thin or zero median is not a
+spike signal, and `inf`/`NaN` must never reach the catalog.
+
 ### 4. Download
 Each candidate's `media_url` from the step-2 response is a signed CDN link
 to the actual mp4 (verified 2026-07-17 — no yt-dlp, no cookies, no
@@ -79,9 +87,10 @@ scraping). The links are short-lived: download in the SAME run as the
 query, never store a media_url for later.
 `curl -s --max-time 120 -o "clips/<shortcode>.mp4" "<media_url>"`
 then confirm with `file` that it's really an MP4 (an expired link returns
-an error body, not video). A reel whose media_url is absent or fails is
-logged (`download-miss: <shortcode> <reason>`) and skipped — never retried
-more than once, never fetched by any other means, never fatal.
+an error body, not video) — if the check fails, DELETE the junk file (the
+guard-3 exception). A reel whose media_url is absent or fails is logged
+(`download-miss: <shortcode> <reason>`) and skipped — never retried more
+than once, never fetched by any other means, never fatal.
 
 ### 5. Catalogue — the architect-facing entry
 You must actually look at each clip before writing its entry: frame-sample

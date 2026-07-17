@@ -74,13 +74,18 @@ dump_manifest() {
 # name — filename + duration + date + place is enough to pick candidates, and
 # AppleScript export (authorized) + ffmpeg frame-sampling does the rest.
 # TSV only, no previews: 4k+ derivative copies would cost more than it's worth.
+# ZSAVEDASSETTYPE<>12 is load-bearing: type-12 assets (59 videos here) are in
+# Photos.sqlite but CANNOT be addressed by AppleScript at all -- `media item id`
+# throws "Can't get media item id". They're unexportable, so they're uncuttable,
+# so listing them only sends the session chasing candidates it can never use.
+# Exportable rows are type 6/3/4 (verified 2026-07-16).
 # NEVER commit this file (real localities + the whole family catalogue): it is
 # gitignored in every account repo. Keep it that way.
 dump_archive() {
   local LIB="$HOME/Pictures/Photos Library.photoslibrary"
   sqlite3 -readonly -separator $'\t' \
     "file:$LIB/database/Photos.sqlite?immutable=1" \
-    "SELECT a.ZUUID, aa.ZORIGINALFILENAME, ROUND(a.ZDURATION,1), datetime(a.ZDATECREATED+978307200,'unixepoch','localtime'), COALESCE(m.ZTITLE,'') FROM ZASSET a LEFT JOIN ZADDITIONALASSETATTRIBUTES aa ON aa.ZASSET=a.Z_PK LEFT JOIN ZMOMENT m ON a.ZMOMENT=m.Z_PK WHERE a.ZKIND=1 AND a.ZTRASHEDSTATE=0 ORDER BY a.ZDATECREATED DESC;" \
+    "SELECT a.ZUUID, aa.ZORIGINALFILENAME, ROUND(a.ZDURATION,1), datetime(a.ZDATECREATED+978307200,'unixepoch','localtime'), COALESCE(m.ZTITLE,'') FROM ZASSET a LEFT JOIN ZADDITIONALASSETATTRIBUTES aa ON aa.ZASSET=a.Z_PK LEFT JOIN ZMOMENT m ON a.ZMOMENT=m.Z_PK WHERE a.ZKIND=1 AND a.ZTRASHEDSTATE=0 AND a.ZSAVEDASSETTYPE <> 12 ORDER BY a.ZDATECREATED DESC;" \
     > routine/photos-archive.tsv 2>> "$LOG"
   echo "archive: $(wc -l < routine/photos-archive.tsv | tr -d ' ') videos catalogued (fallback lane)" >> "$LOG"
   # Photos' OWN scene labels ("High Chair", "Restaurant", "Baby", "Meal"...) so

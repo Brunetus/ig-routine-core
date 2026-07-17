@@ -25,6 +25,12 @@ they conflict, the ACCOUNT file wins.
    independent Opus reviewer returned SHIP on a video the run hadn't cut at
    all, because the brief only asked "is this a good reel?" — it was. Never
    let a PASS on craft launder a failure of provenance.
+   A reel MAY legitimately contain a banked viral clip as setup (section 4
+   clip bank): when a splice is DECLARED in the staged notes, QA applies the
+   splice addendum (clip really from `viral-bank/clips/`, setup only, the
+   account's own material has the majority of screen time AND the payoff) —
+   and still FAILs if those don't hold. An UNDECLARED foreign clip remains a
+   provenance failure; a splice claim never launders a pre-made reel.
 3. Do not delete anything from the Photos library. Never repost old content.
 4. Never touch another account's folder. Structural fixes belong in
    `~/Claude Code/ig-routine-core/` — note them in the log for Marcus; do not
