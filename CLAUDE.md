@@ -50,5 +50,9 @@ EVERY account's next run — no per-account copying.
 - com.marcus.bambi-daily → 9:30 AM → bambi-highchair-ig/routine/run-daily.sh
   (bambi additionally waits for imabgold via WAIT_FOR; imabgold never waits —
   this asymmetry is deliberate, it prevents deadlock on simultaneous wake)
+- com.marcus.reel-worker → every 10 min → ig-routine-core/run-reel-worker.sh
+  (reels.ibuildapp.ca customer jobs per JOBS.md; yields 08:30-10:30 and to
+  any running daily/scan; data in reel-app/jobs/. Test:
+  `touch ~/Claude\ Code/reel-app/jobs/TEST-MODE && launchctl kickstart gui/501/com.marcus.reel-worker`)
 - (com.bambi.outreach-discovery + outreach-send are PAUSED as of 2026-07-17,
   renamed .plist.disabled — the Mon 8:00 slot now belongs to viral-scan)
