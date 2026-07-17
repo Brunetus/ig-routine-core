@@ -61,8 +61,8 @@ done
 # ---- Hard wall clock: never bleed into the 9:00 daily window. A scan that
 # would start after 8:45 (API-outage wait, wake re-fire) skips entirely —
 # a missed scan is "no new clips today", a contended daily is a bad post. ----
-if [ "$(date +%H%M)" -gt 0845 ] && [ "$(date +%H)" -lt 12 ]; then
-  echo "$(date): past 08:45, skipping to protect the daily window" >> "$LOG"
+if [ "$(date +%H%M)" -gt 0830 ] && [ "$(date +%H)" -lt 12 ]; then
+  echo "$(date): past 08:30, skipping to protect the daily window" >> "$LOG"
   exit 0
 fi
 
