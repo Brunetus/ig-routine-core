@@ -137,6 +137,8 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
       echo "" >> "$LOG"
     fi
     osascript -e "display notification \"Reel ready — text $PHONE (see jobs/OUTBOX.md)\" with title \"$NOTIF_TITLE\" sound name \"Glass\"" 2>/dev/null
+    curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: Reel done" -H "Tags: white_check_mark" \
+      -d "Reel for $PHONE is ready and emailed. The text to send them is in jobs/OUTBOX.md." > /dev/null 2>&1
     DONE_COUNT=$((DONE_COUNT + 1))
   else
     REASON=$(head -c 300 "$JOB/out/FAILED" 2>/dev/null || echo "session produced no output")
@@ -144,6 +146,8 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
     echo "" >> "$LOG"
     echo "job FAILED: $REASON" >> "$LOG"
     osascript -e "display notification \"Customer job FAILED - check jobs/$ID\" with title \"$NOTIF_TITLE\" sound name \"Basso\"" 2>/dev/null
+    curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: Reel job FAILED" -H "Priority: high" -H "Tags: rotating_light" \
+      -d "Job ${ID:0:8} failed ($(echo "$REASON" | head -1 | head -c 60)). Review it and reach out to the customer." > /dev/null 2>&1
     break  # don't chew the queue on a systematic failure; next wake retries nothing (job left failed for Marcus)
   fi
   echo "===== job $ID end $(date) =====" >> "$LOG"
