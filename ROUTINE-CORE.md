@@ -166,6 +166,15 @@ splice provenance to verify.
 Never scrape a clip ad hoc mid-run — if it's not in the bank, it's not
 available today.
 
+**Narration-led exception (voice-first content).** If today's material is
+talking-to-camera / voice-first where the account's OWN spoken words carry
+the content (not montage-over-music), treat it as narration-led: transcribe
+with mlx_whisper, keep the voice in the render, order beats to the spoken
+arc, and produce WORD-SYNCED captions per `WORDCAPS.md` (this repo) — the
+tested one-word-at-a-time treatment. Default account reels stay montage +
+trending-audio + line captions; use this only for genuine voice-first
+footage (none generated yet for these accounts, but expected).
+
 **Name ONE track. A pick is a title and an artist.** "Pick an up-arrow-flagged
 warm acoustic track from the Trending tab" is NOT a pick — it is the job handed
 back to Marcus at the exact moment he is trying to post (his correction,

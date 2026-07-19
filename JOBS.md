@@ -113,7 +113,11 @@ failure.
    voice IS the spine. Order beats so the spoken lines build the arc,
    keep the voice in the render (Output spec), and make the overlay text
    caption the key spoken lines (viewers watch muted; the text must
-   carry the same argument). The trending-audio pick in delivery.json
+   carry the same argument) — and when the voice is clean, prefer
+   WORD-SYNCED captions (one word at a time, popping in on the beat of
+   speech) per `WORDCAPS.md`, the tested higher-retention treatment, as
+   the main render or a variant; static line overlays are the fallback
+   for messy audio. The trending-audio pick in delivery.json
    still happens — suggest it as a quiet bed under the voice or an
    alternative, and say which in `audio.why`.
 2. **Taste input.** Read the `## universal` section of
