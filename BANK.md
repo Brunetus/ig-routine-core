@@ -28,10 +28,13 @@ Paths: BANK=`~/Claude Code/viral-bank/` — `watchlist.md` (input),
      business_discovery and hashtag search accept (the accounts' IGAA
      tokens return "nonexisting field", verified 2026-07-17).
    - `IG_ACCESS_TOKEN` line from `~/Claude Code/imabgold-ig/.env` and from
-     `~/Claude Code/bambi-highchair-ig/.env` — the per-account IGAA
-     tokens, used ONLY for step 0's own-account insights reads on
-     `graph.instagram.com` (insights need the account's own token; the
-     system token can't read them).
+     `~/Claude Code/bambi-highchair-ig/.env` — the per-account tokens,
+     used ONLY for step 0's own-account insights reads. UPDATE 2026-07-18:
+     imabgold's is now the system user token itself (the imabgold IG asset
+     was granted to the system user, so it CAN read imabgold insights —
+     verified; use `graph.facebook.com` + `$IG_USER_ID`, never `/me`).
+     bambi's remains an IGAA token on `graph.instagram.com` (insights
+     there still need the account's own token).
    Never print a token, never write to ANY account folder, never read
    anything else from one.
 3. Never delete or overwrite a clip file or a catalog entry's history.
@@ -231,9 +234,25 @@ below the header comment):
 - stats-at-capture: <likes> likes / <comments> comments (<ratio>x account median)   <- hashtag finds: `(top_media, no account baseline)` instead of a ratio
 - joke-structure: <the mechanism, e.g. "hype setup, anticlimax payoff">
 - the-beat: <where the laugh lands + where to cut, e.g. "setup 0:00-0:03, cut on the turn at 0:03">
+- audio-model: <diegetic (bakeable) | trending sound (add in-app) | flexible>
 - pairs-with: <kinds of user moments this sets up, 1-2 concrete examples>
 - file: clips/<shortcode>.mp4 (<duration>s)
 ```
+
+`audio-model` (best-effort call from the footage/format): **diegetic
+(bakeable)** = the clip carries its own sound that IS the beat (a voice, a
+crowd, a sting, natural action) — fine to keep in the spliced MP4.
+**trending sound (add in-app)** = the clip rides a licensed IG-library
+track (lip-syncs, dances, trend edits) — NEVER bake that audio into the
+delivered MP4: a business/creator account gets the upload muted or
+reach-throttled for non-original copyrighted audio, AND selecting the
+library sound is what earns the trending-audio distribution push. That
+track must be picked by the human natively in the Instagram app / editor
+when posting (the dailies deliver the MP4 to the phone for exactly this).
+**flexible** = works either way. Rule of thumb the architect follows: one
+audio bed per reel — either a trending library sound added in-app (duck or
+mute any spliced clip's own audio under it) OR the splice's diegetic audio
+is the point and no track is added. Rarely both.
 
 Delete the `frames/<shortcode>/` directory after writing the entry (frames
 are working files; clips and catalog are the durable assets).
