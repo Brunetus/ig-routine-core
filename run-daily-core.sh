@@ -152,13 +152,19 @@ done
 echo "===== $ACCOUNT daily routine start $(date) =====" >> "$LOG"
 dump_manifest
 
-# ---- Run the session; retry once on an API drop, resuming from state ----
+# ---- Run the session; retry once on an API drop OR an incomplete run,
+# resuming from state. Exit code 0 is NOT proof of completion: on 2026-07-18
+# a session backgrounded a slow Photos export, ended its turn, and exited 0
+# with no reel — so completion is verified by the last-run.txt stamp, which
+# ROUTINE-CORE.md step 6 requires on EVERY deliberate end (staging, no-reel
+# day, early stops). No today-stamp = the run died partway. ----
+run_complete() { grep -q "$(date +%F)" routine/last-run.txt 2>/dev/null; }
 [ -z "$RESUME_NOTE" ] && RESUME_NOTE="the ledgers, logs, and output files each step writes"
 STATUS=1
 for ATTEMPT in 1 2; do
   EXTRA=""
   if [ "$ATTEMPT" -gt 1 ]; then
-    EXTRA=" NOTE: an earlier attempt today failed partway (API drop). Read today's log in routine/logs/ and check completed state before each step so you never duplicate work: $RESUME_NOTE. Continue from the first incomplete step."
+    EXTRA=" NOTE: an earlier attempt today ended partway (API drop, or the session ended its turn with work still pending — background tasks die when the turn ends). Read today's log in routine/logs/ and check completed state before each step so you never duplicate work: $RESUME_NOTE. Continue from the first incomplete step, and this time keep every long task in the foreground until it finishes."
     echo "===== retry attempt $ATTEMPT $(date) =====" >> "$LOG"
     sleep 60
   fi
@@ -170,6 +176,10 @@ for ATTEMPT in 1 2; do
   fi
   claude "${CLAUDE_ARGS[@]}" >> "$LOG" 2>&1
   STATUS=$?
+  if [ $STATUS -eq 0 ] && ! run_complete; then
+    echo "$(date): exit 0 but last-run.txt not stamped today — run died partway, treating as failed" >> "$LOG"
+    STATUS=1
+  fi
   [ $STATUS -eq 0 ] && break
 done
 
