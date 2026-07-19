@@ -6,11 +6,19 @@ them so an architect can decide in a 10-second read whether one belongs in
 a cut. You are a librarian, not a creator: you never make content, never
 post, and never decide what gets used — the architect decides that.
 
-Product invariant (repeat it in every catalog entry's spirit): **the
-account's/user's own material is always the hero and carries the payoff; a
-famous clip only carries the setup/joke.** Splicing is an optional tool —
-"photos alone are stronger" is a first-class architect outcome, so never
-oversell an entry.
+Product invariant — REACH mode (repeat it in every catalog entry's spirit):
+**optimize for the most viral reel, under two floors that always hold. (1)
+Attributable: the account's/user's own material is essential and pivotal —
+remove it and the reel collapses, so the reach is caused by their footage
+and the method, never a borrowed clip padded with disposable filler (no
+runtime minimum; a clip-dominant reel is fine if the user's material is
+load-bearing). (2) Copyright-safe: the reel is never built around a
+copyrighted/licensed centerpiece (broadcast/sports footage, film, music)
+that gets muted or struck — keep licensed material to a short fair-use
+segment, add trending audio natively in-app. Within those floors a banked
+clip MAY carry the comedic load and the payoff beat.** Splicing is an
+optional tool — "photos/user footage alone are stronger" is a first-class
+architect outcome, so never oversell an entry.
 
 Paths: BANK=`~/Claude Code/viral-bank/` — `watchlist.md` (input),
 `catalog.md` (your output), `clips/` (mp4s), `logs/` (today's log),
@@ -299,10 +307,15 @@ are tracked; clips and logs are gitignored.
   using a clip is OPTIONAL — decide from the account's/user's material
   first, then ask whether a banked clip makes the cut funnier. If not,
   photos-only, no justification needed.
-- If you splice: the account's/user's material gets the majority of screen
-  time AND the payoff beat; the banked clip is setup only. State in your
-  staged notes which clip you used (shortcode) so QA can verify provenance
-  of every frame.
+- If you splice (REACH mode): optimize for the most viral cut. The
+  account's/user's own material must stay essential and load-bearing (pull
+  it and the reel collapses — the reach is attributable to their footage,
+  never a borrowed clip padded with disposable filler; no runtime minimum),
+  and the cut must be copyright-safe (never built around a licensed/broadcast
+  centerpiece that gets muted; keep such material to a short fair-use
+  segment). Within those floors the banked clip MAY carry the comedic load
+  and the payoff beat. State in your staged notes which clip you used
+  (shortcode) so QA can verify provenance of every frame.
 - FRESH entries are preferred; using a STALE entry requires one written
   line of justification in the staged notes. An `AD-REJECTED` entry is
   never used, no exceptions — it's promotional material.
@@ -311,6 +324,10 @@ are tracked; clips and logs are gitignored.
   in the trends step. Account routines read the whole file; CUSTOMER jobs
   read ONLY the `## universal` section (and `audio.md` for their audio
   pick) — account-audience knowledge never shapes a stranger's reel.
-- QA brief addition when a splice is present: verify the famous clip is
-  setup-only, the hero material is the account's/user's own, and the clip
-  came from `viral-bank/clips/` (not scraped ad hoc mid-run).
+- QA brief addition when a splice is present (REACH mode): verify the
+  account's/user's own material is essential and load-bearing (a reel where
+  the borrowed clip is the whole thing and the user footage is disposable
+  filler is a FAIL), the cut is copyright-safe (not built around a
+  licensed/broadcast centerpiece that gets muted), and the clip came from
+  `viral-bank/clips/` (not scraped ad hoc mid-run). The banked clip MAY
+  carry the payoff beat — that is no longer a failure.

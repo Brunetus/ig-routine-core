@@ -25,11 +25,12 @@ they conflict, the ACCOUNT file wins.
    independent Opus reviewer returned SHIP on a video the run hadn't cut at
    all, because the brief only asked "is this a good reel?" — it was. Never
    let a PASS on craft launder a failure of provenance.
-   A reel MAY legitimately contain a banked viral clip as setup (section 4
+   A reel MAY legitimately contain a banked viral clip (section 4
    clip bank): when a splice is DECLARED in the staged notes, QA applies the
-   splice addendum (clip really from `viral-bank/clips/`, setup only, the
-   account's own material has the majority of screen time AND the payoff) —
-   and still FAILs if those don't hold. An UNDECLARED foreign clip remains a
+   splice addendum (clip really from `viral-bank/clips/`, the account's own
+   material is essential/load-bearing — not disposable filler — and the cut
+   is copyright-safe with no muted licensed/broadcast centerpiece; the clip
+   MAY carry the payoff) — and still FAILs if those don't hold. An UNDECLARED foreign clip remains a
    provenance failure; a splice claim never launders a pre-made reel.
 3. Do not delete anything from the Photos library. Never repost old content.
 4. Never touch another account's folder. Structural fixes belong in
@@ -40,13 +41,29 @@ they conflict, the ACCOUNT file wins.
    a generator or a hand-maintained table is defined in the ACCOUNT file's
    config; follow its stated method.
 6. Log every step's outcome to today's file in `routine/logs/`.
+7. **You are a one-shot headless process: when your final message ends, the
+   process exits and anything still running in the background dies with it.**
+   Never launch a long task (Photos export, iCloud original download, render,
+   upload) in the background and end the turn expecting to be notified when it
+   completes — no notification can ever arrive (2026-07-18: a bambi run
+   backgrounded a 4-clip Photos export that was waiting on iCloud downloads,
+   ended its turn with "the task will notify", and exited 0 with no reel, no
+   retry, no alert). Long waits run in the FOREGROUND: poll in a Bash loop
+   (`for i in {1..N}; do <check> && break; sleep 30; done`), splitting across
+   successive foreground calls if one would exceed a tool timeout. Your final
+   message comes only after every step is done, or after a declared stop
+   (guard 2 QA double-fail, step 3/3.5 stop, no-reel day) has been logged AND
+   `routine/last-run.txt` stamped per step 6.
 
 ## Resume discipline (retried runs)
 
 If your prompt says an earlier attempt failed partway: before EACH step,
 check its completed state (today's log + the files that step writes) and skip
 what's already done. Never duplicate a followers.log row, a Photos export, a
-paid render, or a staged import.
+paid render, or a staged import. Paid generation gets a mechanical gate, not
+a vibe check: before ANY paid render on a retried run, list the drafts/frames
+folders and the render ledger for today's slug — frames already on disk are
+paid for and get reused, and re-rendering them is spending the budget twice.
 
 ## Daily sequence (mechanics; the account file fills in the content)
 
@@ -107,8 +124,8 @@ exhaustion at rung 1 is a false report.
 
 ### 3. Un-posted draft check
 If the most recent staged draft (Photos favorite "…, post this one") was
-never posted, do NOT stack a second draft. Send the reminder notification and
-stop after step 2.
+never posted, do NOT stack a second draft. Send the reminder notification,
+stamp `routine/last-run.txt` (step 6 rule), and stop after step 2.
 
 **"Posted" is a CONCEPT match, not a file match.** Marcus posts through the
 IG app (often finalizing in the Edits app), which re-encodes and re-exports
@@ -128,8 +145,8 @@ If `routine/skip-creation.txt` exists, Marcus has already handled the next
 post himself (e.g. scheduled a staged draft in-app) and today needs NO new
 draft. Run steps 1-3 as normal first — measurement never skips — then STOP:
 no trends, no creation, no staging. Delete the flag file (it applies to
-exactly one run), and say what was skipped and why (quote the file's note) in
-the log and the notification.
+exactly one run), say what was skipped and why (quote the file's note) in
+the log and the notification, and stamp `routine/last-run.txt` (step 6 rule).
 
 ### 4. Trends + trending audio
 WebSearch current IG reel trends + this week's trending audio for the
@@ -139,11 +156,13 @@ account's niche. Note 1-2 usable trend formats.
 `~/Claude Code/viral-bank/catalog.md` if it exists (missing/empty bank →
 skip silently, it is never a failure). Banked clips are OPTIONAL splice
 candidates under the consumption law in `BANK.md` (this repo) — the short
-version: decide from the account's own material FIRST; splice only if a
-clip makes the cut better; the account's material always gets the majority
-of screen time AND the payoff beat, the famous clip is setup only; prefer
-FRESH entries (STALE needs one written line of justification); name the
-shortcode in the staged notes and hand QA the splice provenance to verify.
+version (REACH mode): decide from the account's own material FIRST; splice
+only if a clip makes the reel more viral; the account's material must stay
+essential/load-bearing (never disposable filler) and the cut copyright-safe
+(no muted licensed/broadcast centerpiece), but the clip MAY carry the
+payoff beat; prefer FRESH entries (STALE needs one written line of
+justification); name the shortcode in the staged notes and hand QA the
+splice provenance to verify.
 Never scrape a clip ad hoc mid-run — if it's not in the bank, it's not
 available today.
 
@@ -186,7 +205,7 @@ Exhausted means you climbed all three rungs of the step-1 ladder (fresh
 manifest -> archive -> generation) and came up empty — not that the fresh
 window was thin. If it IS truly empty, the correct output is a clean no-reel day: log it,
 notification says exhausted + names the ONE recording that unblocks tomorrow,
-stop. Do NOT go looking for something reel-shaped to stage instead. A missed
+stamp `routine/last-run.txt` (step 6 rule), stop. Do NOT go looking for something reel-shaped to stage instead. A missed
 day is a known cost Marcus accepts (see guard 2); a recycled reel is worse
 than nothing because it burns a ledger row, spends an audio pick, and lies to
 the leaderboard — the next run then "learns" from a post that never happened.
@@ -241,5 +260,20 @@ overrule.
 - Write `routine/last-run.txt` — LOCAL-time ISO timestamp
   (`date +%Y-%m-%dT%H:%M:%S`, NEVER `date -u`; the launcher parses it as
   local time for the manifest window and the ran-today skip).
+  Format contract: OVERWRITE the file (`>`, never `>>`) with exactly ONE
+  bare timestamp line — no notes, no reason text; the launcher parses line 1
+  as a timestamp and anything else silently breaks the manifest window.
+  Ordering contract: this stamp is the LAST write of the entire run, after
+  every deliverable and ledger — it is the launcher's proof of completion,
+  so stamping early (then continuing to work) turns a later crash back into
+  the silent no-op this rule exists to catch.
+  **This stamp is mandatory on EVERY deliberate end of run**, not just full
+  staging: a declared no-reel day, the step-3 un-posted-draft stop, the 3.5
+  skip-creation stop, and a guard-2 QA double-fail all stamp it before the
+  final message. It means "today's run reached its intended end". The
+  launcher treats exit-without-today's-stamp as a crashed run — it retries
+  the session and, if still unstamped, fires the FAILED notification — so a
+  missing stamp on a legitimate stop causes a false alarm and a duplicate
+  attempt.
 - macOS notification (osascript `display notification`): one line = concept +
   audio pick, e.g. "Staged: <hook>. Audio: <track>. Photos → <album>."
