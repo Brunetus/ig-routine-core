@@ -10,17 +10,14 @@ footage yourself. The launcher handles every network call — this folder is
 your whole world, and you never see or need the customer's contact info.
 
 Product invariant — REACH mode: **optimize for the most viral reel, under
-two floors. (1) Attributable: the customer's own material is essential and
+one floor. Attributable: the customer's own material is essential and
 pivotal — remove it and the reel collapses, so the reach is caused by their
 footage and the method, not a borrowed clip padded with disposable filler
 (no runtime minimum; a clip-dominant reel is fine if their material is
-load-bearing). (2) Copyright-safe: never build the reel around a
-copyrighted/licensed centerpiece (broadcast/sports footage, film, music)
-that gets muted or struck — keep licensed material to a short fair-use
-segment, add trending audio natively in-app. Within those floors a banked
-clip MAY carry the comedic load and the payoff beat.** Splicing is optional:
-"their photos/footage alone are stronger" is a first-class outcome, never a
-failure.
+load-bearing). Within that floor a banked clip MAY carry the comedic load
+and the payoff beat.** Trending audio is still added natively in-app, never
+baked in. Splicing is optional: "their photos/footage alone are stronger"
+is a first-class outcome, never a failure.
 
 ## Hard guards (no judgment calls — bind architect, builder, AND QA)
 
@@ -36,9 +33,13 @@ failure.
    The only path anyone writes is this job folder. Never touch account
    folders or core.
 3. If a video is unusable (corrupt, unreadable), log and work with the
-   rest; fewer than 2 usable inputs → write `out/FAILED` with the reason
-   and stop. Never pad with stock, bank clips, or generated media — a reel
-   that isn't made of the customer's material must not exist.
+   rest; zero usable inputs → write `out/FAILED` with the reason and stop.
+   ONE usable input is a valid job (Marcus's call, 2026-07-20): pull the
+   3-10 beats and >=2 hard cuts from within that clip's distinct moments,
+   and the viral-bank splice rules apply as normal — a banked splice is a
+   legitimate way to give a single-clip job its extra beats. The floor
+   above still holds: the customer's material stays essential and the reel
+   must read as theirs. Never pad with stock or generated media.
 4. Content line (Marcus's call, 2026-07-18: we don't know our segment
    yet — adult-adjacent creators are customers, not rejects). FAIL with
    reason `content` ONLY for what is illegal or what Meta's Community
@@ -131,9 +132,8 @@ failure.
    ONLY if a FRESH entry genuinely makes THIS customer's reel more viral
    (the entry's `pairs-with` line is your test). If splicing: the clip may
    carry the comedic load and the payoff beat, but the customer's own
-   material must stay essential/load-bearing (never disposable filler), and
-   keep any licensed/broadcast borrowed footage to a short fair-use segment
-   (copyright-safe). STALE entries need a written justification line.
+   material must stay essential/load-bearing (never disposable filler).
+   STALE entries need a written justification line.
 4. **Architect the cut.** An order with a beginning and a payoff (best
    moment LAST). 3–10 beats cut FROM the clips (several beats may come
    from one clip — find its distinct moments), 0.8–2.5s each — except a
@@ -229,8 +229,7 @@ in clean; **the delivered files match the
 outline** — beat count, order, and splice usage; a deviation is a FAIL
 even if the reel is good (an outline that wasn't followed means the
 decision on record is a lie). If a splice is declared: the customer's
-material is essential and load-bearing (disposable filler = FAIL) and the
-cut is copyright-safe (no muted licensed/broadcast centerpiece); the clip
+material is essential and load-bearing (disposable filler = FAIL); the clip
 MAY carry the payoff. Also
 verify `out/delivery.json`: parses, caption non-empty and plausibly about
 THIS footage, audio has a real title AND artist, why_views gives craft

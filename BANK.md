@@ -7,21 +7,19 @@ a cut. You are a librarian, not a creator: you never make content, never
 post, and never decide what gets used — the architect decides that.
 
 Product invariant — REACH mode (repeat it in every catalog entry's spirit):
-**optimize for the most viral reel, under two floors that always hold. (1)
+**optimize for the most viral reel, under one floor that always holds.
 Attributable: the account's/user's own material is essential and pivotal —
 remove it and the reel collapses, so the reach is caused by their footage
 and the method, never a borrowed clip padded with disposable filler (no
 runtime minimum; a clip-dominant reel is fine if the user's material is
-load-bearing). (2) Copyright-safe: the reel is never built around a
-copyrighted/licensed centerpiece (broadcast/sports footage, film, music)
-that gets muted or struck — keep licensed material to a short fair-use
-segment, add trending audio natively in-app. Within those floors a banked
-clip MAY carry the comedic load and the payoff beat.** Splicing is an
-optional tool — "photos/user footage alone are stronger" is a first-class
-architect outcome, so never oversell an entry.
+load-bearing). Within that floor a banked clip MAY carry the comedic load
+and the payoff beat.** Splicing is an optional tool — "photos/user footage
+alone are stronger" is a first-class architect outcome, so never oversell
+an entry.
 
 Paths: BANK=`~/Claude Code/viral-bank/` — `watchlist.md` (input),
-`catalog.md` (your output), `clips/` (mp4s), `logs/` (today's log),
+`catalog.md` (your output), `playbook.md` (format layer — Marcus-seeded,
+you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
 `last-scan.txt` (summary line for the launcher's notification).
 
 ## Hard guards (no judgment calls)
@@ -29,26 +27,41 @@ Paths: BANK=`~/Claude Code/viral-bank/` — `watchlist.md` (input),
 1. **Read-only API use. NEVER post, publish, comment, DM, follow, or like
    via any surface.** You touch Instagram only to read metadata and fetch
    video files.
-2. Tokens: exactly THREE sanctioned reads, nothing else, and they are the
+2. Tokens: exactly TWO sanctioned reads, nothing else, and they are the
    only exceptions to folder isolation:
    - `META_SYSTEM_USER_TOKEN` line from `~/Claude Code/reel-app/.env` —
-     the long-lived system user token, the only credential
+     the long-lived system user token: the only credential
      business_discovery and hashtag search accept (the accounts' IGAA
-     tokens return "nonexisting field", verified 2026-07-17).
-   - `IG_ACCESS_TOKEN` line from `~/Claude Code/imabgold-ig/.env` and from
-     `~/Claude Code/bambi-highchair-ig/.env` — the per-account tokens,
-     used ONLY for step 0's own-account insights reads. UPDATE 2026-07-18:
-     imabgold's is now the system user token itself (the imabgold IG asset
-     was granted to the system user, so it CAN read imabgold insights —
-     verified; use `graph.facebook.com` + `$IG_USER_ID`, never `/me`).
-     bambi's remains an IGAA token on `graph.instagram.com` (insights
-     there still need the account's own token).
+     tokens return "nonexisting field", verified 2026-07-17), AND the
+     token for imabgold's step-0 insights reads — the imabgold IG asset is
+     granted to the system user, so use this token on `graph.facebook.com`
+     + the anchor node `17841480076308621` (imabgold's IG user id), never
+     `/me`. CORRECTION 2026-07-20: imabgold's own `IG_ACCESS_TOKEN` (a
+     distinct IGAA token — do not conflate it with the system token) is
+     NOT needed for anything in this scan; do not read imabgold's .env at
+     all.
+   - `IG_ACCESS_TOKEN` line from `~/Claude Code/bambi-highchair-ig/.env` —
+     bambi's IGAA token, used ONLY for step 0's bambi insights read on
+     `graph.instagram.com` via `/me/media` (insights there still need the
+     account's own token; the system token cannot read them).
    Never print a token, never write to ANY account folder, never read
    anything else from one.
-3. Never delete or overwrite a clip file or a catalog entry's history.
-   Stale entries get `status: STALE`, not removal. Exception: a download
-   that fails the step-4 `file` MP4 check is not a clip, it's an error
-   body — delete it; this guard protects verified clips only.
+3. **Never delete or overwrite a FRESH clip file or a live (FRESH) catalog
+   entry.** In-canon assets are write-protected: a spike that's still usable
+   must survive every scan untouched. TWO sanctioned removals, nothing else:
+   (a) an entry that is out of canon — `status: STALE`, `AD-REJECTED`, or
+   `DO-NOT-SPLICE` — MAY be pruned by a later scan: delete its
+   `clips/<shortcode>.mp4` file (the heavy asset that bloats the bank) but
+   COMPRESS the catalog block to a one-line TOMBSTONE and KEEP it. The
+   tombstone is not bookkeeping — it is the dedup key: step 3 / step 2b skip
+   any candidate whose shortcode is already in `catalog.md`, so the tombstone
+   is exactly what stops a future scan from re-downloading a clip already
+   judged (the whole reason `DO-NOT-SPLICE` exists — a clean-captioned but
+   unusable clip would otherwise re-qualify every scan). Delete the clip,
+   never the record. (b) a download that fails the step-4 `file` MP4 check is
+   not a clip, it's an error body — delete it. A FRESH entry is never the
+   target of either removal — demote it first (step 6), and only a LATER scan
+   may prune it, never the scan that demoted it.
 4. API modesty: ≤25 recent media queried per watchlist account, ≤6 new
    clip downloads per scan. No paid APIs, no scraping, no cookies — the
    Graph API is the ONLY Instagram surface you touch.
@@ -89,9 +102,12 @@ Paths: BANK=`~/Claude Code/viral-bank/` — `watchlist.md` (input),
 ## The scan
 
 ### 0. Taste refresh — ground taste.md in what the audiences reward
-Using each account's own IGAA token on `graph.instagram.com`
-(host/token gotcha is real — see guard 2): pull `/me/media` (last ~25
-REELS) then per-reel `/insights?metric=views,reach,saved,shares,likes,`
+Read each account's insights per the guard-2 recipe (the host/token gotcha
+is real — bambi: its own IGAA token on `graph.instagram.com` via
+`/me/media`; imabgold: the system user token on `graph.facebook.com` +
+the anchor node `17841480076308621`, never `/me`): pull the last ~25 REELS
+then per-reel
+`/insights?metric=views,reach,saved,shares,likes,`
 `comments,total_interactions,ig_reels_avg_watch_time,reels_skip_rate`.
 Rewrite `taste.md` (full overwrite, it's derived data — this file is the
 exception to "never overwrite"; history lives in git):
@@ -169,15 +185,21 @@ Steering hygiene: if the steering list is empty or a tag is garbled,
 fall back to the standing set silently. URL-encode every `q` value
 (steering tags can contain non-ASCII).
 For each: `ig_hashtag_search?user_id=17841480076308621&q=<tag>` → id,
-then `<id>/top_media?user_id=17841480076308621&fields=id,media_type,`
+then `<id>/recent_media?user_id=17841480076308621&fields=id,media_type,`
 `media_product_type,media_url,permalink,caption,like_count,comments_count,`
 `timestamp&limit=25`. Both calls: system token, `graph.facebook.com`,
 curl `-g`. Do NOT request `username` — hashtag media has no username
 field (privacy-stripped, verified 2026-07-17) and asking breaks the call.
-Keep REELS/VIDEO posted within the last 10 days, run the guard-7 ad
-filter (generic hashtags are ad-heavy — expect to skip a lot), and log
-`hashtag-scanned: #tag, N kept` (a processing note — the quota token
-remains the `hashtag-query` line written before the search, guard 8).
+Use `recent_media` (not `top_media`): `top_media` is a popularity ranking
+but is photo-skewed and stale — it returned 275/278 IMAGES with zero fresh
+video on both the 2026-07-17 and 2026-07-20 scans, so it yielded nothing
+bankable. `recent_media` is reverse-chronological, so it surfaces fresh
+REELS but carries NO popularity signal — you rank these candidates yourself
+by `like_count` in step 3. Expect MORE noise and ads than `top_media` gave;
+lean hard on the guard-7 ad filter. Keep REELS/VIDEO posted within the last
+10 days, and log `hashtag-scanned: #tag, N kept` (a processing note — the
+quota token remains the `hashtag-query` line written before the search,
+guard 8).
 
 ### 3. Rank for spikes
 Per account: engagement = like_count + comments_count; compute the account's
@@ -193,9 +215,12 @@ engagement of 0, log `rank-skip: @handle (thin/zero baseline)` and produce
 NO candidates from it — a ratio against a thin or zero median is not a
 spike signal, and `inf`/`NaN` must never reach the catalog.
 
-Hashtag candidates (step 2b) have no account baseline — top_media is
-already Instagram's own "this is spiking" signal. They enter the candidate
-pool directly, ranked among themselves by like_count.
+Hashtag candidates (step 2b) have no account baseline. Since 2b now reads
+`recent_media` (reverse-chronological, no popularity signal), rank these
+candidates among themselves by raw `like_count` — a fresh reel with strong
+absolute likes is the spike proxy here. They enter the candidate pool that
+way (no ratio; the catalog's stats line reads `(hashtag recent_media, no
+account baseline)` in place of a median multiple, per the step-5 template).
 
 **Ad gate first (guard 7, BOTH pools):** before any taste judgment, drop
 every candidate whose caption reads promotional — the watchlist pool too,
@@ -213,6 +238,13 @@ mechanism fits what taste.md says works for the accounts; drop a
 higher-ranked candidate for a lower one when the fit is clearly better,
 and say so in the log (`taste-pick: <shortcode> over <shortcode>:
 <one-line reason>`). Numbers propose, taste disposes.
+
+A candidate that clears the ad gate but has NO comedic/splice mechanism —
+a sincere talking-head, straight news, a tragedy, anything with no joke to
+lend — is not an ad and not a fit. If you've already spent a download slot
+frame-sampling it to learn this, catalogue it `status: DO-NOT-SPLICE` with a
+one-line reason and log `taste-reject: <shortcode> <reason>`, so a later
+scan won't re-spend a slot rediscovering it. It does NOT count as banked.
 
 ### 4. Download
 Each candidate's `media_url` from the step-2 response is a signed CDN link
@@ -239,7 +271,7 @@ below the header comment):
 - source: @handle | <permalink>          <- hashtag finds: `#hashtag | <permalink>` (no username on hashtag media)
 - lane: <the watchlist lane tag of the source account>   <- hashtag finds: the lane the hashtag was queried under
 - first-seen: <today> | status: FRESH
-- stats-at-capture: <likes> likes / <comments> comments (<ratio>x account median)   <- hashtag finds: `(top_media, no account baseline)` instead of a ratio
+- stats-at-capture: <likes> likes / <comments> comments (<ratio>x account median)   <- hashtag finds: `(hashtag recent_media, no account baseline)` instead of a ratio
 - joke-structure: <the mechanism, e.g. "hype setup, anticlimax payoff">
 - the-beat: <where the laugh lands + where to cut, e.g. "setup 0:00-0:03, cut on the turn at 0:03">
 - audio-model: <diegetic (bakeable) | trending sound (add in-app) | flexible>
@@ -265,20 +297,104 @@ is the point and no track is added. Rarely both.
 Delete the `frames/<shortcode>/` directory after writing the entry (frames
 are working files; clips and catalog are the durable assets).
 
+### 5b. Format capture — when the FORMAT is the asset, not the footage
+While frame-sampling in step 5, ask one extra question per candidate: **is
+the viral asset the footage, or the format?** Format signals: a reusable
+on-screen TEXT TEMPLATE ("Dear Instagram, please connect me with [X]"), a
+trending-audio meme where the track + structure carry the joke, or a
+structural gag (wipe-reveal, sound-impression gap) any account could
+rebuild with its own footage. Three outcomes:
+- **Footage is the asset** → catalog entry only (step 5, unchanged).
+- **Format is the asset, footage is disposable/unusable** (ad-adjacent,
+  identifiable stranger, etc.) → playbook entry ONLY, no clip banked; log
+  `format-capture: <shortcode> (no clip banked)`. The download slot is
+  already spent — capture the format value instead of discarding the find.
+- **Both are strong** → catalog entry AND a playbook entry that
+  cross-references the clip (`→ clips/ <shortcode>`).
+
+A scan-written playbook entry matches the file's existing hand-seeded shape
+(one voice, appended to the matching lane section, numbering continues from
+the highest existing entry):
+
+```
+**N. <format name>** · audio: <diegetic (bakeable) | trending sound (add in-app) | flexible> · 🔥 LIVE (<today>) ·scan [· → clips/ <shortcode>]
+<2 lines: the mechanism — what the text/audio/structure does, where the joke lives>
+Splice: <how to rebuild it with the USER'S OWN footage as hero> (source: <permalink or @handle>)
+```
+
+The trailing **`·scan` token is the ownership marker** — it is what makes an
+entry yours. A bare `🔥 LIVE (<date>)` WITHOUT `·scan` is a hand-seeded
+entry that happens to carry a date (entry #13 does): NOT yours.
+
+Rules:
+- If the format is ALREADY in the playbook (same mechanism spiking again),
+  refresh that entry's `🔥 LIVE` date instead of duplicating it — but only
+  on an entry carrying `·scan`; a hand-seeded entry (no `·scan`, dated or
+  not) is re-sighted in the log (`format-resight: <entry name>`) and left
+  untouched.
+- ≤2 NEW playbook entries per scan. The playbook must stay a tight read;
+  when more than 2 candidates qualify, keep the strongest and log the rest.
+- **Hand-seeded entries are Marcus's.** Anything without the `·scan` token
+  is NEVER aged, edited, renumbered, or deleted by you — a dated stamp
+  alone proves nothing. You own only what you wrote.
+- Honest scope: this captures format value from candidates the scan already
+  surfaced — the API cannot search by format/audio, so genuinely new
+  formats still enter via Marcus's hand-seeding; 5b just stops the scan
+  from throwing away format value it already paid a download for.
+- Time box like steps 0/6c: past 08:20 → `format-skip: time`.
+
 ### 6. Freshness sweep
 Any entry with `first-seen` older than 21 days and `status: FRESH` → edit
-its status to `STALE`. Touch nothing else about it.
+its status to `STALE (<today>)` — the date makes the step-6b one-scan
+delay machine-verifiable. Touch nothing else about it.
 
 Retro ad sweep (same pass): any entry still `status: FRESH` whose own
 catalog text fails the guard-7 ad filter gets `status: AD-REJECTED`
-(never deletion; guard 3 protects history, and the status line IS the
-record of why it left the canon). Judge from the catalog text you already
+(the status line IS the record of why it left the canon — record the demotion
+now; a LATER scan prunes it, per 6b). Judge from the catalog text you already
 have — no re-fetching captions, no extra API calls; re-frame-sample the
 local clip only if genuinely ambiguous, and if the clip file is gone and
 it's ambiguous, leave the status untouched. STALE and AD-REJECTED entries
-are skipped (already out of the canon). Log `ad-reject-retro:
-<shortcode>`. An AD-REJECTED entry keeps its clip file but is dead to
-architects.
+are skipped (already out of the canon). Log `ad-reject-retro: <shortcode>`.
+
+Playbook aging (same pass, entries carrying the `·scan` token ONLY — never
+a hand-seeded one, even if dated, per step 5b): an entry whose
+`🔥 LIVE (<date>) ·scan` is >30 days old with no re-sighting since →
+downgrade the stamp to `~ FADING (<original date>) ·scan`. A
+FADING entry >45 days past its original date → DELETE the entry outright
+(playbook.md is git-tracked, history survives; formats need no tombstone —
+there is no download slot to protect, nothing is ever re-downloaded for a
+format). Renumber nothing — gaps in numbering are fine and cheaper than
+renumbering entries architects may have referenced in staged notes. Log
+`format-fade: <entry name>` / `format-prune: <entry name>`.
+
+### 6b. Prune sweep — reclaim clip files, keep the dedup record (guard 3)
+Keep the bank lean without ever risking a live spike OR re-downloading a
+clip you already judged. Prune ONLY entries that were ALREADY out of canon
+when this scan STARTED — their `status: STALE | AD-REJECTED | DO-NOT-SPLICE`
+was written by a PRIOR scan, not a demotion you made in step 6 this run. The
+one-scan delay is deliberate: a demoted entry stays fully visible for at
+least one cycle (and one commit) before collection.
+
+For each such entry:
+- DELETE its `clips/<shortcode>.mp4` file — the heavy asset that bloats the
+  bank. If the file is already gone, fine.
+- COMPRESS the catalog block to a one-line TOMBSTONE and KEEP it in
+  `catalog.md`:
+  `## <shortcode> — [PRUNED <status>] <one line: what it was> · <permalink> · first-seen <date>`
+  Drop joke-structure / the-beat / pairs-with / audio-model / file — those
+  only guided splicing a clip that no longer exists.
+- Log `prune: <shortcode> <old-status>`.
+
+The tombstone is the dedup key (guard 3): it is what stops a future scan
+from re-spending a download slot on a clip already rejected — critical for
+`DO-NOT-SPLICE`, where a clean-captioned but unusable clip (an awareness
+piece, a tragedy) would otherwise re-qualify as a top candidate every scan
+inside its 10-day window. Do NOT delete a tombstone while its post could
+still re-qualify. A tombstone whose `first-seen` is >30 days old MAY be
+removed outright (git keeps the history, and by then step 3's "posted within
+the last 10 days" filter is a second net against re-download). NEVER prune a
+`FRESH` entry. Count pruned entries in the close-out line.
 
 ### 6c. Trending-audio shortlist — the customer jobs' audio source
 Customer reel jobs (JOBS.md) have NO network access, so their audio pick
@@ -295,11 +411,11 @@ audio.md standing.
 
 ### 7. Close out
 Write `last-scan.txt`: first line `<today> — scanned N accounts + H
-hashtags, M new clips banked, K entries went stale, A ads skipped, X
-misses`. Log the same line. Commit the bank repo
-(`git -C ~/Claude\ Code/viral-bank add -A && git commit`) with that
-summary as the message — catalog.md, watchlist.md, taste.md and audio.md
-are tracked; clips and logs are gitignored.
+hashtags, M new clips banked, F formats captured, K entries went stale, P
+entries pruned, A ads skipped, X misses`. Log the same line. Commit the
+bank repo (`git -C ~/Claude\ Code/viral-bank add -A && git commit`) with
+that summary as the message — catalog.md, watchlist.md, taste.md,
+playbook.md and audio.md are tracked; clips and logs are gitignored.
 
 ## Consumption law (for architects / daily routines — not the scan)
 
@@ -310,15 +426,16 @@ are tracked; clips and logs are gitignored.
 - If you splice (REACH mode): optimize for the most viral cut. The
   account's/user's own material must stay essential and load-bearing (pull
   it and the reel collapses — the reach is attributable to their footage,
-  never a borrowed clip padded with disposable filler; no runtime minimum),
-  and the cut must be copyright-safe (never built around a licensed/broadcast
-  centerpiece that gets muted; keep such material to a short fair-use
-  segment). Within those floors the banked clip MAY carry the comedic load
+  never a borrowed clip padded with disposable filler; no runtime minimum).
+  Within that floor the banked clip MAY carry the comedic load
   and the payoff beat. State in your staged notes which clip you used
   (shortcode) so QA can verify provenance of every frame.
 - FRESH entries are preferred; using a STALE entry requires one written
   line of justification in the staged notes. An `AD-REJECTED` entry is
-  never used, no exceptions — it's promotional material.
+  never used, no exceptions — it's promotional material. A `DO-NOT-SPLICE`
+  entry is never used either: it's real (non-ad) footage with no comedic or
+  splice mechanism, banked only as a record so a later scan won't re-spend a
+  download slot rediscovering it.
 - `taste.md` is architect-readable context (what each account's audience
   rewards, distilled from real insights) — read it alongside catalog.md
   in the trends step. Account routines read the whole file; CUSTOMER jobs
@@ -327,7 +444,6 @@ are tracked; clips and logs are gitignored.
 - QA brief addition when a splice is present (REACH mode): verify the
   account's/user's own material is essential and load-bearing (a reel where
   the borrowed clip is the whole thing and the user footage is disposable
-  filler is a FAIL), the cut is copyright-safe (not built around a
-  licensed/broadcast centerpiece that gets muted), and the clip came from
-  `viral-bank/clips/` (not scraped ad hoc mid-run). The banked clip MAY
-  carry the payoff beat — that is no longer a failure.
+  filler is a FAIL), and the clip came from `viral-bank/clips/` (not scraped
+  ad hoc mid-run). The banked clip MAY carry the payoff beat — that is no
+  longer a failure.

@@ -28,9 +28,8 @@ they conflict, the ACCOUNT file wins.
    A reel MAY legitimately contain a banked viral clip (section 4
    clip bank): when a splice is DECLARED in the staged notes, QA applies the
    splice addendum (clip really from `viral-bank/clips/`, the account's own
-   material is essential/load-bearing — not disposable filler — and the cut
-   is copyright-safe with no muted licensed/broadcast centerpiece; the clip
-   MAY carry the payoff) — and still FAILs if those don't hold. An UNDECLARED foreign clip remains a
+   material is essential/load-bearing — not disposable filler; the clip
+   MAY carry the payoff) — and still FAILs if that doesn't hold. An UNDECLARED foreign clip remains a
    provenance failure; a splice claim never launders a pre-made reel.
 3. Do not delete anything from the Photos library. Never repost old content.
 4. Never touch another account's folder. Structural fixes belong in
@@ -72,9 +71,18 @@ paid for and get reused, and re-rendering them is spending the budget twice.
 Access.** The launcher already dumped `routine/photos-manifest.tsv` (videos
 added since the last run: UUID, filename, duration, created) and previews at
 `routine/previews/<UUID>.jpeg`.
+- **Before planning ANY export, read `routine/photos-export-health.txt`**
+  (written by the launcher's 25s probe). `OK` = the export lane is open.
+  `STALLED` = Photos is in its third state (app-level queries answer,
+  media-item queries hang until the -1712 timeout — typical right after wake
+  while iCloud sync/library churn settles): do NOT attempt exports this run,
+  don't burn the timebox re-verifying; go straight to on-disk footage or the
+  generation lane, and mark wanted-but-unexported candidates in the inventory
+  ("NOT exported (Photos stalled <date>)") so the next open run grabs them.
+  Missing file = launcher predates the probe; behave as before.
 - **Timebox ~10 min.** Judge from preview images; AppleScript-export (that IS
-  authorized) only the 2-3 clips that actually fit today's direction, into
-  `footage/`. Never bulk-export or frame-strip every new video.
+  authorized, when health is OK) only the 2-3 clips that actually fit today's
+  direction, into `footage/`. Never bulk-export or frame-strip every new video.
 - Ignore staged imports (`reel_*.mp4`, screen recordings already used) and
   clips that belong to another account's lanes.
 - An empty manifest is not a blocker; use the account's other material lanes.
@@ -148,23 +156,33 @@ no trends, no creation, no staging. Delete the flag file (it applies to
 exactly one run), say what was skipped and why (quote the file's note) in
 the log and the notification, and stamp `routine/last-run.txt` (step 6 rule).
 
-### 4. Trends + trending audio
-WebSearch current IG reel trends + this week's trending audio for the
-account's niche. Note 1-2 usable trend formats.
+### 4. Load the trend intelligence (the viral agent already did the scouting)
 
-**Clip bank (optional tool).** Also read
-`~/Claude Code/viral-bank/catalog.md` if it exists (missing/empty bank →
-skip silently, it is never a failure). Banked clips are OPTIONAL splice
-candidates under the consumption law in `BANK.md` (this repo) — the short
-version (REACH mode): decide from the account's own material FIRST; splice
-only if a clip makes the reel more viral; the account's material must stay
-essential/load-bearing (never disposable filler) and the cut copyright-safe
-(no muted licensed/broadcast centerpiece), but the clip MAY carry the
-payoff beat; prefer FRESH entries (STALE needs one written line of
-justification); name the shortcode in the staged notes and hand QA the
-splice provenance to verify.
-Never scrape a clip ad hoc mid-run — if it's not in the bank, it's not
-available today.
+You do NOT research trends in this run. Finding this week's viral formats,
+clips, and audio is the **viral agent's** job, on its own scan cadence. Your
+job is to READ what it banked and decide with it. Open all three every run
+(missing/empty bank -> note it and proceed on the account's own material; never
+a failure):
+
+- **`~/Claude Code/viral-bank/playbook.md`** — THE FORMAT LAYER and your
+  primary trend input: "what's going viral RIGHT NOW, as written context for
+  architects," each entry carrying a splice/`pairs-with` idea for recreating
+  the format with the account's OWN footage. A format needs no banked clip —
+  the doc exists so you can rebuild the format from the account's material.
+- **`~/Claude Code/viral-bank/catalog.md`** — banked CLIPS as OPTIONAL splice
+  candidates (FRESH only unless you justify a STALE in writing), each with
+  `joke-structure`, `the-beat`, `audio-model`, `pairs-with`.
+- **`~/Claude Code/viral-bank/audio.md`** — banked trending-audio candidates.
+
+Consumption law (REACH mode, full text in `BANK.md`): decide from the account's
+own material FIRST; use a banked clip OR a borrowed format only if it makes the
+reel more viral; the account's material must stay essential/load-bearing (never
+disposable filler), but a clip or format MAY carry the payoff beat; name the shortcode
+or the playbook format in the staged notes and hand QA the splice provenance to
+verify. "The account's own footage alone is stronger" is always a valid call.
+Never scrape a clip or research a format ad hoc mid-run — if it's not in the
+bank, it's not available today; filling that gap is the viral agent's job next
+scan, not yours.
 
 **Narration-led exception (voice-first content).** If today's material is
 talking-to-camera / voice-first where the account's OWN spoken words carry
@@ -175,23 +193,54 @@ tested one-word-at-a-time treatment. Default account reels stay montage +
 trending-audio + line captions; use this only for genuine voice-first
 footage (none generated yet for these accounts, but expected).
 
-**Name ONE track. A pick is a title and an artist.** "Pick an up-arrow-flagged
+**Audio pick — prefer the bank, one narrow search allowed.** Pick from
+`viral-bank/audio.md` first. Because audio trends decay fast and must be
+accurate at post time, you MAY run a SINGLE targeted WebSearch to confirm a
+candidate is still trending this week or to fill a gap the bank misses. This is
+the only search left in the daily run and it is AUDIO-ONLY, never format or
+concept research. **A pick is a title and an artist.** "Pick an up-arrow-flagged
 warm acoustic track from the Trending tab" is NOT a pick — it is the job handed
 back to Marcus at the exact moment he is trying to post (his correction,
 2026-07-14). The staged doc must carry a single named track, one line on why it
 fits THIS cut, and where to start it. Rules:
-- It must be a real, currently-trending track you found in the search — never
-  invent a title, and never name a track you cannot source.
+- It must be a real, currently-trending track — never invent a title, and never
+  name a track you cannot source.
 - **Variety rule: it must NOT appear in the last 5 rows of
   `routine/audio-used.md`** (create the ledger if missing).
 - Append the named pick to that ledger when you stage — the ledger is what
   makes the variety rule enforceable, so an unnamed pick corrupts it.
 - The up-arrow flag is a bonus to mention, not a substitute for choosing. If
-  the search genuinely surfaces nothing usable, say so explicitly in the
-  notification and name the closest fit anyway — Marcus can overrule a named
-  track in two seconds; he cannot overrule a shrug.
+  nothing usable surfaces, say so explicitly in the notification and name the
+  closest fit anyway — Marcus can overrule a named track in two seconds; he
+  cannot overrule a shrug.
 
-### 5. Create
+### 5. Decide the concept (the Architect step), then create
+
+**Architect the concept by weighing three inputs. Do not let any single one
+dictate.**
+
+1. **The current meta** (step 4's `playbook.md` / `catalog.md`): is there a
+   format going viral RIGHT NOW that maps onto footage this account actually
+   has? This is the forward-looking input the account has been missing — start
+   here, not with the rear-view rules.
+2. **The account's own material + proven lanes**: today's fresh footage
+   (step 1) and what has actually worked for THIS audience (performance.md
+   proven lanes, the niche intersection). The reel must read as the account's.
+3. **`routine/next-concept.md` if it exists**: Marcus's requested subject, now
+   an INPUT you weigh with real weight — NOT an override by default. If the
+   current meta or fresh footage makes a clearly stronger reel, take that and
+   state in the notes why you set the brief aside. **HARD override opt-in:** if
+   the brief's FIRST line begins with `HARD:` (case-sensitive), Marcus means it
+   as binding — build that subject and skip the weighing, every craft/QA/privacy
+   rule still applies. Either way, after successful staging move it to
+   `routine/used-concepts/<date>-<slug>.md` so it is consumed exactly once.
+
+**Target output of the weighing:** a concept that lands a currently-viral
+FORMAT on the account's OWN footage, inside the account's niche. performance.md's
+rules (rule-10 fatigue, the hard guards, the caption/saves law) are CONSTRAINTS
+you check the finished concept against — NOT the thing you build from. A concept
+that only satisfies the rear-view rules while ignoring the current meta is the
+exact failure this step exists to prevent.
 
 **You must CUT a new reel. Every single day. There is no other output.**
 Staging a video you did not cut today is not a deliverable — it is a NULL
@@ -231,8 +280,12 @@ overrule.
 - Then the full `/ig-reel <account>` pipeline: fact-check, cut, privacy gate,
   fresh-eyes QA. Claims must match the pixels they sit on (an overlay saying
   "mapped" over an empty-state UI is a FAIL — Marcus, 2026-07-12).
-- Deliverables: FINAL.mp4 + caption + audio pick + notes file ("why this
-  concept", exact source cuts, the success-criteria bet).
+- **Deliverables:** FINAL.mp4 + caption + audio pick + notes file. The notes
+  "why this concept" MUST name: which current playbook format / banked clip was
+  considered, whether it was USED or consciously PASSED (and why), and how the
+  account's own footage carries the reel — alongside the exact source cuts and
+  the success-criteria bet. This makes the decision auditable and lets the next
+  scorecard grade FORMAT FIT, not just theme fatigue.
 
 ### 6. Stage + notify + close the loop
 - **Never copy anything to iCloud Drive yourself** — this session has no
