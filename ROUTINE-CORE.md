@@ -27,6 +27,13 @@ ACCOUNT file wins.
    independent Opus reviewer returned SHIP on a video the run hadn't cut at
    all, because the brief only asked "is this a good reel?" — it was. Never
    let a PASS on craft launder a failure of provenance.
+   **The brief must also state the cohesion gate: FAIL a reel with a beat whose
+   source clip breaks visual/tonal continuity with the rest (a foreign
+   location, lighting, or time-of-day dropped into an otherwise-continuous
+   montage), even when that beat is individually clean, provenance-clean, and
+   privacy-safe.** (2026-07-21: costa-eatout passed a privacy/provenance-only
+   brief with a night-dinner beat spliced into a daytime pool montage; the
+   reviewer had no cohesion criterion, so an out-of-place beat shipped.)
    A reel MAY legitimately contain a banked viral clip (step 4 /
    ARCHITECT-CORE §1): when a splice is DECLARED in the staged notes, QA applies the
    splice addendum (clip really from `viral-bank/clips/`, the account's own
