@@ -24,10 +24,17 @@ is a first-class outcome, never a failure.
 1. NEVER post, publish, upload, or touch any network. No API calls, no
    WebFetch of media, no scraping. Local files only.
 2. The ONLY paths readable outside this folder:
+   `~/Claude Code/ig-routine-core/ARCHITECT-CORE.md` (the shared architect
+   law — read it before Phase A),
+   `~/Claude Code/viral-bank/playbook.md` (the format layer — public trend
+   intelligence, safe for customer jobs; its per-lane headers are just
+   organization, read all of it),
    `~/Claude Code/viral-bank/catalog.md`, `~/Claude Code/viral-bank/taste.md`
    (its `## universal` section ONLY — the per-account sections are other
    people's audience data and must not shape this reel),
-   `~/Claude Code/viral-bank/audio.md`, and, if the outline splices,
+   `~/Claude Code/viral-bank/audio.md`,
+   `~/Claude Code/reel-app/preview-beds/` (licensed music beds for the
+   preview render — read-only), and, if the outline splices,
    `~/Claude Code/viral-bank/clips/<shortcode>.mp4`
    (copy the needed segment into the job folder; never modify the bank).
    The only path anyone writes is this job folder. Never touch account
@@ -128,12 +135,17 @@ is a first-class outcome, never a failure.
    sections are off-limits (guard 2). It informs your craft; the
    customer's material still decides the story. Missing file/section →
    skip silently.
-3. **Bank check (optional tool).** Read the viral-bank catalog. Splice
-   ONLY if a FRESH entry genuinely makes THIS customer's reel more viral
-   (the entry's `pairs-with` line is your test). If splicing: the clip may
-   carry the comedic load and the payoff beat, but the customer's own
-   material must stay essential/load-bearing (never disposable filler).
-   STALE entries need a written justification line.
+3. **Load the trend intelligence (MANDATORY — before any cut decision;
+   Marcus, 2026-07-21).** Apply `ARCHITECT-CORE.md` §1-§2 (allowed reads,
+   guard 2): bank first, architect from the current meta, the weighing.
+   For a customer job the §2 inputs are: the current meta; the customer's
+   material itself (there is no history/performance file); and their
+   narration or `marcus_note` as the standing brief. The house recipe in
+   step 4 (promise hook → build → payoff last) is the fallback SHAPE, not
+   the automatic answer — before this step existed, every job got that one
+   template, and customers read the sameness as mid. REACH floor and
+   splice rules are §1's; the customer's material stays essential and
+   load-bearing, always.
 4. **Architect the cut.** An order with a beginning and a payoff (best
    moment LAST). 3–10 beats cut FROM the clips (several beats may come
    from one clip — find its distinct moments), 0.8–2.5s each — except a
@@ -142,6 +154,13 @@ is a first-class outcome, never a failure.
    At least 2 hard cuts — never one unbroken clip. Handle iPhone
    rotation metadata (autorotate) — verify orientation on the sampled
    frames, not the container numbers.
+   **Visual variety rule (2026-07-21, from watching delivered jobs):** no
+   two CONSECUTIVE beats may share the same framing at the same scale.
+   When several beats come from one continuous scene (one clip, one
+   angle — e.g. a lake walk-in), punch in/out between them (10–30% zoom
+   crops, alternating) so the cut has rhythm instead of reading as a
+   slideshow of the same shot. A deliberate static repeat for comedic
+   effect is allowed but must be declared in the outline.
    **The text IS the story — mandatory, on EVERY beat.** Each beat
    carries one short overlay line, and read in order the lines tell ONE
    arc: a hook that makes a promise → build → payoff on the final beat.
@@ -162,11 +181,16 @@ is a first-class outcome, never a failure.
 5. **Write `out/OUTLINE.md`** — the decision made concrete. It must let a
    builder with ZERO context execute without one creative call: an
    ordered beat table (source clip, in/out timestamps, duration, **the
-   beat's text line** with exact y-position and timing), the splice
-   decision (`shortcode + segment + why` or `no-splice + why`), the full
-   drawtext style block (house style above) stated once, and the
-   watermark spec from the Render spec below. Log the decision summary
-   to log.txt.
+   beat's text line** with exact y-position and timing), **the format
+   decision** (which playbook format was considered and USED or PASSED,
+   one line why — "no live format fits, house shape" is valid but must
+   be stated; an outline with no format line means step 3 was skipped),
+   the splice decision (`shortcode + segment + why` or `no-splice + why`),
+   the preview-bed pick when `preview-beds/` has audio (bed filename,
+   vibe-matched from the filenames, + start offset — or `no-preview` if
+   the folder is empty), the full drawtext style block (house style above)
+   stated once, and the watermark spec from the Render spec below. Log the
+   decision summary to log.txt.
 6. **Write `out/delivery.json`** — the deliverable trio the customer sees
    beside their reel (same format the engine's own account gets):
    ```json
@@ -202,8 +226,18 @@ If the builder leaves a BUILDER-NOTE: revise the outline ONCE to fix the
 stated problem and spawn a FRESH builder. A second BUILDER-NOTE →
 `out/FAILED` with both notes.
 
-**Render spec (builder):** two files —
+**Render spec (builder):** two files, plus a conditional third —
 - `out/reel-clean.mp4` — no watermark.
+- `out/reel-preview.mp4` — ONLY when `~/Claude Code/reel-app/preview-beds/`
+  contains audio files AND the outline names a bed pick: the watermarked
+  cut with that bed mixed in (bed at ~0.7 volume; keep ambient under it at
+  ~0.3 unless the outline says drop it; on a narration-led cut duck the
+  bed to ~0.25 under the voice, never over it). This file PLAYS on the
+  customer's delivery page — it exists purely for first-watch impact. The
+  customer still posts the clean/watermarked file with native trending
+  audio. The architect's outline names the bed file (vibe-matched from
+  the filenames) and a start offset. Empty/missing beds folder → skip,
+  two-file delivery, never a failure.
 - `out/reel-watermarked.mp4` — same cut plus the watermark: drawtext
   `reels.ibuildapp.ca` bottom-LEFT (x=44, y≈1545), fontsize 30, white @
   alpha 0.45 with a soft shadow (shadowcolor black@0.5, shadowx/y 1) —
@@ -225,7 +259,12 @@ narration-led outline is a FAIL); EVERY beat carries its text line in the house
 style (Arial Bold, white, black border) and the lines read in order as
 one coherent hook→build→payoff story; all text starts ≥250px from top
 and clears the bottom 320px; watermark present in watermarked + absent
-in clean; **the delivered files match the
+in clean; **the outline carries a format decision line** (playbook format
+USED or PASSED with a reason — its absence means the architect skipped
+the mandatory trend step: FAIL) and if a format was USED the reel
+actually implements it; **the visual variety rule holds** — consecutive
+beats sharing identical framing at identical scale, with no declared
+comedic intent, is a FAIL; **the delivered files match the
 outline** — beat count, order, and splice usage; a deviation is a FAIL
 even if the reel is good (an outline that wasn't followed means the
 decision on record is a lie). If a splice is declared: the customer's
@@ -233,7 +272,10 @@ material is essential and load-bearing (disposable filler = FAIL); the clip
 MAY carry the payoff. Also
 verify `out/delivery.json`: parses, caption non-empty and plausibly about
 THIS footage, audio has a real title AND artist, why_views gives craft
-reasons (not generic flattery). And the overall bar: "would a stranger be
+reasons (not generic flattery). If the outline declares a preview bed:
+`out/reel-preview.mp4` exists, carries an audible music bed, and is the
+SAME cut as the watermarked file (same beats/text/watermark — only the
+audio differs); a declared-but-missing or different-cut preview is a FAIL. And the overall bar: "would a stranger be
 happy to post this?" PASS/FAIL + reasons.
 
 On FAIL: architect revises (outline and/or re-brief the builder), rebuild,

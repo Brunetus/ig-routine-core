@@ -5,8 +5,10 @@ routine. Marcus is NOT watching — there are no questions, only rules. This
 file is the STRUCTURE shared by all accounts. The account's own ROUTINE file
 (the one that sent you here) supplies the CONTENT rules — mission, success
 criteria, privacy/face rules, formats, budgets, material lanes — and names
-its Photos album, iCloud folder, and ledgers. Read both before acting. Where
-they conflict, the ACCOUNT file wins.
+its Photos album, iCloud folder, and ledgers. The shared architect + craft
+law lives in `ARCHITECT-CORE.md` (this folder) — steps 4-5 send you there;
+it binds this run. Read all of them before acting. Where they conflict, the
+ACCOUNT file wins.
 
 ## Universal hard guards (every account, no judgment calls)
 
@@ -25,8 +27,8 @@ they conflict, the ACCOUNT file wins.
    independent Opus reviewer returned SHIP on a video the run hadn't cut at
    all, because the brief only asked "is this a good reel?" — it was. Never
    let a PASS on craft launder a failure of provenance.
-   A reel MAY legitimately contain a banked viral clip (section 4
-   clip bank): when a splice is DECLARED in the staged notes, QA applies the
+   A reel MAY legitimately contain a banked viral clip (step 4 /
+   ARCHITECT-CORE §1): when a splice is DECLARED in the staged notes, QA applies the
    splice addendum (clip really from `viral-bank/clips/`, the account's own
    material is essential/load-bearing — not disposable filler; the clip
    MAY carry the payoff) — and still FAILs if that doesn't hold. An UNDECLARED foreign clip remains a
@@ -160,29 +162,14 @@ the log and the notification, and stamp `routine/last-run.txt` (step 6 rule).
 
 You do NOT research trends in this run. Finding this week's viral formats,
 clips, and audio is the **viral agent's** job, on its own scan cadence. Your
-job is to READ what it banked and decide with it. Open all three every run
-(missing/empty bank -> note it and proceed on the account's own material; never
-a failure):
+job is to READ what it banked and decide with it.
 
-- **`~/Claude Code/viral-bank/playbook.md`** — THE FORMAT LAYER and your
-  primary trend input: "what's going viral RIGHT NOW, as written context for
-  architects," each entry carrying a splice/`pairs-with` idea for recreating
-  the format with the account's OWN footage. A format needs no banked clip —
-  the doc exists so you can rebuild the format from the account's material.
-- **`~/Claude Code/viral-bank/catalog.md`** — banked CLIPS as OPTIONAL splice
-  candidates (FRESH only unless you justify a STALE in writing), each with
-  `joke-structure`, `the-beat`, `audio-model`, `pairs-with`.
-- **`~/Claude Code/viral-bank/audio.md`** — banked trending-audio candidates.
-
-Consumption law (REACH mode, full text in `BANK.md`): decide from the account's
-own material FIRST; use a banked clip OR a borrowed format only if it makes the
-reel more viral; the account's material must stay essential/load-bearing (never
-disposable filler), but a clip or format MAY carry the payoff beat; name the shortcode
-or the playbook format in the staged notes and hand QA the splice provenance to
-verify. "The account's own footage alone is stronger" is always a valid call.
-Never scrape a clip or research a format ad hoc mid-run — if it's not in the
-bank, it's not available today; filling that gap is the viral agent's job next
-scan, not yours.
+**The bank-reading law, the REACH-mode consumption law, and the splice rules
+now live in `~/Claude Code/ig-routine-core/ARCHITECT-CORE.md` §1 — read that
+file NOW (it is shared architect law for every channel; craft lessons land
+there once instead of drifting across three copies).** Routine-specific
+notes on top of it: full REACH text is in `BANK.md`; filling a bank gap is
+the viral agent's job next scan, never this run's.
 
 **Narration-led exception (voice-first content).** If today's material is
 talking-to-camera / voice-first where the account's OWN spoken words carry
@@ -216,31 +203,23 @@ fits THIS cut, and where to start it. Rules:
 
 ### 5. Decide the concept (the Architect step), then create
 
-**Architect the concept by weighing three inputs. Do not let any single one
-dictate.**
+**The weighing method (three inputs: current meta / material + proven lanes
+/ standing brief) is ARCHITECT-CORE.md §2 — apply it here.** For a routine
+run the three inputs are: step 4's bank read; today's fresh footage (step 1)
++ performance.md proven lanes; and `routine/next-concept.md` if it exists.
+performance.md's rules (rule-10 fatigue, the hard guards, the caption/saves
+law) are the rear-view CONSTRAINTS §2 warns about — check the finished
+concept against them, never build from them alone.
 
-1. **The current meta** (step 4's `playbook.md` / `catalog.md`): is there a
-   format going viral RIGHT NOW that maps onto footage this account actually
-   has? This is the forward-looking input the account has been missing — start
-   here, not with the rear-view rules.
-2. **The account's own material + proven lanes**: today's fresh footage
-   (step 1) and what has actually worked for THIS audience (performance.md
-   proven lanes, the niche intersection). The reel must read as the account's.
-3. **`routine/next-concept.md` if it exists**: Marcus's requested subject, now
-   an INPUT you weigh with real weight — NOT an override by default. If the
-   current meta or fresh footage makes a clearly stronger reel, take that and
-   state in the notes why you set the brief aside. **HARD override opt-in:** if
-   the brief's FIRST line begins with `HARD:` (case-sensitive), Marcus means it
-   as binding — build that subject and skip the weighing, every craft/QA/privacy
-   rule still applies. Either way, after successful staging move it to
-   `routine/used-concepts/<date>-<slug>.md` so it is consumed exactly once.
-
-**Target output of the weighing:** a concept that lands a currently-viral
-FORMAT on the account's OWN footage, inside the account's niche. performance.md's
-rules (rule-10 fatigue, the hard guards, the caption/saves law) are CONSTRAINTS
-you check the finished concept against — NOT the thing you build from. A concept
-that only satisfies the rear-view rules while ignoring the current meta is the
-exact failure this step exists to prevent.
+**`routine/next-concept.md` mechanics (routine-specific):** Marcus's
+requested subject is an INPUT with real weight — NOT an override by default.
+If the current meta or fresh footage makes a clearly stronger reel, take
+that and state in the notes why you set the brief aside. **HARD override
+opt-in:** if the brief's FIRST line begins with `HARD:` (case-sensitive),
+Marcus means it as binding — build that subject and skip the weighing;
+every craft/QA/privacy rule still applies. Either way, after successful
+staging move it to `routine/used-concepts/<date>-<slug>.md` so it is
+consumed exactly once.
 
 **You must CUT a new reel. Every single day. There is no other output.**
 Staging a video you did not cut today is not a deliverable — it is a NULL

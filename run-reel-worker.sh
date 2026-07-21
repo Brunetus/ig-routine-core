@@ -120,6 +120,9 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
   if [ -f "$JOB/out/DONE" ] && [ -f "$JOB/out/reel-watermarked.mp4" ] && [ -f "$JOB/out/reel-clean.mp4" ]; then
     META_ARGS=()
     [ -f "$JOB/out/delivery.json" ] && META_ARGS=(-F "meta=@$JOB/out/delivery.json;type=application/json")
+    # optional music-preview render (bed track baked in) — plays inline on
+    # the delivery page; absent when preview-beds/ is empty (that's fine)
+    [ -f "$JOB/out/reel-preview.mp4" ] && META_ARGS+=(-F "preview=@$JOB/out/reel-preview.mp4;type=video/mp4")
     RES=$(api -X POST -F "reel=@$JOB/out/reel-watermarked.mp4;type=video/mp4" \
                      -F "clean=@$JOB/out/reel-clean.mp4;type=video/mp4" \
                      "${META_ARGS[@]}" \
