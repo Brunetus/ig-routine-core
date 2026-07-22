@@ -24,6 +24,11 @@ late check:
 - **`~/Claude Code/viral-bank/catalog.md`** — banked CLIPS as OPTIONAL
   splice candidates (FRESH only unless you justify a STALE in writing).
 - **`~/Claude Code/viral-bank/audio.md`** — trending-audio candidates.
+- **`~/Claude Code/viral-bank/lessons.md`** — THE MECHANISMS LAYER: creators
+  teaching HOW virality works. TRAINING ONLY — read it to internalize the
+  levers (hook retention, loop/rewatch, pattern interrupt), then apply them to
+  the channel's OWN material. NEVER a splice source; its clips are off-limits
+  to any cut.
 
 Architect from the current meta: is there a live format that maps onto the
 material this channel actually has? "The own/customer material alone is
@@ -38,6 +43,17 @@ viral reel; the channel's own material must stay essential/load-bearing
 the payoff beat. Splice only if a FRESH entry genuinely makes THIS reel
 more viral (the `pairs-with` line is the test), declare it in the notes/
 outline, and hand QA the provenance to verify.
+
+**Playbook fidelity (borrowed formats):** when the concept reproduces a
+viral-bank playbook format, reproduce its joke practically verbatim. The
+formats are intricate and the wording is load-bearing — you swap the
+FOOTAGE, never rewrite the JOKE. Edits are allowed only when they preserve
+the exact mechanism; a "clever" or meta rewrite that concedes or inverts the
+format's premise breaks it (2026-07-22: an imabgold reel took playbook #12,
+the "made by a REAL human" flex, and wrote "an AI cut this one too" as the
+middle beat — conceding the very thing the joke flexes against, which made
+it nonsense). Put the verbatim playbook entry in the staged notes and hand
+it to QA so the reproduction is checkable.
 
 ## 2. The weighing (how a concept is chosen)
 
