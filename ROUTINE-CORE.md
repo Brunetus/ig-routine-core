@@ -40,6 +40,21 @@ ACCOUNT file wins.
    material is essential/load-bearing — not disposable filler; the clip
    MAY carry the payoff) — and still FAILs if that doesn't hold. An UNDECLARED foreign clip remains a
    provenance failure; a splice claim never launders a pre-made reel.
+   **The brief must also hand the reviewer the ACCOUNT file's content hard
+   guards (its ROUTINE.md / brand.md) and FAIL any violation** — a reviewer
+   only checks what it's handed, so a guard that lives only in the account
+   file never fires unless it's in the brief (2026-07-22: imabgold added a
+   flash-reveal guard to its ROUTINE.md; documenting it there does nothing
+   until the QA brief carries it).
+   **And when the reel reproduces a viral-bank playbook format, the brief
+   must hand the reviewer the verbatim playbook entry and FAIL if the
+   on-screen joke deviates from that format's mechanism** — a "clever" or
+   meta rewrite that concedes or inverts the format's premise is a FAIL, not
+   a pass (2026-07-22: imabgold's nightpool_aislop took playbook #12, the
+   "made by a REAL human" flex, and shipped "an AI cut this one too" as the
+   middle beat; the reviewer had only a concept paraphrase, not the entry,
+   so the broken joke passed). Fidelity is authored at the architect step
+   (ARCHITECT-CORE §1 playbook fidelity); QA is the backstop.
 3. Do not delete anything from the Photos library. Never repost old content.
 4. Never touch another account's folder. Structural fixes belong in
    `~/Claude Code/ig-routine-core/` — note them in the log for Marcus; do not
@@ -92,6 +107,10 @@ added since the last run: UUID, filename, duration, created) and previews at
 - **Timebox ~10 min.** Judge from preview images; AppleScript-export (that IS
   authorized, when health is OK) only the 2-3 clips that actually fit today's
   direction, into `footage/`. Never bulk-export or frame-strip every new video.
+  Run exports under a kill-guard; if the guard fires (export AppleEvent hung),
+  run `killall Photos` afterward and log it — a killed AppleEvent otherwise
+  leaves Photos wedged for every later AppleEvent and the next account's run
+  (see the staging rule in step 6), then fall back down the material ladder.
 - Ignore staged imports (`reel_*.mp4`, screen recordings already used) and
   clips that belong to another account's lanes.
 - An empty manifest is not a blocker; use the account's other material lanes.
@@ -295,12 +314,23 @@ overrule.
      <artist> — plus why it fits this cut and where to start it (step 4: a pick
      is a title and an artist, never a description of how to go find one).
 - Photos staging (Mac album) is now **best-effort only and must NEVER block** —
-  iCloud→phone (above) is the real delivery. If AppleScript to Photos is
-  authorized, import the FINAL into the account's album, favorite it, name it
-  "<concept> vN, post this one", un-favorite + rename the previous one (use
-  variables theNew/theOld, never `it`). If the Automation/AppleEvents permission
-  is missing (headless 9am run — the event hangs on an unclickable prompt), SKIP
-  it immediately, note it in the log, and move on. Never wait on that prompt.
+  iCloud→phone (above) is the real delivery. **Before sending ANY staging
+  AppleEvent, run the attended-session check:**
+  `ioreg -n Root -d1 -a | plutil -extract IOConsoleLocked raw -`
+  — if it prints `true` (screen locked = nobody can answer a TCC prompt) or
+  errors, SKIP staging entirely: log
+  `photos-staging skipped: console locked, no AppleEvent sent` and move on.
+  Do NOT use an attempt-with-kill-guard as the permission probe: a Photos
+  AppleEvent killed mid-TCC-prompt leaves Photos WEDGED and unresponsive for
+  the NEXT account's run (2026-07-22: imabgold's killed 09:29 staging attempt
+  wedged Photos; bambi's 09:30 health probe then STALLED and lost its whole
+  export lane). If the check prints `false` (someone is at the Mac to answer
+  a prompt), stage as before: import the FINAL into the account's album,
+  favorite it, name it "<concept> vN, post this one", un-favorite + rename
+  the previous one (use variables theNew/theOld, never `it`), still under a
+  kill-guard — and if that guard ever fires anyway, run `killall Photos`
+  afterward and log it, so a wedged Photos is reset rather than left broken
+  for the next account's run.
 - Append to the account's ledgers (used material/topics, audio-used).
 - If the account folder is a git repo: commit the ledgers/captions/learning
   files the account file lists (never drafts/media/secrets) and push;
