@@ -1,17 +1,24 @@
 #!/bin/zsh
-# run-reel-notify.sh — fast "someone submitted a reel" alert for Marcus.
+# run-reel-notify.sh — fast "someone submitted a reel" alert for Marcus,
+# plus the review-gate auto-release scan.
 # LaunchAgent: com.marcus.reel-notify (StartInterval 120). Complements the
 # instant email/ntfy push sent by /api/render-request: this one is the
 # Mac-native banner, and it kickstarts the worker so the customer's reel
 # starts cutting within ~2 min instead of waiting out the 10-min poll.
-# Read-only against the queue — it never claims or modifies jobs.
+# Read-only against the QUEUE (never claims render jobs); the release scan
+# ships rendered jobs whose 20-min review window expired via release-reel.sh.
 
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
+CORE_DIR="${0:A:h}"
 APP_DIR="$HOME/Claude Code/reel-app"
 JOBS_DIR="$APP_DIR/jobs"
 SEEN="$JOBS_DIR/.notify-seen"
 touch "$SEEN"
+
+# ---- Review-gate scan first (every 2 min): auto-release expired windows,
+# ship APPROVED jobs, skip HOLDs. Runs before the queue-empty early exit. ----
+/bin/zsh "$CORE_DIR/release-reel.sh" --scan 2>/dev/null
 
 WORKER_SECRET=$(grep "^WORKER_SECRET=" "$APP_DIR/.env" 2>/dev/null | cut -d= -f2-)
 WORKER_API=$(grep "^WORKER_API=" "$APP_DIR/.env" 2>/dev/null | cut -d= -f2-)

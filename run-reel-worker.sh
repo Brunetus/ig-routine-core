@@ -44,6 +44,13 @@ if [ -f "$JOBS_DIR/TEST-MODE" ]; then
   exit 0
 fi
 
+# ---- Release-gate backstop: ship any pending job whose review window
+# expired, even during the routine quiet window (it's light network I/O,
+# no claude/ffmpeg). Primary scan lives in run-reel-notify.sh (every 2 min);
+# this catches the case where the notify agent is down. Atomic claim in
+# release-reel.sh makes the overlap safe. ----
+/bin/zsh "$CORE_DIR/release-reel.sh" --scan 2>> "$LOG"
+
 # ---- Never contend with the daily routines (08:30-10:30 is theirs), and
 # never run alongside a daily/scan/second worker instance ----
 HM=$(date +%H%M)
@@ -73,7 +80,22 @@ trap 'rm -rf "$LOCK" 2>/dev/null' EXIT
 
 DONE_COUNT=0
 while [ "$DONE_COUNT" -lt "$MAX_JOBS_PER_WAKE" ]; do
-  ID=$(api "$API/queue" | /usr/bin/python3 -c "import json,sys; j=json.load(sys.stdin); print(j['jobs'][0] if j.get('jobs') else '')" 2>/dev/null)
+  # Review-gate guard: a rendered job stays in the server queue until
+  # release-reel.sh calls complete, so the raw queue re-lists parked jobs.
+  # Re-dispatching one boots a premium session for zero work AND resets its
+  # review window (re-park overwrites PENDING-RELEASE). Skip anything already
+  # rendered; pick the first job that actually needs work.
+  QIDS=$(api "$API/queue" | /usr/bin/python3 -c "import json,sys
+try:
+  [print(i) for i in json.load(sys.stdin).get('jobs',[])]
+except Exception: pass" 2>/dev/null)
+  ID=""
+  for Q in ${(f)QIDS}; do
+    if [ -f "$JOBS_DIR/$Q/out/DONE" ] && { [ -f "$JOBS_DIR/$Q/PENDING-RELEASE" ] || [ -f "$JOBS_DIR/$Q/.RELEASING" ] || [ -f "$JOBS_DIR/$Q/RELEASED" ] }; then
+      continue  # parked for review; release-reel.sh owns it from here
+    fi
+    ID="$Q"; break
+  done
   [ -z "$ID" ] && break
 
   echo "===== job $ID start $(date) =====" >> "$LOG"
@@ -118,30 +140,19 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
   kill $WPID 2>/dev/null; wait $WPID 2>/dev/null
 
   if [ -f "$JOB/out/DONE" ] && [ -f "$JOB/out/reel-watermarked.mp4" ] && [ -f "$JOB/out/reel-clean.mp4" ]; then
-    META_ARGS=()
-    [ -f "$JOB/out/delivery.json" ] && META_ARGS=(-F "meta=@$JOB/out/delivery.json;type=application/json")
-    # optional music-preview render (bed track baked in) — plays inline on
-    # the delivery page; absent when preview-beds/ is empty (that's fine)
-    [ -f "$JOB/out/reel-preview.mp4" ] && META_ARGS+=(-F "preview=@$JOB/out/reel-preview.mp4;type=video/mp4")
-    RES=$(api -X POST -F "reel=@$JOB/out/reel-watermarked.mp4;type=video/mp4" \
-                     -F "clean=@$JOB/out/reel-clean.mp4;type=video/mp4" \
-                     "${META_ARGS[@]}" \
-                     "$API/complete/$ID")
-    echo "complete: $RES" >> "$LOG"
-    URL="$WORKER_API/reel?job=$ID"
-    # Handoff for Marcus: one row per delivery, ready to copy into a text.
-    printf '%s | %s | %s | %s\n  SMS> Your reel is ready 🎬 %s\n' \
-      "$(date '+%F %H:%M')" "$PHONE" "$EMAIL" "$URL" "$URL" >> "$JOBS_DIR/OUTBOX.md"
-    # Email automation (only when a Resend key exists; otherwise manual per OUTBOX)
-    if [ -n "$RESEND_KEY" ]; then
-      curl -s --max-time 30 -X POST "https://api.resend.com/emails" \
-        -H "Authorization: Bearer $RESEND_KEY" -H "Content-Type: application/json" \
-        -d "{\"from\":\"Marc <marcus@ibuildapp.ca>\",\"to\":[\"$EMAIL\"],\"subject\":\"Your reel is ready 🎬\",\"text\":\"It's done — cut from your own photos by the IMABGOLD Reels engine.\n\nWatch it here: $URL\n\nLove it? Founding creators get the clean version and 4 reels a month: it's on the same page.\n\n— Marc\"}" >> "$LOG" 2>&1
-      echo "" >> "$LOG"
-    fi
-    osascript -e "display notification \"Reel ready — text $PHONE (see jobs/OUTBOX.md)\" with title \"$NOTIF_TITLE\" sound name \"Glass\"" 2>/dev/null
-    curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: Reel done" -H "Tags: white_check_mark" \
-      -d "Reel for $PHONE is ready and emailed. The text to send them is in jobs/OUTBOX.md." > /dev/null 2>&1
+    # ---- REVIEW GATE: nothing ships from here. The render is parked as
+    # PENDING-RELEASE and release-reel.sh is the only path to the customer:
+    #   auto-releases after a 20-min window (notify scan, every 2 min)
+    #   touch $JOB/HOLD      pauses it indefinitely
+    #   touch $JOB/APPROVED  ships on the next scan
+    #   release-reel.sh <id> ships immediately
+    # Marcus edits out/reel-*.mp4 and out/delivery.json in place; whatever the
+    # files say at release time is what the customer gets. ----
+    date +%s > "$JOB/PENDING-RELEASE"
+    echo "render done: $ID parked for review (auto-release in 20 min)" >> "$LOG"
+    osascript -e "display notification \"REVIEW WINDOW: job ${ID:0:8} auto-sends in 20 min — jobs/$ID/out/\" with title \"$NOTIF_TITLE\" sound name \"Glass\"" 2>/dev/null
+    curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: Reel rendered - review window open" -H "Priority: high" -H "Tags: eyes" \
+      -d "Job ${ID:0:8} rendered. Auto-sends in 20 min. Review jobs/$ID/out/ - touch HOLD to pause, APPROVED to send now." > /dev/null 2>&1
     DONE_COUNT=$((DONE_COUNT + 1))
   else
     REASON=$(head -c 300 "$JOB/out/FAILED" 2>/dev/null || echo "session produced no output")

@@ -61,11 +61,10 @@ is a first-class outcome, never a failure.
    - documents/IDs/financial papers readable on screen.
    Suggestive-but-not-explicit material (bodysuits, suggestive posing,
    sexual dancing, body-focus framing) is IN SCOPE — cut it, and cut it
-   well. One honesty duty: IG's recommendation guidelines exclude
-   sexually suggestive content from Reels/Explore recommendations, so
-   when the cut is suggestive, say so plainly in `delivery.json`
-   `why_views` (reach comes from their followers and shares, not cold
-   recommendations). Judge with eyes AND ears: transcribe the audio
+   well. Never editorialize about it to the customer: `delivery.json`
+   `why_views` explains why the cut works and nothing else — no content
+   warnings, no reach caveats, no platform-policy commentary (Marcus
+   2026-07-22). Content-line observations belong in log.txt only. Judge with eyes AND ears: transcribe the audio
    BEFORE judging borderline visuals — narrated tutorial/fitness/
    educational content is not suggestive because of what the body is
    doing while teaching, and a handheld microphone near a mouth is a

@@ -95,6 +95,31 @@ dump_archive() {
     echo "labels: dump failed (non-fatal; archive search falls back to date/place)" >> "$LOG"
 }
 
+# ---- Photos export-lane health probe ----
+# Photos has a THIRD state between authorized and TCC-blocked: app-level
+# queries (albums, counts) answer but media-item queries hang until the
+# AppleEvent timeout (-1712). Seen 2026-07-17 and 2026-07-19, both in the 9am
+# run right after wake (post-wake iCloud sync / library churn); the same query
+# answered in ~1s mid-afternoon. The 07-19 run burned ~12 min discovering this
+# mid-step; this 25s probe turns it into a decision the session reads BEFORE
+# planning any export lane. Probes the newest ARCHIVE row (type-12 assets are
+# already filtered out there; the manifest is not filtered and a type-12 head
+# row would false-report STALLED).
+probe_photos_export() {
+  local UUID=$(head -1 routine/photos-archive.tsv 2>/dev/null | cut -f1)
+  if [ -z "$UUID" ]; then
+    echo "UNKNOWN $(date +%H:%M:%S) no catalogued video to probe" > routine/photos-export-health.txt
+  elif osascript -e 'on run argv' \
+       -e 'with timeout of 25 seconds' \
+       -e 'tell application "Photos" to get filename of media item id (item 1 of argv)' \
+       -e 'end timeout' -e 'end run' "$UUID/L0/001" > /dev/null 2>&1; then
+    echo "OK $(date +%H:%M:%S) media-item queries answering" > routine/photos-export-health.txt
+  else
+    echo "STALLED $(date +%H:%M:%S) media-item query timed out; do NOT plan an export lane this run - use on-disk footage or the generation lane, and note unexported candidates in the inventory for the next run" > routine/photos-export-health.txt
+  fi
+  echo "photos-export-health: $(cat routine/photos-export-health.txt)" >> "$LOG"
+}
+
 # ---- iCloud outbox mover (claude has no iCloud TCC permission; we do) ----
 move_outbox() {
   if [ -d routine/icloud-outbox ] && [ -n "$(ls -A routine/icloud-outbox 2>/dev/null)" ]; then
@@ -118,6 +143,7 @@ if [ -f routine/TEST-MODE ]; then
   head -5 routine/photos-manifest.tsv >> "$LOG" 2>&1
   echo "Photos AppleScript (TCC) check:" >> "$LOG"
   osascript -e 'tell application "Photos" to get count of albums' >> "$LOG" 2>&1
+  probe_photos_export
   mkdir -p routine/icloud-outbox && echo "outbox test $(date)" > "routine/icloud-outbox/TEST-outbox.txt"
   move_outbox
   rm -f "$HOME/Library/Mobile Documents/com~apple~CloudDocs/$ICLOUD_DIR/TEST-outbox.txt"  # don't pollute the real delivery folder
@@ -151,6 +177,7 @@ done
 
 echo "===== $ACCOUNT daily routine start $(date) =====" >> "$LOG"
 dump_manifest
+probe_photos_export
 
 # ---- Run the session; retry once on an API drop OR an incomplete run,
 # resuming from state. Exit code 0 is NOT proof of completion: on 2026-07-18
@@ -169,6 +196,11 @@ for ATTEMPT in 1 2; do
     sleep 60
   fi
   CLAUDE_ARGS=(-p "You are running the $ROUTINE_DESC. Read the file '$DIR/$ROUTINE_FILE' and execute it exactly, start to finish. Today's date: $(date +%F).$EXTRA"
+    # Pin plain Opus, NOT the account default. The default is opus[1m] (1M-context
+    # beta) which bills a long-context premium the reel routine never needs — it
+    # hit the monthly spend cap mid-run on 2026-07-20. Reel judgment stays on Opus;
+    # we just drop the 1M window. Applies to every account routing through this core.
+    --model opus
     --permission-mode acceptEdits
     --allowedTools "Bash,Read,Write,Edit,Glob,Grep,WebSearch,WebFetch,Task,Agent,Skill,ToolSearch")
   if (( ${#DISALLOWED_TOOLS[@]} )); then
