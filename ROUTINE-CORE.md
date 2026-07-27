@@ -112,7 +112,10 @@ added since the last run: UUID, filename, duration, created) and previews at
   leaves Photos wedged for every later AppleEvent and the next account's run
   (see the staging rule in step 6), then fall back down the material ladder.
 - Ignore staged imports (`reel_*.mp4`, screen recordings already used) and
-  clips that belong to another account's lanes.
+  clips that belong to another account's lanes. EXCEPTION (Marcus,
+  2026-07-27): a NEW, unused screen recording is real material for an
+  account whose brand.md explicitly allows staged readable screens — treat
+  it like any fresh clip, subject to that account's sweep.
 - An empty manifest is not a blocker; use the account's other material lanes.
 - Respect the account's used-material ledger: never re-cut a used segment,
   never touch ranges marked BURNED.
@@ -175,6 +178,22 @@ and rename the Photos favorite to "<concept> POSTED <date>" — and continue to
 step 4. Stop only when NO recent post resembles the draft's concept; if it's
 genuinely ambiguous, say so in the notification and continue (a duplicate
 draft Marcus can ignore beats a silently skipped day).
+
+**Abandonment timeout (Marcus, 2026-07-27).** Before stopping, count the
+consecutive prior runs that ended in THIS step-3 stop on the SAME draft
+(read the recent `routine/logs/` files — every stop is logged per guard 6).
+If this run would be the THIRD consecutive stop-day on that draft, do not
+stop: declare the draft ABANDONED instead. Append a dated line to the
+account's topic ledger — abandoned after N stop-days, never posted, NOT
+spent as a posted concept, do not re-stage this cut — say it LOUDLY in the
+notification ("<slug> abandoned unposted after N days; cutting fresh
+today"), un-favorite/rename any Photos favorite for it (best-effort, normal
+staging rules), and proceed to steps 4-6 as a normal creating day. An
+abandoned draft is never graded as a post. The counter resets whenever a
+stop-day's draft differs from the previous stop-day's, and a draft Marcus
+kills or posts mid-week clears it entirely. (Born of 07-24→07-27: four
+runs correctly refused to stack while fresh material sat uncut and the
+leaderboard re-measured a decayed post for six days.)
 
 ### 3.5 Skip-creation flag (one-shot)
 If `routine/skip-creation.txt` exists, Marcus has already handled the next
