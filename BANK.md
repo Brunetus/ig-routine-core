@@ -400,7 +400,11 @@ the last 10 days" filter is a second net against re-download). NEVER prune a
 Customer reel jobs (JOBS.md) have NO network access, so their audio pick
 comes from a shortlist you refresh here. WebSearch current IG trending
 audio and rewrite `audio.md` (full overwrite, derived data like taste.md):
-≤10 tracks, each one line —
+≤20 tracks, each one line (cap raised from 10 on 2026-08-15: the account
+dailies' last-5 variety rule plus staged-but-unaired picks block 5–7
+entries at any given pick, and 10 left the pool exhausted — the 07-31 run
+had 1 eligible track, 0 backups; 20 keeps ~a dozen live candidates and is
+still a one-screen read) —
 `"<title>" — <artist> | lane-fit: <tech/general/family/any> | why: <one line> | start: <where>`
 Rules inherited from the dailies' audio law (ROUTINE-CORE step 4): every
 entry is a REAL, currently-trending track found in the search — never
