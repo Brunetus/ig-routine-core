@@ -49,9 +49,22 @@ if grep -q "$(date +%F)" last-scan.txt 2>/dev/null; then
   exit 0
 fi
 
+# ---- Single-instance lock: a sleep/wake re-fire mid-scan must not start a
+# second agent against the same candidate list (mkdir is atomic). A lock
+# older than 2h is a crash leftover and is cleared. ----
+LOCK="$BANK/.scan.lock"
+if [ -d "$LOCK" ] && [ -n "$(find "$LOCK" -maxdepth 0 -mmin +120 2>/dev/null)" ]; then
+  echo "$(date): clearing stale lock (>2h)" >> "$LOG"; rmdir "$LOCK" 2>/dev/null
+fi
+if ! mkdir "$LOCK" 2>/dev/null; then
+  echo "$(date): another scan is running (lock present), skipping" >> "$LOG"
+  exit 0
+fi
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT
+
 # ---- Pre-flight: wait for the Anthropic API (up to 40 min, 5-min checks;
 # shorter than the dailies' 2h — a late scan must not collide with them,
-# and a missed scan just means Thursday's/Monday's bank) ----
+# and a missed scan just means tomorrow's bank) ----
 for i in {1..8}; do
   curl -s --max-time 10 -o /dev/null https://api.anthropic.com/ && break
   [ $i -eq 1 ] && echo "$(date): Anthropic API unreachable, waiting…" >> "$LOG"
@@ -59,7 +72,7 @@ for i in {1..8}; do
 done
 
 # ---- Hard wall clock: never bleed into the 9:00 daily window. A scan that
-# would start after 8:45 (API-outage wait, wake re-fire) skips entirely —
+# would start after 8:30 (API-outage wait, wake re-fire) skips entirely —
 # a missed scan is "no new clips today", a contended daily is a bad post. ----
 if [ "$(date +%H%M)" -gt 0830 ] && [ "$(date +%H)" -lt 12 ]; then
   echo "$(date): past 08:30, skipping to protect the daily window" >> "$LOG"

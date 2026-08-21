@@ -13,7 +13,7 @@
 # Config: ~/.config/ig-fetch/config.json
 #   { "chrome_profile": "Profile N",   # the DORMANT account's own profile
 #     "handle": "<dormant handle>",    # for the log only
-#     "max_per_day": 5, "min_gap": 60, "max_gap": 90 }
+#     "max_per_day": 5, "min_gap": 60, "max_gap": 90 }   # cap counts REQUESTS (fails included)
 # State/log: ~/.config/ig-fetch/{state.json,fetch.log}
 
 set -u
@@ -44,6 +44,25 @@ MAXGAP=$(/usr/bin/python3 -c "import json;print(int(json.load(open('$CFG')).get(
 for f in "${FORBIDDEN[@]}"; do
   [ "$PROFILE" = "$f" ] && die "REFUSING: '$PROFILE' holds a business session (imabgold/bambi/maxima). Point chrome_profile at the dormant account's own profile."
 done
+# The name denylist alone is not enough (audit 2026-08-21): a path-style
+# profile, a new "Profile 8", or Marcus signing into a business account in
+# the dormant profile would all slip past it. Positive checks:
+#  - chrome_profile must be a bare "Profile N" directory name, no slashes;
+#  - that profile's Chrome Preferences must not carry one of Marcus's own
+#    Google accounts (the business profiles all do; the dormant one does not);
+#  - the profile must hold an instagram.com session at all (else yt-dlp
+#    would fall back to an anonymous fetch that looks exactly like a bot).
+case "$PROFILE" in */*|.*|"") die "REFUSING: chrome_profile must be a bare 'Profile N' name, got '$PROFILE'";; esac
+PREFS="$HOME/Library/Application Support/Google/Chrome/$PROFILE/Preferences"
+[ -f "$PREFS" ] || die "REFUSING: no Chrome profile dir for '$PROFILE'"
+OWNER_EMAILS='marc.brunet.r@gmail.com mbrunet@maximahq.com heliumdeploy'
+PROFILE_EMAIL=$(/usr/bin/python3 -c "import json,sys;print(' '.join(a.get('email','') for a in json.load(open(sys.argv[1])).get('account_info',[])))" "$PREFS" 2>/dev/null)
+for e in ${=OWNER_EMAILS}; do
+  case "$PROFILE_EMAIL" in *"$e"*) die "REFUSING: '$PROFILE' is signed into Marcus's own account ($e) — not a dormant profile";; esac
+done
+COOKIES="$HOME/Library/Application Support/Google/Chrome/$PROFILE/Cookies"
+HAS_IG=$(/usr/bin/sqlite3 -readonly "file:$COOKIES?immutable=1" "select count(*) from cookies where host_key like '%instagram.com' and name='sessionid'" 2>/dev/null || echo 0)
+[ "${HAS_IG:-0}" -ge 1 ] || die "REFUSING: '$PROFILE' holds no instagram.com session — sign the dormant account in first"
 
 # ---- daily budget (calendar day, local) ----
 TODAY=$(date +%F)
@@ -62,6 +81,10 @@ import json;json.dump({'date':'$TODAY','count':$USED,'last':$1}, open('$STATE','
 FAILS=0
 while [ $# -ge 2 ]; do
   CODE="$1"; DEST="$2"; shift 2
+  # day rollover mid-run must not hand out a fresh budget (audit 2026-08-21)
+  if [ "$(date +%F)" != "$TODAY" ]; then
+    print -r -- "ig-fetch: day rolled over mid-run; stopping, the rest wait for a new invocation."; log "STOP day rollover"; exit 3
+  fi
 
   [ "$USED" -ge "$MAXDAY" ] && { print -r -- "ig-fetch: daily cap $MAXDAY reached. $CODE and the rest wait for tomorrow."; log "CAP hit, deferred $CODE"; exit 3; }
   [ "$FAILS" -ge 2 ] && { print -r -- "ig-fetch: two consecutive failures. Stopping (repeated retries are the bot signal)."; log "STOP after 2 consecutive failures"; exit 4; }
@@ -90,7 +113,8 @@ while [ $# -ge 2 ]; do
     fi
     log "OK $CODE ($(stat -f %z "$DEST" 2>/dev/null) bytes) as @$HANDLE"
   else
-    FAILS=$(( FAILS + 1 )); LAST=$(date +%s); save_state "$LAST"
+    # a failed request is still a request Instagram saw — it counts against the cap
+    FAILS=$(( FAILS + 1 )); USED=$(( USED + 1 )); LAST=$(date +%s); save_state "$LAST"
     rm -f "$DEST"
     print -r -- "ig-fetch: FAILED $CODE (failure $FAILS of 2 allowed)"
     log "FAIL $CODE"

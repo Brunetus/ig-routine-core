@@ -73,8 +73,16 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
    bambi / maxima session (the script refuses those by name), and never
    raise the caps to finish a bank faster — a bank that takes three days is
    the point. Use it only for clips whose `media_url` the API withholds;
-   everything else comes from the Graph API. Original ban, for the record:
-   **COOKIE BAN, absolute (2026-08-20).** Never run `yt-dlp
+   everything else comes from the Graph API. **If `ig-fetch.sh` exits 3
+   (daily cap) or 4 (two failures), that is FINAL for today: log
+   `download-miss: <shortcode> media withheld (fetch cap)`, substitute the
+   next-ranked reel, never retry, never call yt-dlp yourself.** For a
+   withheld clip that matters and cannot be fetched today, leave it for
+   tomorrow's scan (its tombstone/miss line is the queue) or ask Marcus to
+   save it by hand from the IG app.
+   SUPERSEDED 2026-08-21 — kept as the rationale for why the script exists,
+   NOT as a live rule (the live rule is the paragraph above):
+   **COOKIE BAN (2026-08-20).** Never run `yt-dlp
    --cookies-from-browser`, never drive instagram.com through browser
    automation with Marcus signed in, never reuse his session cookies for
    any capture. Replaying his logged-in session is what Instagram reads as
@@ -82,11 +90,8 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
    automated behavior" warning on 2026-08-20 — the next step is a
    temporary restriction or a permanent disable of the account the whole
    business runs on. This applies to ad-hoc client/reference bank captures
-   too, not just scheduled scans. If the Graph API withholds `media_url`
-   (licensed audio), the clip is NOT capturable: record it in the index as
-   "media withheld", substitute the next-ranked reel, and if the clip
-   really matters ask Marcus to save it by hand from the IG app. Never
-   route around this.
+   too, not just scheduled scans. Marcus's own sessions are never a
+   capture surface; the throwaway account in `ig-fetch.sh` is the only one.
 5. Log every step's outcome to `logs/<today>.log`. Watchlist handles that
    fail to resolve are logged as `watchlist-miss: @handle <reason>` and
    skipped — never fatal, never removed from the watchlist by you.
@@ -114,12 +119,21 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
      IMMEDIATELY BEFORE the `ig_hashtag_search` call — never after
      processing (a crash after the call but before the log would leak
      quota invisibly).
-   - Before step 2b, collect the set of unique tags in `hashtag-query`
-     lines across the last 7 days of logs = `used`. Tags in `used` may be
-     re-queried freely. NEW tags are allowed only while
-     `|used| + new ≤ 30`, and total tags queried this scan ≤ 12.
-   - Therefore PREFER a stable, repeating lane set over rotating fresh
-     tags — reuse costs nothing, novelty burns the window.
+   - Before step 2b, collect `used` = the unique tags in `hashtag-query`
+     lines across the last 7 days of logs UNION the tags ig-pulse holds
+     active in `~/Claude Code/ig-pulse/state/tags.json` (read-only; the
+     spike radar charges the SAME app-wide 30-tag window every 30 minutes
+     — added 2026-08-21, when the scan went daily and its own logs stopped
+     being the whole picture). Tags in `used` may be re-queried freely.
+     NEW tags are allowed only while `|used| + new ≤ 30`, and total tags
+     queried this scan ≤ 12.
+   - **The standing lane set is FROZEN at daily cadence** (since
+     2026-08-21): re-query the same 12 tags every scan and never swap one
+     on your own judgment — a swap is a new tag charged for 7 days on a
+     window ig-pulse also needs. Swaps are Marcus's call, noted in this
+     file. A steering tag (step 2b) that would push `|used| + new` past
+     30 is DROPPED and logged `steering-defer: #tag (quota)` — steering
+     never outranks the hard stop.
 
 ## The scan
 
@@ -264,7 +278,7 @@ and say so in the log (`taste-pick: <shortcode> over <shortcode>:
 A candidate that clears the ad gate but has NO comedic/splice mechanism —
 a sincere talking-head, straight news, a tragedy, anything with no joke to
 lend — is not an ad and not a fit. If you've already spent a download slot
-frame-sampling it to learn this, catalogue it `status: DO-NOT-SPLICE` with a
+frame-sampling it to learn this, catalogue it `status: DO-NOT-SPLICE (<today>)` with a
 one-line reason and log `taste-reject: <shortcode> <reason>`, so a later
 scan won't re-spend a slot rediscovering it. It does NOT count as banked.
 
@@ -278,7 +292,10 @@ then confirm with `file` that it's really an MP4 (an expired link returns
 an error body, not video) — if the check fails, DELETE the junk file (the
 guard-3 exception). A reel whose media_url is absent or fails is logged
 (`download-miss: <shortcode> <reason>`) and skipped — never retried more
-than once, never fetched by any other means, never fatal.
+than once, never fatal. A reel with NO `media_url` (licensed audio) may be
+fetched ONLY through `ig-fetch.sh` per guard 4, ≤ its daily cap, highest-
+ranked first; anything past the cap is a `download-miss ... media withheld
+(fetch cap)` and waits for a later scan.
 
 ### 5. Catalogue — the architect-facing entry
 You must actually look at each clip before writing its entry: frame-sample
@@ -367,11 +384,11 @@ Rules:
 
 ### 6. Freshness sweep
 Any entry with `first-seen` older than 21 days and `status: FRESH` → edit
-its status to `STALE (<today>)` — the date makes the step-6b one-scan
-delay machine-verifiable. Touch nothing else about it.
+its status to `STALE (<today>)` — the date is what step 6b's 3-day delay
+is measured from (every demotion status carries its date for that reason). Touch nothing else about it.
 
 Retro ad sweep (same pass): any entry still `status: FRESH` whose own
-catalog text fails the guard-7 ad filter gets `status: AD-REJECTED`
+catalog text fails the guard-7 ad filter gets `status: AD-REJECTED (<today>)`
 (the status line IS the record of why it left the canon — record the demotion
 now; a LATER scan prunes it, per 6b). Judge from the catalog text you already
 have — no re-fetching captions, no extra API calls; re-frame-sample the
@@ -392,11 +409,14 @@ renumbering entries architects may have referenced in staged notes. Log
 
 ### 6b. Prune sweep — reclaim clip files, keep the dedup record (guard 3)
 Keep the bank lean without ever risking a live spike OR re-downloading a
-clip you already judged. Prune ONLY entries that were ALREADY out of canon
-when this scan STARTED — their `status: STALE | AD-REJECTED | DO-NOT-SPLICE`
-was written by a PRIOR scan, not a demotion you made in step 6 this run. The
-one-scan delay is deliberate: a demoted entry stays fully visible for at
-least one cycle (and one commit) before collection.
+clip you already judged. Prune ONLY entries whose `status: STALE |
+AD-REJECTED | DO-NOT-SPLICE (<date>)` carries a demotion date **≥ 3 days
+old** — never a demotion you made this run. (Was "written by a PRIOR scan";
+at daily cadence that became a 24h window, too short for a staged reel that
+references the clip to air. An out-of-canon status with no date gets today's
+date stamped on it this run and is considered next time.) The delay is
+deliberate: a demoted entry stays fully visible, with its file, for at
+least three days and several commits before collection.
 
 For each such entry:
 - DELETE its `clips/<shortcode>.mp4` file — the heavy asset that bloats the
@@ -451,7 +471,17 @@ Rules now:
   never unsourced; a pick is a title AND an artist. Account-agnostic:
   lane-fit and shape describe the track, not an account. No rights flags
   (Marcus's ruling 2026-08-15).
-- Time box: past 08:35 → `audio-skip: time`, leave audio.md standing.
+- Time box (scheduled runs): do not START 6c past 08:35 (`audio-skip:
+  time`); at most 3 searches; and if you are still inside 6c at 08:45,
+  write what you have and go to step 7 — the 09:00 daily reads audio.md
+  and must never catch it mid-write.
+- One-time migration (first daily scan after 2026-08-21): any entry lacking
+  `confirmed:` is stamped with the file's last refresh date and given a
+  best-fit `shape:`; the header comment is rewritten to describe the pool
+  law (add-only, drop-on-evidence), replacing any "full overwrite" wording.
+- Dedup on normalized title + artist (case/punctuation/"(feat. …)"
+  stripped). Within each shape group order by `confirmed:` descending, so a
+  consumer reading the top of a group gets the freshest.
 
 ### 7. Close out
 Write `last-scan.txt`: first line `<today> — scanned N accounts + H
@@ -570,9 +600,10 @@ comment-rate (not like-count) should be a ranking axis. Comments are now
 
 ### CONSTRAINT ON ALL OF THE ABOVE
 
-**More API calls is the sanctioned direction, but the COOKIE BAN is absolute.**
+**More API calls is the sanctioned direction. Scale through the Graph API;
+the ONLY cookie path is `ig-fetch.sh` (throwaway account, guard 4).**
 Instagram warned Marcus's account for suspected automated behavior on 2026-08-20
-after ~20 cookie-based yt-dlp pulls over two days. Scale through the Graph API
-only. Media the API withholds is recorded as withheld and substituted, never
-fetched through his session. @imabgold and @bambi.map are the business; a
+after ~20 cookie-based yt-dlp pulls over two days. Media the API withholds goes
+through `ig-fetch.sh` up to its daily cap or is recorded as withheld and
+substituted; it is never fetched through his session. @imabgold and @bambi.map are the business; a
 restriction ends the routines and the outreach engine.
