@@ -42,7 +42,7 @@ EVERY account's next run — no per-account copying.
 
 ## Schedule map (LaunchAgents, unchanged by this repo)
 
-- com.marcus.viral-scan → Mon+Thu 8:00 AM → ig-routine-core/run-viral-scan.sh
+- com.marcus.viral-scan → EVERY DAY 8:00 AM (daily since 2026-08-21) → ig-routine-core/run-viral-scan.sh
   (viral clip bank scan per BANK.md; data in ~/Claude Code/viral-bank/; NOT
   an account wrapper — it must never source run-daily-core.sh. Test:
   `touch ~/Claude\ Code/viral-bank/TEST-MODE && launchctl kickstart gui/501/com.marcus.viral-scan`)

@@ -1,4 +1,4 @@
-# BANK.md — viral clip bank: law for the twice-weekly scan
+# BANK.md — viral clip bank: law for the DAILY scan (daily since 2026-08-21; was Mon+Thu)
 
 You are the VIRAL AGENT. Your job is to keep the clip bank at
 `~/Claude Code/viral-bank/` stocked with famous/spiking reels and catalogue
@@ -65,6 +65,28 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
 4. API modesty: ≤25 recent media queried per watchlist account, ≤6 new
    clip downloads per scan. No paid APIs, no scraping, no cookies — the
    Graph API is the ONLY Instagram surface you touch.
+   **COOKIE RULE (revised 2026-08-21, Marcus).** Cookie-driven fetching is
+   allowed ONLY through `ig-routine-core/ig-fetch.sh`, which uses a DORMANT
+   throwaway account in its own Chrome profile and enforces a daily cap,
+   randomized human-pace spacing, and a stop-after-2-failures rule. Never
+   call `yt-dlp` directly, never use a Chrome profile holding an imabgold /
+   bambi / maxima session (the script refuses those by name), and never
+   raise the caps to finish a bank faster — a bank that takes three days is
+   the point. Use it only for clips whose `media_url` the API withholds;
+   everything else comes from the Graph API. Original ban, for the record:
+   **COOKIE BAN, absolute (2026-08-20).** Never run `yt-dlp
+   --cookies-from-browser`, never drive instagram.com through browser
+   automation with Marcus signed in, never reuse his session cookies for
+   any capture. Replaying his logged-in session is what Instagram reads as
+   a third-party tool on his account, and it earned a "we suspect
+   automated behavior" warning on 2026-08-20 — the next step is a
+   temporary restriction or a permanent disable of the account the whole
+   business runs on. This applies to ad-hoc client/reference bank captures
+   too, not just scheduled scans. If the Graph API withholds `media_url`
+   (licensed audio), the clip is NOT capturable: record it in the index as
+   "media withheld", substitute the next-ranked reel, and if the clip
+   really matters ask Marcus to save it by hand from the IG app. Never
+   route around this.
 5. Log every step's outcome to `logs/<today>.log`. Watchlist handles that
    fail to resolve are logged as `watchlist-miss: @handle <reason>` and
    skipped — never fatal, never removed from the watchlist by you.
@@ -396,22 +418,40 @@ removed outright (git keeps the history, and by then step 3's "posted within
 the last 10 days" filter is a second net against re-download). NEVER prune a
 `FRESH` entry. Count pruned entries in the close-out line.
 
-### 6c. Trending-audio shortlist — the customer jobs' audio source
-Customer reel jobs (JOBS.md) have NO network access, so their audio pick
-comes from a shortlist you refresh here. WebSearch current IG trending
-audio and rewrite `audio.md` (full overwrite, derived data like taste.md):
-≤20 tracks, each one line (cap raised from 10 on 2026-08-15: the account
-dailies' last-5 variety rule plus staged-but-unaired picks block 5–7
-entries at any given pick, and 10 left the pool exhausted — the 07-31 run
-had 1 eligible track, 0 backups; 20 keeps ~a dozen live candidates and is
-still a one-screen read) —
-`"<title>" — <artist> | lane-fit: <tech/general/family/any> | why: <one line> | start: <where>`
-Rules inherited from the dailies' audio law (ROUTINE-CORE step 4): every
-entry is a REAL, currently-trending track found in the search — never
-invented, never unsourced; a pick is a title AND an artist. Keep it
-account-agnostic: lane-fit describes the track's vibe, not an account.
-Time box like step 0: past 08:20 → `audio-skip: time`, keep the previous
-audio.md standing.
+### 6c. Trending-audio pool — the accumulating audio source (rewritten 2026-08-21)
+Customer reel jobs (JOBS.md) and the account dailies have NO trend research
+of their own; their audio pick comes from `audio.md`, which this step grows.
+**`audio.md` is a POOL that ACCUMULATES, never a shortlist that resets.**
+Until 2026-08-21 it was a full overwrite capped at 20, which meant the pool
+could never be larger than one morning's search and every refresh threw
+away tracks that were still live (the 08-20 refresh dropped 12 of 20 just
+because that day's four roundups didn't list them). At 3-4 posts/day with
+the dailies' last-5 variety rule, that pool ran dry in about three days.
+Rules now:
+- **ADD, don't replace.** WebSearch current IG trending audio (several
+  targeted searches are fine — this step is where extra calls are spent)
+  and append every REAL track you find that is not already in the file.
+  Re-sighting an existing track updates its `confirmed:` date only.
+- **No cap.** The target is >= 5x the weekly post count across the accounts
+  that draw on it (Marcus, 2026-08-21: 3-4 posts/day on one account alone,
+  so think 100+, not 20). Each scan should net at least +5 new tracks while
+  the pool is under target; log `audio-added: N, audio-pool: M`.
+- **Drop only on evidence.** A track leaves the file when its `confirmed:`
+  date is >21 days old AND today's search still does not mention it, or
+  when Marcus vetoes it (the veto list in the header is permanent — never
+  re-add a vetoed track). Log `audio-dropped: "<title>" <reason>`. Never
+  drop a track because a single list omitted it today.
+- Entry format, one line each:
+  `"<title>" — <artist> | shape: <deadpan-hold/escalation/comparison/quiet-confession/momentum> | lane-fit: <tech/general/family/any> | why: <one line> | start: <where> | confirmed: <date>`
+  `shape:` is how the architect actually selects (the shape of the cut the
+  track plays straight under); group the file by shape so a thin shape is
+  visible at a glance.
+- Inherited from the dailies' audio law (ROUTINE-CORE step 4): every entry
+  is a REAL, currently-trending track found in the search — never invented,
+  never unsourced; a pick is a title AND an artist. Account-agnostic:
+  lane-fit and shape describe the track, not an account. No rights flags
+  (Marcus's ruling 2026-08-15).
+- Time box: past 08:35 → `audio-skip: time`, leave audio.md standing.
 
 ### 7. Close out
 Write `last-scan.txt`: first line `<today> — scanned N accounts + H
@@ -419,7 +459,7 @@ hashtags, M new clips banked, F formats captured, K entries went stale, P
 entries pruned, A ads skipped, X misses`. Log the same line. Commit the
 bank repo (`git -C ~/Claude\ Code/viral-bank add -A && git commit`) with
 that summary as the message — catalog.md, watchlist.md, taste.md,
-playbook.md and audio.md are tracked; clips and logs are gitignored.
+playbook.md and audio.md are tracked (audio.md grows every scan now); clips and logs are gitignored.
 
 ## Consumption law (for architects / daily routines — not the scan)
 
@@ -451,3 +491,88 @@ playbook.md and audio.md are tracked; clips and logs are gitignored.
   filler is a FAIL), and the clip came from `viral-bank/clips/` (not scraped
   ad hoc mid-run). The banked clip MAY carry the payoff beat — that is no
   longer a failure.
+
+---
+
+## OPEN GAPS FOR THE SCAN (recorded 2026-08-21, from @imabgold's first splice day)
+
+Marcus's stated goal: **more audio and more banked clips, accepting more API
+calls to get them.** These five findings are why, in priority order.
+**ACTIONED 2026-08-21 (Marcus's call: keep it simple):** the scan now runs
+DAILY instead of Mon+Thu, and step 6c makes `audio.md` an accumulating pool
+with no cap. Findings 2-5 were NOT actioned as new sorting rules — more
+cadence is the fix; revisit only if the daily bank still misses them.
+
+### 1. AUDIO IS THE BINDING CONSTRAINT, and it is arithmetic, not taste
+
+Marcus wants to move to **3-4 posts per day**. The variety rule blocks any track
+in the last 5 ledger rows, and `audio.md` holds roughly 10-15 usable tracks once
+the register rule removes female-pop. **At 4 posts/day the pool is exhausted in
+about three days**, after which every pick is a repeat or a rule break.
+
+This is already binding, twice over:
+- 2026-08-21 needed **six distinct tracks in one session** and had to promote
+  unspent BACKUPS to fill the slots.
+- 2026-08-05 recorded it explicitly: *"audio.md is thin for QUIET DEADPAN shapes
+  — 5 of its 10 entries were blocked by the last-5 rule and 3 by
+  creator-account/commercial restrictions, leaving one real candidate."*
+
+**The audio pool must scale with posting rate, not with scan cadence.** A pool
+that supports 2 posts/week does not support 4 posts/day, and the ledger cannot
+be relaxed to paper over it — the variety rule is what stops the account sounding
+identical. Target the pool at >= 5x the weekly post count, and bank tracks BY
+SHAPE (deadpan-hold, escalation, comparison, quiet-confession, momentum) since
+that is how the architect actually selects.
+
+### 2. THE BANK IS A COMEDY MONOCULTURE, and the org now has customers
+
+All 34 FRESH entries are comedy: dogs, toddlers, robots, monkeys, sports fails.
+That serves @imabgold and **failed completely for a paying customer**: for
+@sahilchawla.md (physician, "credibility IS the product, never a comedy format
+that makes him or a patient the butt of the joke") **not one usable donor exists
+in the entire bank**. The only survivor was playbook #28, headlines-as-receipts,
+which adds authority instead of spending it.
+
+**The scan is banking for one account and serving at least three.** It needs
+lanes for AUTHORITY/CREDIBILITY formats, not only comedy: receipts-and-headlines,
+before/after with a verifiable claim, consumer-protection warnings, "here is what
+this actually costs", process-transparency. Those are the shapes customer
+channels can legally and reputationally use.
+
+### 3. NAMED CLIP GAP: nothing pictures a CHAIN REACTION
+
+No FRESH entry depicts *a small input causing a disproportionate cascade* —
+one thing pulled and everything collapsing. A reel needing it was killed on
+2026-08-21 for exactly this. It is @imabgold's single most repeatable true story
+("I changed one thing and it moved everything") and the bank cannot picture it.
+Nearest candidates were checked and rejected on inspection: `Dbi8hsFxMD9` (fall
+obscured behind a stair rail), `DbTsR5LR5W3` (news-pegged, banned by brand.md).
+
+### 4. THE SCAN MISSED THE HIGHEST-COMMENT FORMATS IN THE ORG
+
+@rghoss1's engine — one held line, one continuous shot, text phrased as a demand
+the viewer must answer — was found in a **hand-built client folder**, not by the
+scan, despite reels at 16.1M and 8.2M views and **70,800 comments on one post
+(1 per 4 likes)**. The scan watches 16 accounts + 12 hashtags and surfaced none
+of it. Worth auditing what those 16 accounts actually are, and whether
+comment-rate (not like-count) should be a ranking axis. Comments are now
+@imabgold's graded criterion and the bank has almost no comment-engine formats.
+
+### 5. PER-CUSTOMER TREND COVERAGE IS UNEVEN (Marcus, 2026-08-21)
+
+- **@sahilchawla.md** builds his own library from his own **post scan**, so his
+  account-level clip bank is self-feeding. **He has NO ig-pulse setup** — the
+  pulse spike-radar is wired to the iPhone-app customer instead — so he has no
+  account-specific trend monitoring at all.
+- Any expansion has to account for per-customer scans running alongside the org
+  scan, so the same clip is not fetched twice and the API budget is shared, not
+  duplicated.
+
+### CONSTRAINT ON ALL OF THE ABOVE
+
+**More API calls is the sanctioned direction, but the COOKIE BAN is absolute.**
+Instagram warned Marcus's account for suspected automated behavior on 2026-08-20
+after ~20 cookie-based yt-dlp pulls over two days. Scale through the Graph API
+only. Media the API withholds is recorded as withheld and substituted, never
+fetched through his session. @imabgold and @bambi.map are the business; a
+restriction ends the routines and the outreach engine.
