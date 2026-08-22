@@ -185,8 +185,8 @@ account's catalog entries — it's how architects filter for relevance.
 Lanes follow CUSTOMER SEGMENTS, not Marcus's accounts: when the paying
 funnel brings a cohort whose niche the bank doesn't cover, that's a
 watchlist-expansion note for Marcus in the log — never a reason for an
-architect to splice a badly-fitting clip ("photos alone are stronger"
-already covers the gap).
+architect to splice a badly-fitting clip (an `OWN-IS-REFERENT` or
+`LITERAL-REFERENT` rejection in the DONOR PASS record covers the gap).
 
 ### 2. Pull each account's recent reels
 For each handle, one `business_discovery` call (the tested read surface):
@@ -494,9 +494,10 @@ playbook.md and audio.md are tracked (audio.md grows every scan now); clips and 
 ## Consumption law (for architects / daily routines — not the scan)
 
 - `catalog.md` is read-only for you. Reading it is part of the trends step;
-  using a clip is OPTIONAL — decide from the account's/user's material
-  first, then ask whether a banked clip makes the cut funnier. If not,
-  photos-only, no justification needed.
+  whether to use a clip is decided ON THE RECORD: ARCHITECT-CORE §1's
+  DONOR PASS walks the FRESH entries every run and names the top 3 with a
+  rejection each. No-splice is legal only on top of that record (since
+  2026-08-22; "no justification needed" is retired).
 - If you splice (REACH mode): optimize for the most viral cut. The
   account's/user's own material must stay essential and load-bearing (pull
   it and the reel collapses — the reach is attributable to their footage,

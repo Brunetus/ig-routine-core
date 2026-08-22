@@ -17,7 +17,11 @@ footage and the method, not a borrowed clip padded with disposable filler
 load-bearing). Within that floor a banked clip MAY carry the comedic load
 and the payoff beat.** Trending audio is still added natively in-app, never
 baked in. Splicing is optional: "their photos/footage alone are stronger"
-is a first-class outcome, never a failure.
+is a first-class outcome, never a failure — but it is written ON THE RECORD:
+the outline carries the ARCHITECT-CORE §1 DONOR PASS (3 shortcodes + named
+rejections; fewer than 3 relevant FRESH entries → name what you walked and
+ship). For jobs a missing record is a FIX note in the outline, never a FAIL
+that strands the job.
 
 ## Hard guards (no judgment calls — bind architect, builder, AND QA)
 
@@ -33,6 +37,9 @@ is a first-class outcome, never a failure.
    (its `## universal` section ONLY — the per-account sections are other
    people's audience data and must not shape this reel),
    `~/Claude Code/viral-bank/audio.md`,
+  and, on a PAID job whose `job.json` carries a `client` field,
+  `~/Claude Code/viral-bank/<client>/` — the customer's own proven-viral
+  clip bank (index.md + clips), READ-ONLY,
    `~/Claude Code/reel-app/preview-beds/` (licensed music beds for the
    preview render — read-only), and, if the outline splices,
    `~/Claude Code/viral-bank/clips/<shortcode>.mp4`
@@ -93,7 +100,19 @@ is a first-class outcome, never a failure.
   extract `ffmpeg -i clip.mov -vn -ar 16000 -ac 1 audio.wav`, then
   `mlx_whisper.transcribe("audio.wav", path_or_hf_repo="mlx-community/whisper-base-mlx")`
   → dict with `text` and `language`.
-- Output spec: 1080×1920, H.264 yuv420p, 24–30fps, total length 7–20s.
+- Output spec: 1080×1920, 24–30fps, total length 7–20s. **Color law
+  (2026-07-24, inherited from ARCHITECT-CORE §3 and binding here too):
+  preserve the SOURCE's own color and lighting — never force-tonemap.**
+  HDR sources (iPhone HLG/HDR10) are cut in native 10-bit and encoded
+  HEVC: `-c:v libx265 -crf 14-17 -pix_fmt yuv420p10le` with the source's
+  color tags carried through (e.g. `-color_primaries bt2020
+  -color_trc arib-std-b67 -colorspace bt2020nc -tag:v hvc1`). SDR sources
+  stay SDR H.264 yuv420p as before — the rule is "deliver the customer's
+  original lighting", not "always HDR". Tonemapped SDR frames are for the
+  agent's own inspection only and never ship. Verify: `signalstats` YAVG
+  of the deliverable within 1% of the source. (The old blanket
+  "H.264 yuv420p" spec silently washed out HDR uploads — the exact defect
+  Marcus rejected twice on @imabgold.)
   Audio: silent by default (the customer adds trending audio inside IG
   when posting). BUT when the cut is narration-led (see Phase A), keep
   the customer's voice: AAC 128k, and every beat's source audio rides
@@ -101,6 +120,28 @@ is a first-class outcome, never a failure.
   unless the outline explicitly declares a voiceover bed.
 
 ## Phase A — ARCHITECT: look, decide, write the outline
+
+0. **PAID JOBS — study the client's own viral bank FIRST (Marcus,
+   2026-08-19).** If `job.json` has a `client` field and
+   `~/Claude Code/viral-bank/<client>/` exists: read its `index.md`
+   (ranked view/like data and the read on what performs) AND its
+   `preferences.md` if present (the customer's stated positioning and
+   taste, in their own words — it outranks the generic playbook) AND, if
+   `reference/index.md` exists, that too — reels from accounts the
+   customer named as the style they want, captured for mechanism study:
+   read the index, sample the clips, mine their hook shapes and pacing,
+   but NEVER splice, re-cut, or lift their footage (they are other
+   people's work; only the customer's own material goes in the reel),
+   then
+   frame-sample the clips it ranks highest and watch how they work —
+   hook shape, pacing, text treatment, how the subject carries
+   authority. These are reels PROVEN viral on this exact audience. Your
+   cut should be inspired by them: same energy, similar mechanisms,
+   sibling in the same series — executed on the customer's fresh footage
+   (the bank is reference-only: never splice from it, never re-cut it).
+   Where the bank's evidence and the generic playbook disagree, the
+   bank wins — it is this audience's actual scoreboard. Record in the
+   outline which bank clip(s) inspired the cut.
 
 1. **Look at everything — and LISTEN to everything.** FIRST: convert any
    `.heic`/`.heif` inputs to JPEG with macOS
@@ -184,7 +225,8 @@ is a first-class outcome, never a failure.
    decision** (which playbook format was considered and USED or PASSED,
    one line why — "no live format fits, house shape" is valid but must
    be stated; an outline with no format line means step 3 was skipped),
-   the splice decision (`shortcode + segment + why` or `no-splice + why`),
+   the splice decision (`shortcode + segment + why` or `no-splice + why`)
+   with the DONOR PASS record under it (3 shortcodes, named rejections),
    the preview-bed pick when `preview-beds/` has audio (bed filename,
    vibe-matched from the filenames, + start offset — or `no-preview` if
    the folder is empty), the full drawtext style block (house style above)
@@ -225,7 +267,16 @@ If the builder leaves a BUILDER-NOTE: revise the outline ONCE to fix the
 stated problem and spawn a FRESH builder. A second BUILDER-NOTE →
 `out/FAILED` with both notes.
 
-**Render spec (builder):** two files, plus a conditional third —
+**PAID JOBS render ONE file (Marcus, 2026-08-19):** if `job.json` has
+`paid: true`, the deliverable is `out/reel-clean.mp4` alone — NO
+watermarked file, NO preview (the customer already subscribes; a watermark
+or a bed-baked preview has no one to sell to). The outline must not
+include watermark or preview steps, `out/RENDERED` is written when
+`out/reel-clean.mp4` exists, and QA verifies that single file. Everything
+below about `reel-watermarked.mp4` / `reel-preview.mp4` applies to FREE
+jobs only.
+
+**Render spec (builder, FREE jobs):** two files, plus a conditional third —
 - `out/reel-clean.mp4` — no watermark.
 - `out/reel-preview.mp4` — ONLY when `~/Claude Code/reel-app/preview-beds/`
   contains audio files AND the outline names a bed pick: the watermarked
@@ -246,11 +297,32 @@ stated problem and spawn a FRESH builder. A second BUILDER-NOTE →
   footage is blown-out white across most beats, drop alpha to 0.6 —
   never add a box.
 
+When the builder returns and both `out/reel-clean.mp4` and
+`out/reel-watermarked.mp4` exist (paid jobs: `out/reel-clean.mp4` alone), write `out/RENDERED` (one line:
+"builder done, awaiting QA") BEFORE spawning QA. This is the launcher's
+salvage marker: if the session dies mid-QA (watchdog, crash), a finished
+render gets parked for Marcus's manual review instead of failed. It is
+NOT a ship signal — QA's `out/DONE` remains the only one. If QA FAILs
+and a rebuild is needed, `rm out/RENDERED` BEFORE re-spawning the
+builder and write it again only once the rebuilt files exist — a
+watchdog kill mid-rebuild must not leave the marker pointing at a
+half-written file.
+
 ## Phase C — QA: fresh eyes, mandatory
 
 Spawn ONE independent QA agent (Task tool, zero context on phases A/B)
-with the two output files, `out/OUTLINE.md`, and this brief: verify
-1080×1920 and 7–20s; ≥2 real cuts; no black/frozen/corrupt frames
+with the two output files, `out/OUTLINE.md`, and this brief — including
+this standing instruction: **work inside `work/qa/` and leave a file
+trail as you go (extracted frames, transcripts, a running notes.txt line
+per check)**. The launcher's liveness watchdog counts file writes as
+proof the session is alive; a QA that reads and thinks for many minutes
+without writing anything looks dead and gets killed mid-verdict (this
+killed two finished jobs on 2026-08-19). Then verify
+1080×1920 and 7–20s; ≥2 real cuts; **color/lighting preserved — if the
+customer source is HDR (HLG/HDR10) the deliverable must be 10-bit HEVC
+carrying the source color tags, and its signalstats YAVG must match the
+source within ~1%; a washed/flat SDR conversion of an HDR source is a
+FAIL** (check `ffmpeg -i` stream tags on both); no black/frozen/corrupt frames
 (frame-sample both files); if the outline declares the cut narration-led,
 both files carry an audible voice track and the spoken lines match the
 beat order (extract + transcribe to check — silent output on a
@@ -264,7 +336,8 @@ the mandatory trend step: FAIL) and if a format was USED the reel
 actually implements it; **the visual variety rule holds** — consecutive
 beats sharing identical framing at identical scale, with no declared
 comedic intent, is a FAIL; **the delivered files match the
-outline** — beat count, order, and splice usage; a deviation is a FAIL
+outline** — beat count, order, and splice usage (and the outline carries
+a DONOR PASS record; missing = FIX note, not FAIL); a deviation is a FAIL
 even if the reel is good (an outline that wasn't followed means the
 decision on record is a lie). If a splice is declared: the customer's
 material is essential and load-bearing (disposable filler = FAIL); the clip

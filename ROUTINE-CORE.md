@@ -40,6 +40,13 @@ ACCOUNT file wins.
    material is essential/load-bearing — not disposable filler; the clip
    MAY carry the payoff) — and still FAILs if that doesn't hold. An UNDECLARED foreign clip remains a
    provenance failure; a splice claim never launders a pre-made reel.
+   **The brief must ALSO state, unconditionally (splice or not): "verify the
+   notes carry a DONOR PASS record — 3 `catalog.md` shortcodes that resolve
+   to FRESH entries, each with a quoted `pairs-with` line, a beat, and a
+   named rejection; missing = FIX-FIRST" (ARCHITECT-CORE §1, 2026-08-22).**
+   This line is what makes `Splice: NONE` checkable; the DECLARED-splice
+   addendum above adds nothing when the answer is NONE, which is exactly the
+   case the donor pass exists for.
    **The brief must also hand the reviewer the ACCOUNT file's content hard
    guards (its ROUTINE.md / brand.md) and FAIL any violation** — a reviewer
    only checks what it's handed, so a guard that lives only in the account
@@ -142,6 +149,14 @@ banana"). Empty fresh manifest is rung 1 of 3, not a verdict:
    so judging means actually looking at frames, never a filename or a label.
    Old footage is not stale: it has never been cut, and the ledger only burns
    SEGMENTS, not clips. Check the ledger before cutting, as always.
+   **`routine/photos-albums.tsv` is Marcus's OWN filing** (`<album>\t<uuid>\t
+   <filename>\t<dur>\t<created>`) — album names like "Pool tings" and
+   "Grinding with a family" are deliberate human curation and outrank any ML
+   label as a hint. Grep it BEFORE declaring that material for a format "does
+   not exist": on 2026-07-28 the run passed on two proven night-desk formats
+   for lack of footage while an album of exactly that sat in the library,
+   invisible because only labels were searchable (added 2026-07-28, Marcus's
+   call).
 3. **Generation** — the account's generation lane (e.g. nano banana), inside
    its stated budget cap. Nothing in the catalogue fits, or what fits fails
    the privacy rules, is exactly what this rung is for.
@@ -304,12 +319,38 @@ overrule.
 - Then the full `/ig-reel <account>` pipeline: fact-check, cut, privacy gate,
   fresh-eyes QA. Claims must match the pixels they sit on (an overlay saying
   "mapped" over an empty-state UI is a FAIL — Marcus, 2026-07-12).
+- **FORMAT-FIRST IS THE DEFAULT (Marcus, 2026-08-21 — "the viral bank always
+  should be the first"). The reel is BUILT ON a 🔥 LIVE `playbook.md` entry or
+  a banked `catalog.md` clip.** An original concept is the EXCEPTION, not a
+  co-equal option. To ship one, the notes must name **every** live entry that
+  fits today's footage and state why the original beats each; QA treats an
+  unjustified pass as **FIX-FIRST**. If genuinely nothing live fits the
+  material, that is a **stop-and-say to Marcus**, not a licence to invent.
+
+  *Why this rule exists:* the old wording here read "whether it was USED or
+  consciously PASSED (and why)", which made PASSED a legal outcome. @imabgold
+  then shipped **nine consecutive aired reels with no format at all**
+  (2026-08-10 to 08-20) while its engagement fell to zero — 0 comments and 0
+  shares across three straight posts, followed by a reach collapse from ~1,700
+  to ~200 that four separate distribution hypotheses failed to explain. The two
+  reels immediately before that streak, both built on playbook #26, still hold
+  every engagement record that account has. See imabgold `performance.md`
+  rule 72.
+
 - **Deliverables:** FINAL.mp4 + caption + audio pick + notes file. The notes
-  "why this concept" MUST name: which current playbook format / banked clip was
-  considered, whether it was USED or consciously PASSED (and why), and how the
-  account's own footage carries the reel — alongside the exact source cuts and
-  the success-criteria bet. This makes the decision auditable and lets the next
-  scorecard grade FORMAT FIT, not just theme fatigue.
+  "why this concept" MUST name: which LIVE playbook format / banked clip the
+  reel is BUILT ON, or the full pass justification above; the **DONOR PASS**
+  record (ARCHITECT-CORE §1: top 3 `catalog.md` candidates by name, each
+  unused one rejected by a named §6.1 test — `Splice: NONE` without it is
+  FIX-FIRST); and how the account's own footage carries the reel — alongside
+  the exact source cuts and the success-criteria bet. This makes the decision auditable and lets the next
+  scorecard grade FORMAT FIT, not just theme fatigue. **The scorecard's first
+  row is FORMAT** — the entry used, or PASSED plus the justification — so a
+  format-free reel is visible in the grade instead of buried in a run record.
+  **The second row is SPLICE** — the donor shortcode used, or NONE — so the
+  rolling splice ledger (ARCHITECT-CORE §6 UNPROVEN #1) fills itself from
+  the scorecard. Account files that list scorecard rows carry this row in
+  second position.
 
 ### 6. Stage + notify + close the loop
 - **Never copy anything to iCloud Drive yourself** — this session has no
