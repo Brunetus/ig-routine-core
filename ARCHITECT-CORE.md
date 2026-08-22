@@ -265,8 +265,8 @@ flagged transient = the survey was skipped = FIX-FIRST at QA.
 
 ### 6.1 The tests that come before any technical work (rejection names in §1)
 
-Both are cheap, both were caught by the channel owner's eye before either reel
-posted, and both kill a concept outright. Run them first.
+These tests are cheap, the first two were caught by the channel owner's eye
+before either reel posted, and each kills a concept outright. Run them first.
 
 **THE LITERAL-REFERENT TEST.** The borrowed clip must be the LITERAL thing the
 card names, never a mood that rhymes with it. Working examples: a machine

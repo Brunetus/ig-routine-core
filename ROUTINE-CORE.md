@@ -173,6 +173,10 @@ exhaustion at rung 1 is a false report.
 - Score the most recent post against the ACCOUNT's success criteria:
   PASS/MISS per metric + one written line WHY it likely missed (hook? format?
   caption? audio?). That line feeds today's concept choice.
+- If the account's scorecards hold 8+ SPLICE and 8+ NON-SPLICE rows at 24h+
+  reads, run the ARCHITECT-CORE §6 UNPROVEN #1 comparison (comments + shares
+  per reel, last 8 per side) and record the verdict in the performance file.
+  Below that count, write nothing — the claim stays UNPROVEN.
 - If new data contradicts a "what works" rule, update it per the account
   file's convention.
 
@@ -340,8 +344,9 @@ overrule.
 - **Deliverables:** FINAL.mp4 + caption + audio pick + notes file. The notes
   "why this concept" MUST name: which LIVE playbook format / banked clip the
   reel is BUILT ON, or the full pass justification above; the **DONOR PASS**
-  record (ARCHITECT-CORE §1: top 3 `catalog.md` candidates by name, each
-  unused one rejected by a named §6.1 test — `Splice: NONE` without it is
+  record (ARCHITECT-CORE §1: top 3 `catalog.md` shortcodes, each with its
+  `pairs-with` line quoted and the beat it was matched to, each unused one
+  rejected by one of the four §1 names — `Splice: NONE` without it is
   FIX-FIRST); and how the account's own footage carries the reel — alongside
   the exact source cuts and the success-criteria bet. This makes the decision auditable and lets the next
   scorecard grade FORMAT FIT, not just theme fatigue. **The scorecard's first
