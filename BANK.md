@@ -316,8 +316,8 @@ The no-text requirement was too broad. Which test applies depends on where the d
 
 - **DONOR AS PAYOFF** (own footage sets up, the reel cuts INTO the borrowed clip to land the turn)
   → **the clean-window test below is REQUIRED.** The donor's caption would collide with our own
-  card, and worse, it would re-tell the donor's own joke at the exact moment ours is supposed to
-  land — §7's KNOWN-PAYOFF failure. This is the case that killed four candidates on 2026-08-28.
+  card and read as a second, competing caption at the exact moment ours is supposed to land. This
+  is the case that killed four candidates on 2026-08-28.
 - **DONOR AS OPENER** (the borrowed clip is the FIRST frame and its caption IS the setup, then the
   reel cuts to the channel's own footage for the payoff) → **the clean-window test does NOT apply.**
   The caption is part of the borrowed asset and is doing the recognition work. Bank the clip whole,
@@ -379,8 +379,8 @@ below the header comment):
 - lane: <the watchlist lane tag of the source account>   <- hashtag finds: the lane the hashtag was queried under
 - first-seen: <today> | status: FRESH
 - stats-at-capture: <likes> likes / <comments> comments (<ratio>x account median)   <- hashtag finds: `(hashtag recent_media, no account baseline)` instead of a ratio
-- joke-structure: <the mechanism, e.g. "hype setup, anticlimax payoff">   <- §7: this line IS the entry's borrowable SHAPE — write it as the recognition trigger (what a scroller clocks in <1s), not a plot summary
-- the-beat: <where the laugh lands + where to cut, e.g. "setup 0:00-0:03, cut on the turn at 0:03">   <- §7: this line IS the entry's PAYOFF — the KNOWN-PAYOFF test reads it; name the turn plainly so "is our payoff this same joke?" is answerable
+- joke-structure: <the mechanism, e.g. "hype setup, anticlimax payoff">   <- this line IS the entry's borrowable SHAPE — write it as the recognition trigger (what a scroller clocks in <1s), not a plot summary
+- the-beat: <where the laugh lands + where to cut, e.g. "setup 0:00-0:03, cut on the turn at 0:03">   <- this line IS the entry's PAYOFF — name the turn plainly so an architect can cut on it, borrow it as an element, or replicate it (§6.1)
 - audio-model: <diegetic (bakeable) | trending sound (add in-app) | flexible>
 - pairs-with: <kinds of user moments this sets up, 1-2 concrete examples>
 - clean-window: <where this clip has NO burned text, and what it costs to cut>   <- step 4b, MANDATORY on every donor entry. Give the text-free vertical band and the resulting 9:16 upscale, and/or the text-free time range. e.g. `band y0-770 of 1280 -> 432x768 crop, 2.5x upscale` or `caption fades at 0:06, 0:06-0:11 is fully clean, no crop needed`. If the clip carries no burned text at all, write `NONE — full frame clean`.

@@ -481,45 +481,36 @@ Where the donor is the payoff beat, also
 confirm the channel's own material stays load-bearing per REACH mode; declare the
 donor and its source in the notes so QA can verify provenance.
 
-## 7. THE SHAPE/PAYOFF LAW (TRIAL, added 2026-08-28 — Marcus's copycat-vs-OG whiteboard; kill condition in the registry below)
+## 7. THE SHAPE/PAYOFF LAW — REPEALED (trial added 2026-08-28, killed by Marcus 2026-08-29; git keeps the full text)
 
-The observation (Marcus, 2026-08-28): COPYCAT content earns activity but not
-views — recognition is cheap, viewers like/save/share what they already know
-they like, then swipe because they already know the payoff; the lost
-completion is what kills its push. OG content earns views but not activity —
-nothing is recognizable enough to trigger the reflex, and mid OG earns
-neither. THE GOAL STATE is one reel split down the middle: an opening a
-scroller RECOGNIZES inside a second, and a payoff that same viewer cannot
-predict.
+The trial lasted one day. The law said a proven reel's SHAPE was borrowable
+but its PAYOFF's meaning never was, enforced by a `KNOWN-PAYOFF` rejection
+name, a mandatory two-question acceptance test in the notes, and a QUADRANT
+scoreboard line. Marcus killed it before its own condition could settle, for
+the same reason he repealed playbook #45's opener ban the day it was written:
+the account is mid-exploration, and this law kept turning the exact replicas
+he asked for into something else (the 2026-08-28/29 FORMAT-ONLY incidents
+recorded in §6.1 were this law doing exactly what it was written to do). In
+his words, 2026-08-29: *"I've been trying to do exact replicates of reels
+that I know will do well, and I haven't been able to do so."*
 
-**THE LAW: BORROW THE SHAPE, NEVER THE PAYOFF.**
-- The SHAPE is borrowable and SHOULD be borrowed (this SHARPENS FORMAT-FIRST,
-  it does not replace it): the opener's frame-grammar, the pacing, the audio
-  pairing, the caption grammar of a proven family. In the bank, an entry's
-  `joke-structure` line names its shape.
-- The PAYOFF'S MEANING is never borrowed. An entry's `the-beat` line names
-  its payoff; replicating that turn so a viewer who has seen the source knows
-  the ending is COPYCAT — rejection name **KNOWN-PAYOFF**, on the record like
-  §1's names. REACH mode stands: a banked clip MAY still carry the payoff
-  beat's PIXELS — the test is whether the TURN IN CONTEXT is original. The
-  donor's footage serving THIS channel's story passes; re-telling the donor's
-  own joke fails.
-
-**THE ACCEPTANCE TEST (mandatory, in the notes, QA verifies both):**
-1. SHAPE: name the proven entry beat one borrows and say why a scroller
-   recognizes it in under a second. No honest answer = mid OG = FIX-FIRST
-   (FORMAT-FIRST's existing teeth, restated at the beat level).
-2. PAYOFF: could a viewer who knows the borrowed shape predict this payoff
-   from beat one? An honest YES = KNOWN-PAYOFF = FIX-FIRST.
-
-**THE SCOREBOARD (the data this trial runs on):** every posted reel's
-scorecard adds a QUADRANT line — shape-recognized (did beat one borrow a
-proven shape) x payoff-novel (did the payoff pass test 2) — plus the two
-currencies read separately: VIEWS-side (views, reach, AWT) and ACTIVITY-side
-(shares + saves + comments, per reach). Goal quadrant = YES/YES. The weekly
-review re-ranks borrowable shapes by their SOURCES' activity-per-reach and
-this channel's payoff types by completion. Ledger lives in the channel's
-performance.md ("Shape/Payoff scoreboard").
+What binds now:
+- **An exact replica of a proven reel is a LEGAL architect outcome.**
+  Reproducing a donor's payoff/turn is not a rejection reason. `KNOWN-PAYOFF`
+  is RETIRED as a rejection name — it may not appear in a DONOR PASS record,
+  and QA must not ask for it; §1's four names are the complete list again.
+- The §7 acceptance test and the scorecard QUADRANT line are gone. QA must
+  not require either; a notes file without them is complete. @imabgold's
+  "Shape/Payoff scoreboard" in performance.md is CLOSED (rows kept as
+  history, nothing further filled in).
+- Everything §7 claimed to sharpen still stands where it always lived:
+  FORMAT-FIRST and the donor pass (§1), and Playbook fidelity ("swap the
+  FOOTAGE, never rewrite the JOKE") — which always pointed TOWARD faithful
+  reproduction, not away from it. §6.1's 2026-08-29 replica paragraph stands:
+  a requested replica uses the donor's actual footage.
+- The copycat-vs-OG observation the law was built on was never itself tested;
+  it may be re-raised, but only by Marcus, and it re-enters as a new trial
+  with its own kill condition, never as a revival of this section.
 
 ### ⚠ UNPROVEN — these carry kill conditions (two added 2026-08-21, two added 2026-08-28)
 
@@ -546,14 +537,11 @@ unchecked, cost fifteen days). **If the condition fires, delete the claim.**
    16.1M views and 8.2M views / 70,800 comments. **KILL IF** the two reels built
    on it do not beat that batch on comments.
 
-3. **"§7's YES/YES quadrant beats both pure lanes."** (The whole §7 law is
-   a TRIAL, added 2026-08-28 at Marcus's word: in as core law today, reverted
-   by deleting §7 + the scoreboard section if it fails — git keeps the text.)
-   Test: every posted reel's scorecard carries the QUADRANT line; compare
-   YES/YES reels against the channel's prior 8-reel baseline on BOTH
-   currencies. **KILL IF** 8+ YES/YES reels exist and they beat the baseline
-   on NEITHER views NOR activity (shares + comments). Until 8 exist the law
-   stands but may not be cited as settled.
+3. **"§7's YES/YES quadrant beats both pure lanes."** — **DEAD 2026-08-29:
+   killed WITH §7 by Marcus's direct order, before any YES/YES reel had
+   aired.** Not a data kill; the trial produced no read and none of its four
+   graded rows may ever be cited as evidence for or against the quadrant
+   idea. Numbering kept so 08-28 notes resolve.
 
 4. **"SPLICE-FIRST beats own-footage-first."** (Marcus, 2026-08-28.) The structure: the
    **borrowed clip is the FIRST frame** and its own burned caption is the setup, then the reel cuts
@@ -586,7 +574,7 @@ unchecked, cost fifteen days). **If the condition fires, delete the claim.**
 
 **REVIEW: claim #1 has NO date — its review is the rolling ledger and it
 settles only when both sides hold 8+ reels. Claim #2 is due 2026-08-22/23.
-Claim #3 (§7) settles at 8+ YES/YES reels or 2026-09-15, whichever first.
+Claim #3 is dead (killed with §7, 2026-08-29 — no review pending).
 Claim #4 (splice-first) settles at 6+ such reels or 2026-09-30.**
 Neither may be cited as settled before its own condition, and neither may be
 extended to another channel while unproven. §6.1-6.4 above are
