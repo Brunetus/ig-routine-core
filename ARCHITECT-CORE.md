@@ -318,7 +318,8 @@ footage lands on it; they do not license skipping the format layer.
 - QA verifies the §1 DONOR PASS record: three shortcodes, each resolving to a
   `status: FRESH` heading in `catalog.md` (open the file and check — a
   hallucinated shortcode is a FAIL), each with its `pairs-with` line quoted
-  and a beat named, each unused one rejected by one of the four §1 names.
+  and a beat named, each unused one rejected by one of the four §1 names
+  (pre-repeal records are exempt per §7's grandfather clause).
   Missing record, or `Splice: NONE` with no named candidates = the catalog
   was not read — FIX-FIRST (thin/empty catalog per §1 is exempt). QA does not
   second-guess the rejections; it checks they exist, resolve, and name a test.
@@ -501,10 +502,11 @@ What binds now:
   Reproducing a donor's payoff/turn is not a rejection reason. `KNOWN-PAYOFF`
   is RETIRED as a rejection name — it may not appear in a DONOR PASS record,
   and QA must not ask for it; §1's four names are the complete list again.
-  Records written BEFORE 2026-08-29 are grandfathered: two unaired drafts
-  carry `KNOWN-PAYOFF` lines and acceptance tests, and QA neither fails them
-  for conforming to the law in force when they were cut nor re-runs the
-  retired test on them.
+  Records written before the 2026-08-29 repeal are grandfathered (this
+  includes same-day drafts cut that morning): several unaired drafts carry
+  `KNOWN-PAYOFF` lines, acceptance tests or QUADRANT lines, and QA neither
+  fails them for conforming to the law in force when they were cut nor
+  re-runs the retired test on them.
 - The §7 acceptance test and the scorecard QUADRANT line are gone. QA must
   not require either; a notes file without them is complete. @imabgold's
   "Shape/Payoff scoreboard" in performance.md is CLOSED (rows kept as
