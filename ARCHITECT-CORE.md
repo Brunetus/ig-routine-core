@@ -489,16 +489,22 @@ name, a mandatory two-question acceptance test in the notes, and a QUADRANT
 scoreboard line. Marcus killed it before its own condition could settle, for
 the same reason he repealed playbook #45's opener ban the day it was written:
 the account is mid-exploration, and this law kept turning the exact replicas
-he asked for into something else (the 2026-08-28/29 FORMAT-ONLY incidents
-recorded in §6.1 were this law doing exactly what it was written to do). In
-his words, 2026-08-29: *"I've been trying to do exact replicates of reels
-that I know will do well, and I haven't been able to do so."*
+he asked for into something else. (The 2026-08-28/29 FORMAT-ONLY incidents
+recorded in §6.1 came from a DIFFERENT clause — the donor-selection test —
+and got their own guardrail there; §7's payoff ban was the remaining blocker
+on the replica path.) In his words, 2026-08-29: *"I've been trying to do
+exact replicates of reels that I know will do well, and I haven't been able
+to do so."*
 
 What binds now:
 - **An exact replica of a proven reel is a LEGAL architect outcome.**
   Reproducing a donor's payoff/turn is not a rejection reason. `KNOWN-PAYOFF`
   is RETIRED as a rejection name — it may not appear in a DONOR PASS record,
   and QA must not ask for it; §1's four names are the complete list again.
+  Records written BEFORE 2026-08-29 are grandfathered: two unaired drafts
+  carry `KNOWN-PAYOFF` lines and acceptance tests, and QA neither fails them
+  for conforming to the law in force when they were cut nor re-runs the
+  retired test on them.
 - The §7 acceptance test and the scorecard QUADRANT line are gone. QA must
   not require either; a notes file without them is complete. @imabgold's
   "Shape/Payoff scoreboard" in performance.md is CLOSED (rows kept as
@@ -508,11 +514,16 @@ What binds now:
   FOOTAGE, never rewrite the JOKE") — which always pointed TOWARD faithful
   reproduction, not away from it. §6.1's 2026-08-29 replica paragraph stands:
   a requested replica uses the donor's actual footage.
-- The copycat-vs-OG observation the law was built on was never itself tested;
-  it may be re-raised, but only by Marcus, and it re-enters as a new trial
-  with its own kill condition, never as a revival of this section.
+- The copycat-vs-OG observation the law was built on was never itself tested
+  — the trial produced no data for or against it. If it ever comes back, it
+  comes back as a new trial with its own kill condition, not a revival of
+  this section.
 
-### ⚠ UNPROVEN — these carry kill conditions (two added 2026-08-21, two added 2026-08-28)
+## 8. ⚠ UNPROVEN — these carry kill conditions (two added 2026-08-21, two added 2026-08-28)
+
+(This registry is LIVE law. It sat under §6, was pulled under §7 when the
+trial was added, and moved to its own section at the 2026-08-29 repeal so
+nothing here reads as repealed — claims #1, #2 and #4 all still bind.)
 
 Written the way rule 66 was written (declared test, declared kill condition),
 NOT the way rules 55 and 65 were written (asserted as settled, compounded
@@ -539,17 +550,17 @@ unchecked, cost fifteen days). **If the condition fires, delete the claim.**
 
 3. **"§7's YES/YES quadrant beats both pure lanes."** — **DEAD 2026-08-29:
    killed WITH §7 by Marcus's direct order, before any YES/YES reel had
-   aired.** Not a data kill; the trial produced no read and none of its four
-   graded rows may ever be cited as evidence for or against the quadrant
-   idea. Numbering kept so 08-28 notes resolve.
+   aired.** Not a data kill: the trial produced no read, and its four graded
+   rows are architect self-grades with no airings behind them — not evidence
+   either way. Numbering kept so 08-28 notes resolve.
 
 4. **"SPLICE-FIRST beats own-footage-first."** (Marcus, 2026-08-28.) The structure: the
    **borrowed clip is the FIRST frame** and its own burned caption is the setup, then the reel cuts
-   to the channel's own footage for the payoff. The argument for it is that it is the purest
-   available expression of §7 — the donor supplies an opening a scroller recognises in well under a
-   second, and the channel's own life supplies a turn nobody can predict — and it converts the
-   donor's caption from a crop problem into the asset doing the recognition work. It also removes
-   the copycat risk §7 was written against, because the payoff is unambiguously the channel's own.
+   to the channel's own footage for the payoff. The argument for it: the donor supplies an opening
+   a scroller recognises in well under a second, the channel's own life supplies a turn nobody can
+   predict, and it converts the donor's caption from a crop problem into the asset doing the
+   recognition work — with a payoff that is unambiguously the channel's own. (This used to be
+   argued via §7; §7 was repealed 2026-08-29 and the structure stands on its own merits.)
 
    **THE RULE THAT FORBADE IT HAS BEEN REPEALED (Marcus, 2026-08-28).** `playbook.md` #45 used to
    say *"never let the borrowed clip open the reel."* That line is gone, not suspended — Marcus
