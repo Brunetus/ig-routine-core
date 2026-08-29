@@ -24,6 +24,13 @@ late check:
 - **`~/Claude Code/viral-bank/catalog.md`** — banked CLIPS, walked EVERY run
   by the DONOR PASS below (FRESH only unless you justify a STALE in writing).
 - **`~/Claude Code/viral-bank/audio.md`** — trending-audio candidates.
+- **`~/Claude Code/ig-pulse/state/shipped.md`** — THE SPIKE LAYER (added 2026-08-28, Marcus).
+  What the spike radar caught and what was cut from it, newest first. Read it for two reasons: a
+  spike is a format the feed is rewarding RIGHT NOW and may not have reached `playbook.md` yet, and
+  the row tells you whether this org has already mimicked it and how that went. **The captures
+  themselves now flow into `catalog.md` / `playbook.md` via PULSE.md step 8, so from 2026-08-28 the
+  bank is the single surface — but the three captures made BEFORE that date are unbanked and this
+  file is the only index of them.** A missing or empty file is a log note, never a failure.
 - **`~/Claude Code/viral-bank/lessons.md`** — THE MECHANISMS LAYER: creators
   teaching HOW virality works. TRAINING ONLY — read it to internalize the
   levers (hook retention, loop/rewatch, pattern interrupt), then apply them to
@@ -68,6 +75,39 @@ matched to, and for each one not used, ONE of these four rejection names:
 - `DONOR-LEGIBILITY` — §6.2: the subject is unreadable at reel speed.
 - `OWN-IS-REFERENT` — the §6.1 corollary: own footage IS the literal
   referent of that beat, so the donor adds nothing.
+**THE DECISION MUST BE MADE, NOT PASSED (Marcus, 2026-08-27).** This is the
+half the 2026-08-22 rule left open, and it is why the pass kept producing NONE
+anyway. Three things are now required, and QA checks all three:
+
+1. **WALK THE WHOLE FRESH SET.** Lane-first is a reading ORDER, never a
+   stopping point. You do not stop at the first three you can reject, and you
+   do not stop at the end of one lane. The three shortcodes in the record are
+   the best three OF THE ENTIRE WALK, chosen after seeing all of it. (Job
+   `8a0fc66a`, 2026-08-27: the record named 3 candidates out of 28 FRESH
+   entries in the one lane it opened, and stopped. That is a pass wearing a
+   record.)
+2. **TEST EACH CANDIDATE BOTH WAYS BEFORE REJECTING IT.** Ask whether the clip
+   reproduces the JOKE, and separately whether it lends an ELEMENT (see
+   "Playbook fidelity" above and §6.1). A clip that fails as a whole-joke
+   reproduction can still be the right 1-2s borrow, and rejecting it on the
+   first test alone is not a considered rejection. Say in the record which
+   test each candidate failed.
+3. **`NONE` CARRIES A POSITIVE ARGUMENT, NOT JUST FOUR REJECTIONS.** Rejecting
+   every candidate is the START of the answer. Finish it: name the single
+   strongest donor the walk surfaced, and say why THIS reel is stronger
+   without it. "Nothing matched" is not that sentence. If you cannot write one
+   honest sentence for why the reel is better without its best available
+   donor, you have not decided yet — you have declined to.
+
+The burden of proof sits on NOT splicing. That is deliberately the opposite of
+how a tired run behaves, because no is always the cheaper outcome to defend:
+four rejection names exist and there is no paperwork for a yes.
+
+**This is NOT a quota and NOT splice-by-default** — Marcus ruled that out on
+2026-08-22 and it stands. A reel that is genuinely stronger whole is the right
+answer and always has been. What is banned is reaching that answer without
+having really looked.
+
 `Splice: NONE` is a legal outcome ONLY on top of that record, and an honest
 all-`OWN-IS-REFERENT` record is a legal NONE. A bare `Splice: NONE`, or a
 `NONE` with no named shortcodes, or a corollary cited without candidates = the
@@ -95,6 +135,41 @@ the "made by a REAL human" flex, and wrote "an AI cut this one too" as the
 middle beat — conceding the very thing the joke flexes against, which made
 it nonsense). Put the verbatim playbook entry in the staged notes and hand
 it to QA so the reproduction is checkable.
+
+**REPRODUCTION vs ELEMENT — declare which one you are doing (lifted to the core
+2026-08-27; it was @imabgold performance.md lesson 20 and no customer job or
+routine could see it).** Verbatim fidelity applies when you reproduce the
+JOKE. It does NOT apply when you borrow an ELEMENT — the specific thing a
+catalog entry's `the-beat:` line explicitly offers to lend — and supply your
+own setup around it. Both are legal borrows. **Declare which it is, and
+fidelity is judged against that declaration.**
+
+*Why this had to move.* The core said only "reproduce the joke verbatim," so
+every architect outside @imabgold ran exactly one test on every donor: *is this
+clip a picture of my sentence?* On a customer job the answer is structurally
+always no (see the ordering trap below), so the bank was walked and emptied
+every time. @imabgold spliced seven times in the same period, out of the same
+bank, because lesson 20 lived in its file.
+
+**THE ORDERING TRAP, and the fix (2026-08-27).** `OWN-IS-REFERENT` is
+self-fulfilling whenever the cards are written by looking at the footage: you
+cannot write a sentence your own footage fails to picture when the footage is
+where the sentence came from. Job `8a0fc66a`'s record ended, in its own words,
+"the bank holds no picture of a sunset outdoing a building, because that
+picture is a sunset" — a tautology, not a finding. **So draft the beat list and
+its cards from the CHOSEN FORMAT first, then assign footage to beats.** That
+ordering is what makes `OWN-IS-REFERENT` a real test with a real failure mode,
+and it is the ordering @imabgold already uses. A beat the uploads cannot cover
+is not a problem to design around; §1 says it is exactly where a banked donor
+is the expected answer.
+
+**TRUST THE CLIP, NOT ITS CATALOG LINE.** `the-beat:` and `pairs-with:` are
+notes taken at capture time and they can be wrong about their own footage.
+Before designing a beat around a borrowed action, VERIFY THE ACTION IS THERE —
+step the actual window and watch the motion, do not infer it from the
+description. (2026-08-27: `DcejaQYskRm`'s line promises "the cat crosses the
+frame and leaves, unimpressed." The cat never moves. A whole beat was designed,
+built and killed at QA on a sentence the file made up.)
 
 ## 2. The weighing (how a concept is chosen)
 
@@ -174,6 +249,39 @@ footage lands on it; they do not license skipping the format layer.
 - **Length:** short and loopable is the default (3-6s POV comedy; the
   channel file sets its exact windows). Longer only for a true multi-scene
   arc with a reason to exist.
+- **SCREEN LAW — NO BLURS, EVER (Marcus, 2026-08-23; scope widened to EVERY
+  channel 2026-08-26). This binds architect, builder AND QA on all three
+  channels.** Never apply a blur, a pixelation, a scrub band, a black rect or
+  any other obscuring treatment to a screen in the footage. Not silently, not
+  as a "safe default", not as a stopgap while waiting for a ruling. If a
+  screen is in frame, it ships as shot. It does not matter whether the screen
+  was staged or incidental, and it does not matter whose footage it is —
+  2026-08-23 settled his own accounts ("I don't want any blurs whatsoever.
+  Leave the screens as they are... I want that rule removed"), and 2026-08-26
+  settled customer jobs on reel job `0d8e7c1f`, where a stranger's laptop had
+  a legible chat window in the hook beat: *"You shouldn't blur this screen."*
+  - **The duty that replaces blurring is REPORTING.** Read every visible
+    screen at full resolution. If it carries something the owner would
+    plausibly want to know is going public — a credentials path, a token, a
+    client name, someone else's data, unreleased numbers — say in one plain
+    line exactly what a viewer can read, then follow the ruling. He has
+    consistently chosen to ship.
+  - **Concealment by framing counts as a blur** when concealment is its
+    reason. Choosing a better composition or trimming a beat is always fair
+    game; shifting a crop *specifically* to push something out of frame is
+    the same act as blurring it, and gets reported instead.
+  - **QA must NOT fail a reel for a readable screen and must NOT ask for a
+    blur.** Brief every reviewer on this line explicitly — a reviewer handed
+    the old rule will keep reporting readable screens as violations. The only
+    screen content that is a genuine stop is the channel file's own content
+    line (for customer jobs, JOBS.md guard 4: readable documents, IDs or
+    financial papers). An app UI or a chat window is not that.
+  - *Cost of not having this here:* it lived only in @imabgold's brand.md and
+    the /ig-reel skill, so on 2026-08-26 a customer job's architect specced a
+    feathered blur over a laptop, its independent QA passed it, and the
+    delivered hook beat shipped a blue smear across a quarter of the frame.
+    Both agents followed the written law correctly. The law was in the wrong
+    file.
 
 ## 4. Audio law
 
@@ -287,6 +395,20 @@ law was followed and the reel was still unreadable. Test every hook word
 against a reader who has never heard of the channel. Medical, legal and
 financial channels are worse: PRP, accrual, retainer.
 
+**⚠ THIS TEST IS GUIDANCE FOR PICKING A GOOD DONOR. IT IS NOT A PROHIBITION, AND IT MUST NOT BE
+USED TO TURN A SPLICE INTO A REBUILD (Marcus, 2026-08-29).** On 2026-08-28/29 this paragraph did
+exactly that twice: a spike clip was classified FORMAT-ONLY because its middle beat was a Claude
+dialog box the channel could stage for free, so the architect rebuilt the concept with Marcus's own
+footage instead of splicing the clip. Marcus wanted the clip spliced. In his words: *"I want you to
+splice it exactly like that reel. I don't want you to take the concept. I want you to make a reel
+that is almost identical to that reel. If there was a rule in the architect for this, I want that
+rule to be ignored."*
+
+**So: when the owner asks for a replica, the replica uses the DONOR'S ACTUAL FOOTAGE.** "Could we
+stage this ourselves?" is a question about which donor is the strongest choice when you have a free
+pick. It is never a reason to decline a splice the owner asked for, and it is never a reason to
+downgrade a clip to FORMAT-ONLY on its own.
+
 **DONOR SELECTION: splice what the channel CANNOT STAGE.** A robot driving itself
 into a wall is worth borrowing because no channel here can produce one. A text
 message on a phone screen is not — staging it is free, and a staged version says
@@ -348,12 +470,58 @@ that clip was weighed.
 
 ### 6.4 QA additions when a splice is present
 
-On top of §5: confirm **no third-party caption, watermark, handle or account-tag
-sticker survives** (scan the delivered file, do not infer it from the crop maths);
+On top of §5: **⚠ THE NO-SURVIVING-CAPTION CHECK IS CONDITIONAL ON THE DONOR'S ROLE**, matching
+BANK.md step 4b (Marcus, 2026-08-28/29). Where the donor is the PAYOFF beat, confirm **no
+third-party caption, watermark, handle or account-tag sticker survives** (scan the delivered file,
+do not infer it from the crop maths). **Where the donor OPENS the reel or carries the setup, its own
+burned caption is part of the borrowed asset and is expected to survive — do NOT fail the reel for
+it.** A handle or account-tag sticker is still worth reporting in that case, because it credits a
+different account on the channel's own grid, but it is a note for the owner, not a stop.
+Where the donor is the payoff beat, also
 confirm the channel's own material stays load-bearing per REACH mode; declare the
 donor and its source in the notes so QA can verify provenance.
 
-### ⚠ UNPROVEN AS OF 2026-08-21 — these two carry kill conditions
+## 7. THE SHAPE/PAYOFF LAW (TRIAL, added 2026-08-28 — Marcus's copycat-vs-OG whiteboard; kill condition in the registry below)
+
+The observation (Marcus, 2026-08-28): COPYCAT content earns activity but not
+views — recognition is cheap, viewers like/save/share what they already know
+they like, then swipe because they already know the payoff; the lost
+completion is what kills its push. OG content earns views but not activity —
+nothing is recognizable enough to trigger the reflex, and mid OG earns
+neither. THE GOAL STATE is one reel split down the middle: an opening a
+scroller RECOGNIZES inside a second, and a payoff that same viewer cannot
+predict.
+
+**THE LAW: BORROW THE SHAPE, NEVER THE PAYOFF.**
+- The SHAPE is borrowable and SHOULD be borrowed (this SHARPENS FORMAT-FIRST,
+  it does not replace it): the opener's frame-grammar, the pacing, the audio
+  pairing, the caption grammar of a proven family. In the bank, an entry's
+  `joke-structure` line names its shape.
+- The PAYOFF'S MEANING is never borrowed. An entry's `the-beat` line names
+  its payoff; replicating that turn so a viewer who has seen the source knows
+  the ending is COPYCAT — rejection name **KNOWN-PAYOFF**, on the record like
+  §1's names. REACH mode stands: a banked clip MAY still carry the payoff
+  beat's PIXELS — the test is whether the TURN IN CONTEXT is original. The
+  donor's footage serving THIS channel's story passes; re-telling the donor's
+  own joke fails.
+
+**THE ACCEPTANCE TEST (mandatory, in the notes, QA verifies both):**
+1. SHAPE: name the proven entry beat one borrows and say why a scroller
+   recognizes it in under a second. No honest answer = mid OG = FIX-FIRST
+   (FORMAT-FIRST's existing teeth, restated at the beat level).
+2. PAYOFF: could a viewer who knows the borrowed shape predict this payoff
+   from beat one? An honest YES = KNOWN-PAYOFF = FIX-FIRST.
+
+**THE SCOREBOARD (the data this trial runs on):** every posted reel's
+scorecard adds a QUADRANT line — shape-recognized (did beat one borrow a
+proven shape) x payoff-novel (did the payoff pass test 2) — plus the two
+currencies read separately: VIEWS-side (views, reach, AWT) and ACTIVITY-side
+(shares + saves + comments, per reach). Goal quadrant = YES/YES. The weekly
+review re-ranks borrowable shapes by their SOURCES' activity-per-reach and
+this channel's payoff types by completion. Ledger lives in the channel's
+performance.md ("Shape/Payoff scoreboard").
+
+### ⚠ UNPROVEN — these carry kill conditions (two added 2026-08-21, two added 2026-08-28)
 
 Written the way rule 66 was written (declared test, declared kill condition),
 NOT the way rules 55 and 65 were written (asserted as settled, compounded
@@ -378,8 +546,48 @@ unchecked, cost fifteen days). **If the condition fires, delete the claim.**
    16.1M views and 8.2M views / 70,800 comments. **KILL IF** the two reels built
    on it do not beat that batch on comments.
 
+3. **"§7's YES/YES quadrant beats both pure lanes."** (The whole §7 law is
+   a TRIAL, added 2026-08-28 at Marcus's word: in as core law today, reverted
+   by deleting §7 + the scoreboard section if it fails — git keeps the text.)
+   Test: every posted reel's scorecard carries the QUADRANT line; compare
+   YES/YES reels against the channel's prior 8-reel baseline on BOTH
+   currencies. **KILL IF** 8+ YES/YES reels exist and they beat the baseline
+   on NEITHER views NOR activity (shares + comments). Until 8 exist the law
+   stands but may not be cited as settled.
+
+4. **"SPLICE-FIRST beats own-footage-first."** (Marcus, 2026-08-28.) The structure: the
+   **borrowed clip is the FIRST frame** and its own burned caption is the setup, then the reel cuts
+   to the channel's own footage for the payoff. The argument for it is that it is the purest
+   available expression of §7 — the donor supplies an opening a scroller recognises in well under a
+   second, and the channel's own life supplies a turn nobody can predict — and it converts the
+   donor's caption from a crop problem into the asset doing the recognition work. It also removes
+   the copycat risk §7 was written against, because the payoff is unambiguously the channel's own.
+
+   **THE RULE THAT FORBADE IT HAS BEEN REPEALED (Marcus, 2026-08-28).** `playbook.md` #45 used to
+   say *"never let the borrowed clip open the reel."* That line is gone, not suspended — Marcus
+   overwrote it the same day on the grounds that the account is mid-exploration (*"We're doing
+   changes. We haven't found the formula."*) and a rule forbidding an untested structure blocks the
+   test rather than protecting anything. **Splice-first is a permitted structure, available to every
+   channel, and needs no special declaration to use.**
+
+   What remains from #45's old line is the half that was never a creative preference: **never bake
+   the donor's audio.** That is a platform hazard (uploaded copyrighted audio gets a business account
+   muted or throttled) and it is unchanged, per §4. REACH mode also still binds — the channel's own
+   material stays load-bearing, which a splice-first reel satisfies by construction since the payoff
+   is the channel's own footage.
+
+   This entry stays in the UNPROVEN registry for one reason only: to **measure** the structure, not
+   to gate it. Nothing here restricts using it.
+
+   Test: every splice-first reel carries a `SPLICE-FIRST: yes` scorecard row. **KILL IF** 6+
+   splice-first reels exist and their median shares + comments does not beat the channel's
+   own-footage-first median over the same period (rule 70's criterion, read at 36-48h per rule 75).
+   **REVIEW: 6+ splice-first reels or 2026-09-30, whichever first.**
+
 **REVIEW: claim #1 has NO date — its review is the rolling ledger and it
-settles only when both sides hold 8+ reels. Claim #2 is due 2026-08-22/23.**
+settles only when both sides hold 8+ reels. Claim #2 is due 2026-08-22/23.
+Claim #3 (§7) settles at 8+ YES/YES reels or 2026-09-15, whichever first.
+Claim #4 (splice-first) settles at 6+ such reels or 2026-09-30.**
 Neither may be cited as settled before its own condition, and neither may be
 extended to another channel while unproven. §6.1-6.4 above are
 method and are NOT covered by these conditions.

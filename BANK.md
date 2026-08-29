@@ -297,6 +297,74 @@ fetched ONLY through `ig-fetch.sh` per guard 4, ≤ its daily cap, highest-
 ranked first; anything past the cap is a `download-miss ... media withheld
 (fetch cap)` and waits for a later scan.
 
+### 4b. THE CLEAN-WINDOW GATE — a donor must have footage without text on it
+**(Marcus, 2026-08-28. Applies to every clip banked as a DONOR.)**
+
+*"The viral bank should be clips that do not have text in them. Or at least
+there should be a part of the clips that have no text in them."*
+
+A clip only earns a slot in `clips/` if a splice can actually be cut from it.
+Nearly every reel on the feed carries the creator's own burned-in caption, and
+a caption that sits across the middle of the frame makes the clip unusable as a
+donor no matter how good the joke is — the 9:16 crop that clears the text either
+destroys the action or upscales it into mush. **Check this BEFORE spending a
+download slot, not at catalogue time.**
+
+**⚠ THE GATE IS CONDITIONAL ON THE DONOR'S ROLE (Marcus, 2026-08-28, amending his own rule
+the same day).** *"It's fine if the captions are inside the reel if the splice leads the joke."*
+The no-text requirement was too broad. Which test applies depends on where the donor sits:
+
+- **DONOR AS PAYOFF** (own footage sets up, the reel cuts INTO the borrowed clip to land the turn)
+  → **the clean-window test below is REQUIRED.** The donor's caption would collide with our own
+  card, and worse, it would re-tell the donor's own joke at the exact moment ours is supposed to
+  land — §7's KNOWN-PAYOFF failure. This is the case that killed four candidates on 2026-08-28.
+- **DONOR AS OPENER** (the borrowed clip is the FIRST frame and its caption IS the setup, then the
+  reel cuts to the channel's own footage for the payoff) → **the clean-window test does NOT apply.**
+  The caption is part of the borrowed asset and is doing the recognition work. Bank the clip whole,
+  full-bleed, no crop, no upscale. Record `clean-window: n/a — OPENER-ONLY donor (caption is the
+  setup)` and say so, so no architect later tries to cut it into a payoff beat.
+
+A clip that fails the clean-window test may therefore still be banked **as an opener-only donor**.
+Mark it as such rather than skipping it. A clip that passes is usable in both roles.
+
+For a donor being banked for the PAYOFF role, it passes if it has EITHER:
+- **a clean BAND** — a horizontal strip carrying no burned text, tall enough
+  that a full-bleed 9:16 crop out of it reaches 1080x1920 at **≤2.6x upscale**; or
+- **a clean STRETCH** — a run of at least ~1.5s of real action with no burned
+  text on screen at all (captions that fade out, or appear late).
+
+Fail both AND have no value as an opener, and the clip is **not downloaded**. Log
+`download-skip: <shortcode> no clean window, no opener value (<measurement>)` and take the next
+candidate. If it fails but the caption is a strong setup, bank it as OPENER-ONLY and log
+`opener-only: <shortcode> (<what its caption sets up>)`. This is not a taste judgment and it is not negotiable by argument —
+it is a measurement, and it is the cheapest measurement in the whole scan.
+
+**This does NOT touch step 5b.** A reel whose FORMAT is the asset is still
+captured as a `FORMAT ONLY, footage unusable` playbook entry with no clip file;
+that path exists precisely for clips that cannot be donors.
+
+*Why this rule exists.* On 2026-08-28 four separate donor candidates were killed
+mid-build and not one of them died on taste: a burned caption straddled the
+payoff (`DcPUWj1vU78`), a permanent broadcast scorebug covered every frame
+(`DcVBZDiNrHF`, `DcTuLiwRLAT`), a subject was a dot at 576x720 under two caption
+bands (`DcQ7__eRvNv`), and one clip turned out to have no motion in it at all
+(`DcejaQYskRm`). The catalog recorded `pairs-with`, `the-beat` and
+`joke-structure` for all of them and **nothing about whether they could be cut**,
+so the architect rediscovered each failure by hand, one at a time, mid-build.
+
+**⚠ MEASURE IT, AND THEN LOOK.** A row-scan for bright rows is the fast test and
+it has two known false-negative classes, both found on 2026-08-28: **emoji are
+graphics, not text rows** (a crop measured to clear a caption's text left the
+emoji tops visible in frame), and **a caption that fades out defeats a
+whole-clip test**. ARCHITECT-CORE §6.2 governs and applies verbatim: *"the
+row-scan has false negatives and you must assume it does. The visual check on
+the cropped beat is mandatory, never optional."*
+
+`~/Claude Code/imabgold-ig/scratchpad/0828/donor_probe.py` is a working
+implementation of the measurement (bright-AND-frozen pixels across sampled
+frames, two-window to catch fades, plus a motion score). Its motion column is
+reliable; its caption band is triage only. Treat it as a shortlister.
+
 ### 5. Catalogue — the architect-facing entry
 You must actually look at each clip before writing its entry: frame-sample
 with the imageio ffmpeg binary (e.g. 1 frame/sec to `frames/<shortcode>/`)
@@ -311,10 +379,11 @@ below the header comment):
 - lane: <the watchlist lane tag of the source account>   <- hashtag finds: the lane the hashtag was queried under
 - first-seen: <today> | status: FRESH
 - stats-at-capture: <likes> likes / <comments> comments (<ratio>x account median)   <- hashtag finds: `(hashtag recent_media, no account baseline)` instead of a ratio
-- joke-structure: <the mechanism, e.g. "hype setup, anticlimax payoff">
-- the-beat: <where the laugh lands + where to cut, e.g. "setup 0:00-0:03, cut on the turn at 0:03">
+- joke-structure: <the mechanism, e.g. "hype setup, anticlimax payoff">   <- §7: this line IS the entry's borrowable SHAPE — write it as the recognition trigger (what a scroller clocks in <1s), not a plot summary
+- the-beat: <where the laugh lands + where to cut, e.g. "setup 0:00-0:03, cut on the turn at 0:03">   <- §7: this line IS the entry's PAYOFF — the KNOWN-PAYOFF test reads it; name the turn plainly so "is our payoff this same joke?" is answerable
 - audio-model: <diegetic (bakeable) | trending sound (add in-app) | flexible>
 - pairs-with: <kinds of user moments this sets up, 1-2 concrete examples>
+- clean-window: <where this clip has NO burned text, and what it costs to cut>   <- step 4b, MANDATORY on every donor entry. Give the text-free vertical band and the resulting 9:16 upscale, and/or the text-free time range. e.g. `band y0-770 of 1280 -> 432x768 crop, 2.5x upscale` or `caption fades at 0:06, 0:06-0:11 is fully clean, no crop needed`. If the clip carries no burned text at all, write `NONE — full frame clean`.
 - file: clips/<shortcode>.mp4 (<duration>s)
 ```
 
