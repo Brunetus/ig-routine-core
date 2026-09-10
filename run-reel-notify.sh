@@ -37,9 +37,18 @@ NEW=0
 echo "$IDS" | while read -r ID; do
   grep -q "^$ID$" "$SEEN" && continue
   echo "$ID" >> "$SEEN"
-  PHONE=$(curl -s -m 20 -H "$AUTH" "$API/job/$ID" | /usr/bin/python3 -c "import json,sys
+  JOBJSON=$(curl -s -m 20 -H "$AUTH" "$API/job/$ID")
+  PHONE=$(printf '%s' "$JOBJSON" | /usr/bin/python3 -c "import json,sys
 try: print(json.load(sys.stdin).get('phone',''))
 except Exception: print('')")
+  # Paid drive-watch cuts arrive 5 at a time and the watcher already pinged
+  # once for the whole drop — per-cut "text them now" alarms are pure noise
+  # on the surface the review discipline depends on.
+  if printf '%s' "$JOBJSON" | /usr/bin/python3 -c "import json,sys
+try: sys.exit(0 if json.load(sys.stdin).get('paid') else 1)
+except Exception: sys.exit(1)"; then
+    continue
+  fi
   osascript -e "display notification \"Text them now: ${PHONE:-see email} — reel is queued (${ID:0:8})\" with title \"🎬 New reel submitted\" sound name \"Glass\"" 2>/dev/null
   # iPhone push. ntfy.sh drops publishes from Cloudflare's shared egress IPs,
   # so the phone push goes out from here instead of the Pages function.

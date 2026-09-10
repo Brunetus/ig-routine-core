@@ -1,0 +1,280 @@
+#!/bin/zsh
+# release-reel.sh — the ONLY path that ships a rendered reel to the customer.
+# Called two ways:
+#   release-reel.sh <job-id>   Marcus approves: release NOW (clears HOLD).
+#   release-reel.sh --scan     Auto-release pass: ship every pending job whose
+#                              review window (20 min) has expired, or that has
+#                              an APPROVED marker. Jobs with a HOLD file are
+#                              skipped until the HOLD is removed.
+# Review-gate contract with run-reel-worker.sh:
+#   render success  -> worker writes $JOB/PENDING-RELEASE (epoch inside)
+#   salvaged render -> worker writes $JOB/SALVAGED + HOLD (finished but never
+#                      QA'd; NO scan touches it — only an explicit
+#                      `release-reel.sh <id>` converts it and ships)
+#   Marcus pauses   -> touch $JOB/HOLD          (blocks auto-release)
+#   Marcus approves -> touch $JOB/APPROVED      (ships on next 2-min scan)
+#                      or runs this script with the id (ships immediately)
+# Atomic claim: PENDING-RELEASE is mv'd to .RELEASING before any network I/O,
+# so notify-scan and worker-backstop can never double-ship the same job.
+
+export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+APP_DIR="$HOME/Claude Code/reel-app"
+JOBS_DIR="$APP_DIR/jobs"
+LOG="$JOBS_DIR/worker-$(date +%F).log"
+WINDOW_SECS=1200   # 20-minute review window
+NTFY="https://ntfy.sh/imabgold-reels-x7k2mq94"
+
+WORKER_SECRET=$(grep "^WORKER_SECRET=" "$APP_DIR/.env" 2>/dev/null | cut -d= -f2-)
+WORKER_API=$(grep "^WORKER_API=" "$APP_DIR/.env" 2>/dev/null | cut -d= -f2-)
+RESEND_KEY=$(grep "^RESEND_API_KEY=" "$APP_DIR/.env" 2>/dev/null | cut -d= -f2-)
+if [[ -z "$WORKER_SECRET" || -z "$WORKER_API" ]]; then
+  echo "$(date): release-reel: WORKER_SECRET/WORKER_API missing" >> "$LOG"; exit 1
+fi
+API="$WORKER_API/api/worker"
+AUTH="Authorization: Bearer $WORKER_SECRET"
+api() { curl -s --max-time 120 -H "$AUTH" "$@"; }
+
+release_one() {
+  local ID="$1" JOB="$JOBS_DIR/$1"
+  # Atomic claim — mv fails if another scan claimed it first.
+  mv "$JOB/PENDING-RELEASE" "$JOB/.RELEASING" 2>/dev/null || return 1
+  # HOLD re-check AFTER the claim: closes the race where Marcus touches HOLD
+  # between the scan's check and the claim. The manual path clears HOLD
+  # before calling us, so an explicit release still overrides.
+  if [ -f "$JOB/HOLD" ]; then
+    mv "$JOB/.RELEASING" "$JOB/PENDING-RELEASE" 2>/dev/null
+    return 1
+  fi
+  rm -f "$JOB/APPROVED"
+
+  # Which files must exist and decode depends on the tier — paid jobs render
+  # the clean cut alone. The tier isn't known yet (contact fetch comes later),
+  # so infer from the files: clean-without-watermarked = paid render.
+  local CHECK_FILES=("$JOB/out/reel-clean.mp4")
+  [ -f "$JOB/out/reel-watermarked.mp4" ] && CHECK_FILES+=("$JOB/out/reel-watermarked.mp4")
+  if [ ! -f "$JOB/out/reel-clean.mp4" ]; then
+    echo "$(date): release $ID ABORTED - output files missing" >> "$LOG"
+    mv "$JOB/.RELEASING" "$JOB/PENDING-RELEASE" 2>/dev/null
+    return 1
+  fi
+
+  # Sanity: both deliverables must decode with a sane duration before they can
+  # ship. A watchdog kill mid-encode leaves a truncated mp4 (no moov atom)
+  # that still passes the existence check above — ffmpeg then reports no
+  # Duration at all, which this catches. Spec range is 7-20s; accept 6-21.
+  local FFBIN F DUR
+  FFBIN=$(ls "$HOME/Library/Python/3.9/lib/python/site-packages/imageio_ffmpeg/binaries/"ffmpeg-* 2>/dev/null | head -1)
+  if [ -n "$FFBIN" ]; then
+    for F in "${CHECK_FILES[@]}"; do
+      DUR=$("$FFBIN" -hide_banner -i "$F" 2>&1 | sed -n 's/.*Duration: \([0-9:.]*\),.*/\1/p')
+      case "$DUR" in
+        00:00:0[6-9].*|00:00:1[0-9].*|00:00:2[01].*) ;;
+        *)
+          echo "$(date): release $ID BLOCKED - ${F:t} unreadable or bad duration '${DUR:-none}'" >> "$LOG"
+          mv "$JOB/.RELEASING" "$JOB/PENDING-RELEASE" 2>/dev/null
+          # HOLD alongside the re-arm: a truncated file never heals, so without
+          # this the 2-min scan re-attempts forever and storms ntfy. The HOLD
+          # parks it (4h nag loop covers it); a deliberate release-reel.sh <id>
+          # still clears the HOLD and forces one attempt per command.
+          echo "blocked by decode/duration check ($(date))" > "$JOB/HOLD"
+          curl -s -m 15 -X POST "$NTFY" -H "Title: Reel release BLOCKED" -H "Priority: high" -H "Tags: rotating_light" \
+            -d "Job ${ID:0:8}: ${F:t} failed the decode/duration check (got '${DUR:-unreadable}'). Likely a truncated render. Parked on HOLD - inspect jobs/$ID/out/." > /dev/null 2>&1
+          return 1 ;;
+      esac
+    done
+  else
+    echo "$(date): release $ID - ffmpeg binary missing, skipping decode check" >> "$LOG"
+  fi
+
+  # Contact stays out of the job folder; fetch it at send time.
+  local RAW="$JOBS_DIR/.release-$ID.json"
+  api "$API/job/$ID" > "$RAW"
+  # The tier decision and the recipient both come from this fetch. If it
+  # failed (CF 403/5xx, timeout, non-JSON), releasing anyway would silently
+  # downgrade a paid client to the watermarked free flow AND skip their
+  # email while still stamping RELEASED. Abort and re-arm instead.
+  if ! /usr/bin/python3 -c "import json;json.load(open('$RAW'))" 2>/dev/null; then
+    rm -f "$RAW"
+    echo "$(date): release $ID ABORTED - job fetch unreadable, re-armed" >> "$LOG"
+    mv "$JOB/.RELEASING" "$JOB/PENDING-RELEASE" 2>/dev/null
+    return 1
+  fi
+  local EMAIL PHONE PAID
+  EMAIL=$(/usr/bin/python3 -c "import json;print(json.load(open('$RAW')).get('email',''))" 2>/dev/null)
+  PHONE=$(/usr/bin/python3 -c "import json;print(json.load(open('$RAW')).get('phone',''))" 2>/dev/null)
+  PAID=$(/usr/bin/python3 -c "import json;print('1' if json.load(open('$RAW')).get('paid') else '')" 2>/dev/null)
+  CLIENT=$(/usr/bin/python3 -c "import json;print(json.load(open('$RAW')).get('client',''))" 2>/dev/null)
+  rm -f "$RAW"
+
+  local META_ARGS=()
+  [ -f "$JOB/out/delivery.json" ] && META_ARGS=(-F "meta=@$JOB/out/delivery.json;type=application/json")
+  # Preview = the WATERMARKED cut with a music bed, and the page plays the
+  # preview over the main file whenever it exists. On a paid job that would
+  # put a watermark on the paying client's screen — ship no preview and let
+  # the page play the clean cut.
+  [ -f "$JOB/out/reel-preview.mp4" ] && [ -z "$PAID" ] && META_ARGS+=(-F "preview=@$JOB/out/reel-preview.mp4;type=video/mp4")
+  local RES
+  # Paid founding-subscriber job (drive-watch): serve the clean cut as the
+  # page/save file — a paying customer never sees a watermark.
+  local PAGE_FILE="$JOB/out/reel-watermarked.mp4"
+  [ -n "$PAID" ] && PAGE_FILE="$JOB/out/reel-clean.mp4"
+  if [ ! -f "$PAGE_FILE" ]; then
+    echo "$(date): release $ID ABORTED - tier/file mismatch (paid=$PAID, missing ${PAGE_FILE:t})" >> "$LOG"
+    mv "$JOB/.RELEASING" "$JOB/PENDING-RELEASE" 2>/dev/null
+    return 1
+  fi
+  RES=$(api -X POST -F "reel=@$PAGE_FILE;type=video/mp4" \
+                   -F "clean=@$JOB/out/reel-clean.mp4;type=video/mp4" \
+                   "${META_ARGS[@]}" \
+                   "$API/complete/$ID")
+  echo "release $ID complete: $RES" >> "$LOG"
+  if ! printf '%s' "$RES" | grep -q '"ok":true'; then
+    # Failed upload: put the job back in pending so the next scan retries.
+    mv "$JOB/.RELEASING" "$JOB/PENDING-RELEASE" 2>/dev/null
+    curl -s -m 15 -X POST "$NTFY" -H "Title: Reel release FAILED" -H "Priority: high" -H "Tags: rotating_light" \
+      -d "Release of job ${ID:0:8} failed at the complete call. It stays pending; check jobs/worker log." > /dev/null 2>&1
+    return 1
+  fi
+  date +%s > "$JOB/RELEASED"
+  rm -f "$JOB/.RELEASING"
+
+  # Paid clients also get the clean cut + caption dropped into their Drive
+  # "Cut reel" folder (delivery_folder_id in clients/<handle>/drive.json).
+  # Best-effort: the email + page above are the delivery of record, so a
+  # Drive hiccup logs and pings but never fails the release.
+  if [ -n "$PAID" ] && [ -n "$CLIENT" ]; then
+    # Record what shipped so the NEXT cut's architect sees it (do-not-repeat
+    # context, fed in by the drive watcher). Independent of the Drive copy.
+    /usr/bin/python3 - "$JOB/out/delivery.json" "$HOME/Claude Code/reel-app/clients/$CLIENT/delivered.md" "${ID:0:8}" <<'PYDIG'
+import json, sys, datetime
+d = json.load(open(sys.argv[1]))
+hook = d.get("caption", "").split("\n")[0]
+audio = (d.get("audio") or {}).get("title", "?")
+mech = (d.get("why_views") or "").split(". ")[0][:160]
+line = '- %s %s: "%s" · audio: %s · works because: %s\n' % (
+    datetime.date.today().isoformat(), sys.argv[3], hook, audio, mech)
+open(sys.argv[2], "a").write(line)
+PYDIG
+    DFID=$(/usr/bin/python3 -c "import json;print(json.load(open('$HOME/Claude Code/reel-app/clients/$CLIENT/drive.json')).get('delivery_folder_id',''))" 2>/dev/null)
+    DRIVE_PYTHON="$HOME/.config/personal-drive/venv/bin/python"
+    DRIVE_PY="$HOME/.config/personal-drive/drive.py"
+    if [ -n "$DFID" ] && [ -x "$DRIVE_PYTHON" ]; then
+      CAPTXT="$JOB/out/.caption-$ID.txt"
+      DRIVE_OK=1
+      /usr/bin/python3 - "$JOB/out/delivery.json" > "$CAPTXT" <<'PYCAP' || DRIVE_OK=0
+import json, sys
+d = json.load(open(sys.argv[1]))
+print(d.get("caption", ""))
+a = d.get("audio") or {}
+if a.get("title"):
+    print()
+    print('Audio to add in the app: "%s" - %s' % (a["title"], a.get("artist", "")))
+    if a.get("start"):
+        print("Start it %s." % a["start"])
+PYCAP
+      "$DRIVE_PYTHON" "$DRIVE_PY" upload "$JOB/out/reel-clean.mp4" --parent "$DFID" --name "reel-${ID:0:8}.mp4" >> "$LOG" 2>&1 || DRIVE_OK=0
+      "$DRIVE_PYTHON" "$DRIVE_PY" upload "$CAPTXT" --parent "$DFID" --name "reel-${ID:0:8}-caption.txt" >> "$LOG" 2>&1 || DRIVE_OK=0
+      rm -f "$CAPTXT"
+      if [ "$DRIVE_OK" = "1" ]; then
+        echo "$(date): release $ID - clean cut + caption copied to $CLIENT's Drive delivery folder" >> "$LOG"
+      else
+        curl -s -m 15 -X POST "$NTFY" -H "Title: Drive delivery copy FAILED" -H "Tags: warning"           -d "Reel ${ID:0:8} released fine (email+page), but the copy into $CLIENT's Cut reel folder failed - check jobs/worker log." > /dev/null 2>&1
+      fi
+    fi
+  fi
+
+  local URL="$WORKER_API/reel?job=$ID"
+  if [ -n "$PAID" ]; then
+    # Paid client: email is the delivery channel, no SMS forward needed.
+    printf '%s | %s | %s | %s (PAID - emailed, no SMS needed)\n' \
+      "$(date '+%F %H:%M')" "$PHONE" "$EMAIL" "$URL" >> "$JOBS_DIR/OUTBOX.md"
+  else
+    printf '%s | %s | %s | %s\n  SMS> Your reel is ready 🎬 %s\n' \
+      "$(date '+%F %H:%M')" "$PHONE" "$EMAIL" "$URL" "$URL" >> "$JOBS_DIR/OUTBOX.md"
+  fi
+  if [ -n "$RESEND_KEY" ] && [ -n "$EMAIL" ]; then
+    local BODY
+    if [ -n "$PAID" ]; then
+      BODY="It's done. Cut from your footage by the IMABGOLD Reels engine.\n\nWatch and download it here: $URL\n\nThat file is the clean version, no watermark. It's also waiting in the Cut reel folder of your Drive, next to a text file with your caption and the audio to add when you post.\n\nAnything you want changed, just reply.\n\n- Marc"
+    else
+      BODY="It's done. Cut from your own videos by the IMABGOLD Reels engine.\n\nWatch it here: $URL\n\nThe page also has your caption and the audio to use when you post. Love it? Founding creators get the clean version and up to 100 reels a month, it's on the same page.\n\n- Marc"
+    fi
+    curl -s --max-time 30 -X POST "https://api.resend.com/emails" \
+      -H "Authorization: Bearer $RESEND_KEY" -H "Content-Type: application/json" \
+      -d "{\"from\":\"Marc <marcus@ibuildapp.ca>\",\"to\":[\"$EMAIL\"],\"subject\":\"Your reel is ready 🎬\",\"text\":\"$BODY\"}" >> "$LOG" 2>&1
+    echo "" >> "$LOG"
+  fi
+  if [ -n "$PAID" ]; then
+    osascript -e "display notification \"Paid reel released and emailed (${ID:0:8})\" with title \"reel worker\"" 2>/dev/null
+    curl -s -m 15 -X POST "$NTFY" -H "Title: Paid reel released" -H "Tags: white_check_mark" \
+      -d "Paid cut ${ID:0:8} is live and emailed. Nothing to do." > /dev/null 2>&1
+  else
+    osascript -e "display notification \"Reel RELEASED — text $PHONE (see jobs/OUTBOX.md)\" with title \"reel worker\" sound name \"Glass\"" 2>/dev/null
+    curl -s -m 15 -X POST "$NTFY" -H "Title: Reel released" -H "Tags: white_check_mark" \
+      -d "Reel for $PHONE is live and emailed. The text to send them is in jobs/OUTBOX.md." > /dev/null 2>&1
+  fi
+  return 0
+}
+
+if [ "$1" = "--scan" ]; then
+  NOW=$(date +%s)
+  # ---- Orphan recovery: a crash/reboot between the .RELEASING claim and the
+  # success cleanup leaves a job no glob below would ever see again. ctime
+  # updates on the claim rename, so an old-ctime .RELEASING with no RELEASED
+  # sibling means the release died mid-flight: re-arm it. Safe to retry — the
+  # complete endpoint is idempotent and the email only fires on an attempt
+  # that actually saw ok:true, which a crashed attempt never did. ----
+  ORPHAN_SECS="${RELEASE_ORPHAN_SECS:-300}"
+  for R in "$JOBS_DIR"/*/.RELEASING(N); do
+    JOB_DIR="${R:h}"; ID="${JOB_DIR:t}"
+    CLAIMED=$(stat -f %c "$R" 2>/dev/null || echo "$NOW")
+    [ $((NOW - CLAIMED)) -lt "$ORPHAN_SECS" ] && continue  # release in flight
+    if [ -f "$JOB_DIR/RELEASED" ]; then rm -f "$R"; continue; fi
+    mv "$R" "$JOB_DIR/PENDING-RELEASE" 2>/dev/null
+    echo "$(date): recovered orphaned release claim for $ID (re-armed)" >> "$LOG"
+    curl -s -m 15 -X POST "$NTFY" -H "Title: Reel release recovered" -H "Tags: warning" \
+      -d "Job ${ID:0:8} had an interrupted release (crash or reboot). Re-armed for auto-release." > /dev/null 2>&1
+  done
+  for P in "$JOBS_DIR"/*/PENDING-RELEASE(N); do
+    JOB_DIR="${P:h}"; ID="${JOB_DIR:t}"
+    [ -f "$JOB_DIR/HOLD" ] && continue
+    if [ -f "$JOB_DIR/APPROVED" ]; then release_one "$ID"; continue; fi
+    TS=$(cat "$P" 2>/dev/null)
+    [ -n "$TS" ] && [ $((NOW - TS)) -ge $WINDOW_SECS ] && release_one "$ID"
+  done
+  # ---- Stale-park reminder: a HOLD or SALVAGED job never auto-releases and
+  # its one alert fired at park time — without this, one missed notification
+  # means a customer sits on the "about 45 minutes" page forever. Re-nag every
+  # 4h once a park is older than 2h. ----
+  for H in "$JOBS_DIR"/*/HOLD(N) "$JOBS_DIR"/*/SALVAGED(N); do
+    JOB_DIR="${H:h}"; ID="${JOB_DIR:t}"
+    [ -f "$JOB_DIR/RELEASED" ] && continue
+    HAGE=$((NOW - $(stat -f %m "$H" 2>/dev/null || echo "$NOW")))
+    [ "$HAGE" -lt 7200 ] && continue
+    LASTNAG=$(cat "$JOB_DIR/.park-nag" 2>/dev/null || echo 0)
+    [ $((NOW - LASTNAG)) -lt 14400 ] && continue
+    echo "$NOW" > "$JOB_DIR/.park-nag"
+    curl -s -m 15 -X POST "$NTFY" -H "Title: Reel still parked" -H "Priority: high" -H "Tags: hourglass_flowing_sand" \
+      -d "Job ${ID:0:8} has been parked (${H:t}) for $((HAGE / 3600))h and the customer is still on the waiting page. release-reel.sh $ID ships it. If you fail it instead, delete the HOLD/SALVAGED markers to stop this reminder." > /dev/null 2>&1
+  done
+  exit 0
+fi
+
+ID="$1"
+if [ -z "$ID" ] || [ ! -d "$JOBS_DIR/$ID" ]; then
+  echo "usage: release-reel.sh <job-id> | --scan"; exit 1
+fi
+if [ -f "$JOBS_DIR/$ID/SALVAGED" ]; then
+  # Salvaged render (finished but never QA'd — see run-reel-worker.sh). No
+  # scan can consume SALVAGED; Marcus's explicit command here IS the approval,
+  # so convert it to a normal pending release at this moment.
+  date +%s > "$JOBS_DIR/$ID/PENDING-RELEASE"
+  rm -f "$JOBS_DIR/$ID/SALVAGED"
+  echo "$(date): salvaged job $ID converted to pending release by explicit command" >> "$LOG"
+fi
+if [ ! -f "$JOBS_DIR/$ID/PENDING-RELEASE" ]; then
+  echo "job $ID is not pending release (already shipped, failed, or not rendered yet)"; exit 1
+fi
+rm -f "$JOBS_DIR/$ID/HOLD"   # explicit release overrides a HOLD
+release_one "$ID" && echo "released $ID" || echo "release of $ID FAILED - see $LOG"

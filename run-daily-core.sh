@@ -93,6 +93,34 @@ dump_archive() {
   # IMG_9128.MOV. Non-fatal: a missing labels file just costs search quality.
   python3 "$CORE_DIR/dump-labels.py" >> "$LOG" 2>&1 || \
     echo "labels: dump failed (non-fatal; archive search falls back to date/place)" >> "$LOG"
+  dump_albums
+}
+
+# ---- Album membership (Marcus's own curation, added 2026-07-28) ----
+# Album names are deliberate filing by Marcus ("Pool tings", "Grinding with a
+# family") and carry signal no ML label has. Without this dump the session
+# cannot see them at all, and on 2026-07-27/28 it passed on two proven formats
+# claiming night-desk footage "does not exist" while an album of exactly that
+# sat in the library. Check photos-albums.tsv before declaring material
+# absent. The album<->asset join table is renamed by Photos schema migrations
+# (Z_33ASSETS today, Z_28ASSETS on older builds), so it is detected, never
+# hardcoded. Non-fatal: a missing file costs recall, not correctness.
+# Same privacy class as the archive dump: NEVER commit this file.
+dump_albums() {
+  local LIB="$HOME/Pictures/Photos Library.photoslibrary"
+  local DBURI="file:$LIB/database/Photos.sqlite?immutable=1"
+  local JT ALB AST
+  JT=$(sqlite3 -readonly "$DBURI" "SELECT t.name FROM sqlite_master t WHERE t.type='table' AND t.name LIKE 'Z\_%ASSETS' ESCAPE '\' AND EXISTS (SELECT 1 FROM pragma_table_info(t.name) c WHERE c.name LIKE 'Z\_%ALBUMS' ESCAPE '\') LIMIT 1;" 2>> "$LOG")
+  if [ -z "$JT" ]; then
+    echo "albums: join table not found (Photos schema changed) - skipping, non-fatal" >> "$LOG"
+    return 0
+  fi
+  ALB=$(sqlite3 -readonly "$DBURI" "SELECT name FROM pragma_table_info('$JT') WHERE name LIKE 'Z\_%ALBUMS' ESCAPE '\' LIMIT 1;")
+  AST=$(sqlite3 -readonly "$DBURI" "SELECT name FROM pragma_table_info('$JT') WHERE name LIKE 'Z\_%ASSETS' ESCAPE '\' AND name NOT LIKE 'Z\_FOK\_%' ESCAPE '\' LIMIT 1;")
+  sqlite3 -readonly -separator $'\t' "$DBURI" \
+    "SELECT ga.ZTITLE, a.ZUUID, COALESCE(aa.ZORIGINALFILENAME,''), ROUND(a.ZDURATION,1), datetime(a.ZDATECREATED+978307200,'unixepoch','localtime') FROM ZGENERICALBUM ga JOIN $JT j ON j.$ALB = ga.Z_PK JOIN ZASSET a ON a.Z_PK = j.$AST LEFT JOIN ZADDITIONALASSETATTRIBUTES aa ON aa.ZASSET = a.Z_PK WHERE ga.ZKIND = 2 AND ga.ZTRASHEDSTATE = 0 AND a.ZKIND = 1 AND a.ZTRASHEDSTATE = 0 AND a.ZSAVEDASSETTYPE <> 12 ORDER BY ga.ZTITLE, a.ZDATECREATED;" \
+    > routine/photos-albums.tsv 2>> "$LOG"
+  echo "albums: $(cut -f1 routine/photos-albums.tsv | sort -u | wc -l | tr -d ' ') user albums, $(wc -l < routine/photos-albums.tsv | tr -d ' ') video memberships" >> "$LOG"
 }
 
 # ---- Photos export-lane health probe ----
@@ -124,12 +152,21 @@ probe_photos_export() {
 move_outbox() {
   if [ -d routine/icloud-outbox ] && [ -n "$(ls -A routine/icloud-outbox 2>/dev/null)" ]; then
     mkdir -p "$HOME/Library/Mobile Documents/com~apple~CloudDocs/$ICLOUD_DIR"
-    local f
-    for f in routine/icloud-outbox/*; do
+    local f icloud_fail=0
+    # (N) null glob: with only dotfiles (.DS_Store) present, `ls -A` says
+    # non-empty but `*` matches nothing, and bare zsh aborts the whole script
+    # mid-teardown with "no matches found" (exit 1, false FAILED alert path).
+    for f in routine/icloud-outbox/*(N); do
       mv "$f" "$HOME/Library/Mobile Documents/com~apple~CloudDocs/$ICLOUD_DIR/" \
         && echo "icloud-staged: $(basename "$f")" >> "$LOG" \
-        || echo "icloud-stage FAILED: $(basename "$f")" >> "$LOG"
+        || { echo "icloud-stage FAILED: $(basename "$f")" >> "$LOG"; icloud_fail=1; }
     done
+    # 2026-07-24 audit fix: a failed move used to log silently while the run
+    # exited 0 and Marcus was told "Staged". Now it alerts; the file stays in
+    # the outbox for the next run's mover.
+    if [ "$icloud_fail" = 1 ]; then
+      osascript -e "display notification \"iCloud delivery FAILED - reel still in routine/icloud-outbox, NOT on the phone\" with title \"$NOTIF_TITLE\" sound name \"Basso\"" 2>/dev/null
+    fi
   fi
 }
 

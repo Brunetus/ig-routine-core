@@ -469,6 +469,54 @@ that clip was weighed.
    of the first splice ever cut here was wrong — subject too small to read — and
    only looking caught it. This is not covered by any measurement above.
 
+### 6.5 THE SEQUENCE LAW — how a donor-led reel must be CREDITED and POSTED
+**Added 2026-09-01. This is a DELIVERY law, not a cut law, and it is proven on a controlled pair.**
+
+**THE TRIGGER IS TWO CONDITIONS, BOTH REQUIRED** (refined by Marcus 2026-09-01 against the full
+post history; the first version of this law keyed on donor-position alone and was WRONG):
+
+  (a) the borrowed clip shows an **IDENTIFIABLE CREATOR** — a person performing to camera, whose
+      account the clip belongs to — **AND**
+  (b) that clip is the **OPENING** beat of our reel.
+
+Both true = a SEQUENCE, and the three steps below are MANDATORY and travel together. Either one
+false = no reference required. A **universal clip** (anonymous action, fail, meme, aggregator-sourced
+footage with nobody performing to camera) does not trigger it even when it opens. Nor does an
+identifiable creator sitting in the MIDDLE or at the END of our reel.
+
+1. **BURN THE DONOR'S HANDLE INTO THEIR SEGMENT.** `@handle`, small, white, clean, TOP-RIGHT,
+   drawn for exactly the frames the donor is on screen and gone the frame our own footage starts.
+   Measure the donor->own boundary on the FINISHED file (largest interframe delta) and gate the
+   text on it; do not trust the build's nominal beat length.
+2. **TAG that handle on the post.**
+3. **POST THROUGH INSTAGRAM'S REMIX FUNCTION, CHOOSING THE *SEQUENCE* OPTION**, uploading the
+   pre-edited file from the camera roll. Never a plain upload of a donor-led reel.
+
+**The evidence — @imabgold, the whole post history, not one pair:**
+| reel | donor position | creator's face to camera | referenced | reach |
+|---|---|---|---|---|
+| `let_it_cook` v1 | **start** | **yes** (@adanxai talking head) | no | **15** |
+| `let_it_cook` re-post | start | yes | **yes** | **1,828** |
+| `hiding_B` | **start** | no (anonymous carpenter, @pubity) | no | 1,452 |
+| `press_1_wework` | middle | meme clip, reframed | no | 3,907 |
+| `devs_department` | middle | yes | no | 785 |
+| `press_1_refilm` | end | no | no | 2,668 |
+
+The controlled pair is rows 1-2: identical file, same donor, same joke, same caption, same audio
+bed, **15 -> 1,828 reach.** Row 3 is what proves the trigger is the FACE and not the position —
+`hiding_B` opens on a borrowed clip with no credit and was completely fine, because nobody is
+performing to camera in it.
+
+**Why the burn-in alone is NOT the mechanism, and why you must not ship only step 1:** a drawn
+watermark is pixels. It is not tappable and Instagram cannot read it. It is attribution for humans.
+Steps 2 and 3 are what the platform can actually see, and step 3 is the one that anchors the post
+to the original. The three were adopted together and are only proven together; do not split them.
+
+**Corollary for the donor pass (§6.1):** a donor whose burned caption CANNOT be cropped out is no
+longer an automatic reject on that ground. Opener-only donors are usable — as a sequence, delivered
+this way. Before 09-01 the catalog told architects to run such donors "whole and full-bleed" with no
+delivery instruction, and that guidance produced the 15-reach post.
+
 ### 6.4 QA additions when a splice is present
 
 On top of §5: **⚠ THE NO-SURVIVING-CAPTION CHECK IS CONDITIONAL ON THE DONOR'S ROLE**, matching

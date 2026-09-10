@@ -62,9 +62,14 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
    not a clip, it's an error body — delete it. A FRESH entry is never the
    target of either removal — demote it first (step 6), and only a LATER scan
    may prune it, never the scan that demoted it.
-4. API modesty: ≤25 recent media queried per watchlist account, ≤6 new
-   clip downloads per scan. No paid APIs, no scraping, no cookies — the
-   Graph API is the ONLY Instagram surface you touch.
+4. API modesty: ≤25 recent media queried per watchlist account, ≤12 new
+   clip downloads per scan (raised from 6 to 12 by Marcus, 2026-08-29 — the
+   watchlist reached 22 accounts and 6 slots no longer covered a day's real
+   spikes; this cap governs GRAPH API downloads only, which are signed CDN
+   links carrying no account risk, and it does NOT touch ig-fetch.sh's
+   cookie budget below, which stays where it is). No paid APIs, no
+   scraping, no cookies — the Graph API is the ONLY Instagram surface you
+   touch.
    **COOKIE RULE (revised 2026-08-21, Marcus).** Cookie-driven fetching is
    allowed ONLY through `ig-routine-core/ig-fetch.sh`, which uses a DORMANT
    throwaway account in its own Chrome profile and enforces a daily cap,
@@ -96,7 +101,9 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
    fail to resolve are logged as `watchlist-miss: @handle <reason>` and
    skipped — never fatal, never removed from the watchlist by you.
 6. Stay lean: the whole scan should finish well before 9:00 AM when the
-   daily routines start. If you are somehow still running past 8:50, stop
+   daily routines start. (Launch moved 8:00 → 7:30 on 2026-08-29, with the
+   Mac's pmset wake moved 7:50 → 7:20, to fund the 12-download cap; the
+   8:50 stop and 9:00 deadline below are unchanged.) If you are somehow still running past 8:50, stop
    gracefully: write the catalog entries you've completed, write
    last-scan.txt noting the early stop, commit what you have (step 7's
    commit), and exit.
@@ -244,7 +251,7 @@ within the last 10 days with engagement ≥ 2× that account's median (a spike
 relative to the account's own baseline, so mega-accounts don't drown small
 ones). Rank all candidates across all accounts by their ratio
 (engagement ÷ account median). Take the top candidates that are NOT already
-in `catalog.md` (match by permalink/shortcode), up to the 6-download cap.
+in `catalog.md` (match by permalink/shortcode), up to the 12-download cap.
 
 Degenerate baselines: if an account has fewer than 5 kept reels or a median
 engagement of 0, log `rank-skip: @handle (thin/zero baseline)` and produce
@@ -268,7 +275,7 @@ only among survivors and can NEVER reinstate an ad, however well it
 **Taste gate before spending downloads:** read `taste.md` (if missing or
 empty — e.g. step 0 failed or was time-skipped — degrade to pure
 ranking; never fatal), then pick the
-≤6 downloads across BOTH pools (watchlist + hashtag; aim for a mix when
+≤12 downloads across BOTH pools (watchlist + hashtag; aim for a mix when
 both have candidates, never a quota). Prefer candidates whose joke
 mechanism fits what taste.md says works for the accounts; drop a
 higher-ranked candidate for a lower one when the fit is clearly better,
@@ -531,7 +538,17 @@ Rules now:
   re-add a vetoed track). Log `audio-dropped: "<title>" <reason>`. Never
   drop a track because a single list omitted it today.
 - Entry format, one line each:
-  `"<title>" — <artist> | shape: <deadpan-hold/escalation/comparison/quiet-confession/momentum> | lane-fit: <tech/general/family/any> | why: <one line> | start: <where> | confirmed: <date>`
+  `"<title>" — <artist> | shape: <deadpan-hold/escalation/comparison/quiet-confession/momentum> | lane-fit: <tech/general/family/any> | why: <one line> | start: <where> | url: <optional> | confirmed: <date>`
+- **`url:` = the IG audio page (Marcus 2026-09-02, so the app's link works).**
+  For every track you ADD, spend one extra site-scoped search
+  (`"<title>" <artist>` with allowed domain instagram.com) and write
+  `url: https://www.instagram.com/reels/audio/<id>/` ONLY when a result's
+  URL has that shape AND its title names this exact track (a search for one
+  song also returns that artist's other audio pages — the title match is the
+  guard). Strip the slug and any `?hl=` from the URL. Original sounds
+  rarely index: leave `url:` absent, never guess an id. Re-confirms keep the
+  existing `url:` untouched. Time box unchanged; if the budget is gone, add
+  the track without a url and let a later scan fill it.
   `shape:` is how the architect actually selects (the shape of the cut the
   track plays straight under); group the file by shape so a thin shape is
   visible at a glance.

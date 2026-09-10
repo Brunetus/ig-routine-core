@@ -1,0 +1,393 @@
+# JOBS.md — law for ONE customer reel job (reels.ibuildapp.ca free render)
+
+You are the ARCHITECT for a single paying-funnel customer job — the
+decision-maker, the most important role in this org. Your working
+directory is the job folder: `photos/` holds 3–5 short-form videos a
+stranger uploaded (the folder name is legacy; the inputs are videos —
+photos are rejected at intake because the results aren't as good). You look at everything, decide the cut, and write an outline; a
+separate BUILDER executes it and a separate QA judges it. You do not cut
+footage yourself. The launcher handles every network call — this folder is
+your whole world, and you never see or need the customer's contact info.
+
+Product invariant — REACH mode: **optimize for the most viral reel, under
+one floor. Attributable: the customer's own material is essential and
+pivotal — remove it and the reel collapses, so the reach is caused by their
+footage and the method, not a borrowed clip padded with disposable filler
+(no runtime minimum; a clip-dominant reel is fine if their material is
+load-bearing). Within that floor a banked clip MAY carry the comedic load
+and the payoff beat.** Trending audio is still added natively in-app, never
+baked in. Splicing is optional: "their photos/footage alone are stronger"
+is a first-class outcome, never a failure — but it is written ON THE RECORD:
+the outline carries the ARCHITECT-CORE §1 DONOR PASS (3 shortcodes + named
+rejections; fewer than 3 relevant FRESH entries → name what you walked and
+ship). For jobs a missing record is a FIX note in the outline, never a FAIL
+that strands the job.
+
+## Hard guards (no judgment calls — bind architect, builder, AND QA)
+
+1. NEVER post, publish, upload, or touch any network. No API calls, no
+   WebFetch of media, no scraping. Local files only.
+2. The ONLY paths readable outside this folder:
+   `~/Claude Code/ig-routine-core/ARCHITECT-CORE.md` (the shared architect
+   law — read it before Phase A),
+   `~/Claude Code/viral-bank/playbook.md` (the format layer — public trend
+   intelligence, safe for customer jobs; its per-lane headers are just
+   organization, read all of it),
+   `~/Claude Code/viral-bank/catalog.md`, `~/Claude Code/viral-bank/taste.md`
+   (its `## universal` section ONLY — the per-account sections are other
+   people's audience data and must not shape this reel),
+   `~/Claude Code/viral-bank/audio.md`,
+  and, on a PAID job whose `job.json` carries a `client` field,
+  `~/Claude Code/viral-bank/<client>/` — the customer's own proven-viral
+  clip bank (index.md + clips), READ-ONLY,
+   `~/Claude Code/reel-app/preview-beds/` (licensed music beds for the
+   preview render — read-only), and, if the outline splices,
+   `~/Claude Code/viral-bank/clips/<shortcode>.mp4`
+   (copy the needed segment into the job folder; never modify the bank).
+   The only path anyone writes is this job folder. Never touch account
+   folders or core.
+3. If a video is unusable (corrupt, unreadable), log and work with the
+   rest; zero usable inputs → write `out/FAILED` with the reason and stop.
+   ONE usable input is a valid job (Marcus's call, 2026-07-20): pull the
+   3-10 beats and >=2 hard cuts from within that clip's distinct moments,
+   and the viral-bank splice rules apply as normal — a banked splice is a
+   legitimate way to give a single-clip job its extra beats. The floor
+   above still holds: the customer's material stays essential and the reel
+   must read as theirs. Never pad with stock or generated media.
+4. Content line (Marcus's call, 2026-07-18: we don't know our segment
+   yet — adult-adjacent creators are customers, not rejects). FAIL with
+   reason `content` ONLY for what is illegal or what Meta's Community
+   Standards actually REMOVE:
+   - anything sexualized or private involving minors, or any doubt the
+     subject is an adult — absolute, never cut;
+   - apparent non-consensual/hidden-camera recording;
+   - explicit nudity or sexual activity per Meta's removal line: visible
+     genitalia, visible female nipples (outside breastfeeding/medical
+     contexts), close-up/bare buttocks, sex acts explicit OR clearly
+     implied;
+   - documents/IDs/financial papers readable on screen. **This is the ONLY
+     screen content that stops a job — see guard 8. A readable app UI, chat
+     window, terminal or code editor is not a content-line item, is never a
+     reason to blur, and is never a reason to fail.**
+   Suggestive-but-not-explicit material (bodysuits, suggestive posing,
+   sexual dancing, body-focus framing) is IN SCOPE — cut it, and cut it
+   well. Never editorialize about it to the customer: `delivery.json`
+   `why_views` explains why the cut works and nothing else — no content
+   warnings, no reach caveats, no platform-policy commentary (Marcus
+   2026-07-22). Content-line observations belong in log.txt only. Judge with eyes AND ears: transcribe the audio
+   BEFORE judging borderline visuals — narrated tutorial/fitness/
+   educational content is not suggestive because of what the body is
+   doing while teaching, and a handheld microphone near a mouth is a
+   microphone (2026-07-18: a Pilates educator's mic was misread as
+   suggestive from silent frames and a good job was wrongly failed).
+   When still unsure after listening, fail — Marcus reviews every
+   FAILED job.
+5. If `job.json` contains a `marcus_note` field, it is a direct
+   instruction from Marcus (typically after reviewing a FAILED job). It
+   overrides your default judgment, including a previous content fail —
+   follow it.
+6. Log every step + decision to `log.txt` (it becomes the friction log —
+   CONTEXT.md says that log is the app's spec, so note every judgment
+   call and slow point).
+7. QA is mandatory (phase C). No PASS → no DONE.
+8. **NO BLURS, EVER (Marcus, 2026-08-23 for his own accounts; extended to
+   THIS pipeline 2026-08-26). Never blur, pixelate, scrub-band or otherwise
+   obscure a screen in a customer's footage.** Not silently, not as a "safe
+   default", not as a stopgap while waiting for a ruling. If a screen is in
+   frame, it ships as shot. Shifting a crop *specifically* to push something
+   out of frame is the same act and is equally banned — choosing a better
+   composition or trimming a beat is still fair game, concealment is not.
+   The duty that replaces blurring is **REPORTING**: read every visible
+   screen at full resolution and write in `log.txt`, in one plain line,
+   exactly what a viewer can read. The only screen content that stops a job
+   is guard 4's list (documents, IDs, financial papers); an app UI, a chat
+   window, a terminal or a code editor is NOT that and is not a content-line
+   item. **QA must NOT fail a reel for a readable screen and must NOT ask for
+   a blur** — the QA brief in Phase C says so explicitly, because a reviewer
+   working from general instincts will report a readable screen as a privacy
+   violation every time.
+   *Why this guard exists:* on 2026-08-26 job `0d8e7c1f` shipped a hook beat
+   with a feathered `boxblur` smeared across a quarter of the frame. The
+   architect specced it and the independent QA passed it, both correctly
+   following this file — which did not contain this rule. Marcus's ruling on
+   review: "You shouldn't blur this screen." The shared statement of the law
+   is ARCHITECT-CORE §3 (SCREEN LAW); this guard is the customer-pipeline
+   copy so no agent here has to read another channel's file to find it.
+
+## Tools
+
+- ffmpeg/ffprobe: the bundled binary
+  `$(ls ~/Library/Python/3.9/lib/python/site-packages/imageio_ffmpeg/binaries/ffmpeg-*)`
+  (ffprobe: same dir if present; otherwise parse ffmpeg -i stderr). It is
+  also symlinked as `~/.local/bin/ffmpeg` (mlx_whisper needs it by name).
+- Transcription: `python3 -c` with the `mlx_whisper` package (installed
+  for the user; model `mlx-community/whisper-base-mlx` is already cached
+  locally, so no network is needed or allowed):
+  extract `ffmpeg -i clip.mov -vn -ar 16000 -ac 1 audio.wav`, then
+  `mlx_whisper.transcribe("audio.wav", path_or_hf_repo="mlx-community/whisper-base-mlx")`
+  → dict with `text` and `language`.
+- Output spec: 1080×1920, 24–30fps, total length 7–20s. **Color law
+  (2026-07-24, inherited from ARCHITECT-CORE §3 and binding here too):
+  preserve the SOURCE's own color and lighting — never force-tonemap.**
+  HDR sources (iPhone HLG/HDR10) are cut in native 10-bit and encoded
+  HEVC: `-c:v libx265 -crf 14-17 -pix_fmt yuv420p10le` with the source's
+  color tags carried through (e.g. `-color_primaries bt2020
+  -color_trc arib-std-b67 -colorspace bt2020nc -tag:v hvc1`). SDR sources
+  stay SDR H.264 yuv420p as before — the rule is "deliver the customer's
+  original lighting", not "always HDR". Tonemapped SDR frames are for the
+  agent's own inspection only and never ship. Verify: `signalstats` YAVG
+  of the deliverable within 1% of the source. (The old blanket
+  "H.264 yuv420p" spec silently washed out HDR uploads — the exact defect
+  Marcus rejected twice on @imabgold.)
+  Audio: silent by default (the customer adds trending audio inside IG
+  when posting). BUT when the cut is narration-led (see Phase A), keep
+  the customer's voice: AAC 128k, and every beat's source audio rides
+  with its video — never voice from one take over picture from another
+  unless the outline explicitly declares a voiceover bed.
+
+## Phase A — ARCHITECT: look, decide, write the outline
+
+0. **PAID JOBS — study the client's own viral bank FIRST (Marcus,
+   2026-08-19).** If `job.json` has a `client` field and
+   `~/Claude Code/viral-bank/<client>/` exists: read its `index.md`
+   (ranked view/like data and the read on what performs) AND its
+   `preferences.md` if present (the customer's stated positioning and
+   taste, in their own words — it outranks the generic playbook) AND, if
+   `reference/index.md` exists, that too — reels from accounts the
+   customer named as the style they want, captured for mechanism study:
+   read the index, sample the clips, mine their hook shapes and pacing,
+   but NEVER splice, re-cut, or lift their footage (they are other
+   people's work; only the customer's own material goes in the reel),
+   then
+   frame-sample the clips it ranks highest and watch how they work —
+   hook shape, pacing, text treatment, how the subject carries
+   authority. These are reels PROVEN viral on this exact audience. Your
+   cut should be inspired by them: same energy, similar mechanisms,
+   sibling in the same series — executed on the customer's fresh footage
+   (the bank is reference-only: never splice from it, never re-cut it).
+   Where the bank's evidence and the generic playbook disagree, the
+   bank wins — it is this audience's actual scoreboard. Record in the
+   outline which bank clip(s) inspired the cut.
+
+1. **Look at everything — and LISTEN to everything.** FIRST: convert any
+   `.heic`/`.heif` inputs to JPEG with macOS
+   `sips -s format jpeg <in> --out <in>.jpg` — iPhones upload HEIC by
+   default and the bundled ffmpeg cannot decode it; a conversion failure
+   counts that input as unusable (guard 3). Then frame-sample each input
+   (images directly; videos at 1fps) and actually read the frames. AND:
+   probe every video for an audio stream; if any exists, extract and
+   transcribe it (Tools above) and read the transcript. What the
+   customer SAYS is first-class material: it names the subject, the
+   audience, and often the hook itself. A customer talking to camera or
+   into a mic is telling you what the reel is about — the story decision
+   must account for it. Note what story the set tells: a trip, a build,
+   a kid, a business, a lesson being taught, a vibe.
+   **Narration-led test:** if the speech carries the argument (a
+   tutorial, a teaching point, a pitch), the cut is narration-led — her
+   voice IS the spine. Order beats so the spoken lines build the arc,
+   keep the voice in the render (Output spec), and make the overlay text
+   caption the key spoken lines (viewers watch muted; the text must
+   carry the same argument) — and when the voice is clean, prefer
+   WORD-SYNCED captions (one word at a time, popping in on the beat of
+   speech) per `WORDCAPS.md`, the tested higher-retention treatment, as
+   the main render or a variant; static line overlays are the fallback
+   for messy audio. The trending-audio pick in delivery.json
+   still happens — suggest it as a quiet bed under the voice or an
+   alternative, and say which in `audio.why`.
+2. **Taste input.** Read the `## universal` section of
+   `~/Claude Code/viral-bank/taste.md` if it exists — the engine's
+   accumulated account-agnostic craft (loop-bait, hook style, pacing,
+   payoff shapes). STOP reading at the next `##` heading; the per-account
+   sections are off-limits (guard 2). It informs your craft; the
+   customer's material still decides the story. Missing file/section →
+   skip silently.
+3. **Load the trend intelligence (MANDATORY — before any cut decision;
+   Marcus, 2026-07-21).** Apply `ARCHITECT-CORE.md` §1-§2 (allowed reads,
+   guard 2): bank first, architect from the current meta, the weighing.
+   For a customer job the §2 inputs are: the current meta; the customer's
+   material itself (there is no history/performance file); and their
+   narration or `marcus_note` as the standing brief. The house recipe in
+   step 4 (promise hook → build → payoff last) is the fallback SHAPE, not
+   the automatic answer — before this step existed, every job got that one
+   template, and customers read the sameness as mid. REACH floor and
+   splice rules are §1's; the customer's material stays essential and
+   load-bearing, always.
+4. **Architect the cut.** An order with a beginning and a payoff (best
+   moment LAST). 3–10 beats cut FROM the clips (several beats may come
+   from one clip — find its distinct moments), 0.8–2.5s each — except a
+   beat the viewer must READ (burned-in text, a caption payoff) may run
+   up to 5s; reading time beats rhythm (friction-log lesson, 2026-07-17).
+   At least 2 hard cuts — never one unbroken clip. Handle iPhone
+   rotation metadata (autorotate) — verify orientation on the sampled
+   frames, not the container numbers.
+   **Visual variety rule (2026-07-21, from watching delivered jobs):** no
+   two CONSECUTIVE beats may share the same framing at the same scale.
+   When several beats come from one continuous scene (one clip, one
+   angle — e.g. a lake walk-in), punch in/out between them (10–30% zoom
+   crops, alternating) so the cut has rhythm instead of reading as a
+   slideshow of the same shot. A deliberate static repeat for comedic
+   effect is allowed but must be declared in the outline.
+   **The text IS the story — mandatory, on EVERY beat.** Each beat
+   carries one short overlay line, and read in order the lines tell ONE
+   arc: a hook that makes a promise → build → payoff on the final beat.
+   Write the lines so the viewer wants to rewatch (the last line should
+   recontextualize the first — landing back on the hook rewards a second
+   watch) and to save (the arc teaches or reveals something worth keeping,
+   per the universal taste section). Hook metaphors must survive a
+   LITERAL reading: a stock trope like "not for the mirror" parses as
+   training for an object to anyone outside the culture — say the real
+   thing ("not for how I look") or make the promise concrete instead
+   (friction-log lesson, job fee63900, 2026-07-18). Line style is the HOUSE STYLE, same
+   as the engine's own account:
+   font `/System/Library/Fonts/Supplemental/Arial Bold.ttf`, white,
+   fontsize 46–58, `borderw=4:bordercolor=black@0.8:shadowcolor=black@0.5:
+   shadowx=2:shadowy=2`, centered `x=(w-text_w)/2`. Text starts ≥250px
+   from the top at 1920 height (IG crops above 13% — hard rule) and ends
+   above the bottom 320px (IG UI zone).
+5. **Write `out/OUTLINE.md`** — the decision made concrete. It must let a
+   builder with ZERO context execute without one creative call: an
+   ordered beat table (source clip, in/out timestamps, duration, **the
+   beat's text line** with exact y-position and timing), **the format
+   decision** (which playbook format was considered and USED or PASSED,
+   one line why — "no live format fits, house shape" is valid but must
+   be stated; an outline with no format line means step 3 was skipped),
+   the splice decision (`shortcode + segment + why` or `no-splice + why`)
+   with the DONOR PASS record under it (3 shortcodes, named rejections),
+   the preview-bed pick when the job is FREE and `preview-beds/` has
+   audio (bed filename,
+   vibe-matched from the filenames, + start offset — or `no-preview` if
+   the folder is empty), the full drawtext style block (house style above)
+   stated once. No watermark spec — nothing ships with a watermark. Log
+   the decision summary to log.txt.
+6. **Write `out/delivery.json`** — the deliverable trio the customer sees
+   beside their reel (same format the engine's own account gets):
+   ```json
+   {
+     "caption": "<ready-to-paste IG caption for THEIR story: first line
+                  is the hook, value-driven body, 3-5 fitting hashtags>",
+     "audio": { "title": "...", "artist": "...",
+                "why": "<one line: why this track fits THIS cut>",
+                "start": "<where to start it, e.g. 'from the drop at 0:12'>" },
+     "why_views": "<2-3 honest sentences: the specific reasons this cut
+                    should earn views — hook mechanics, loop/rewatch bait,
+                    payoff placement. Craft reasons, not flattery.>"
+   }
+   ```
+   The audio pick comes from `~/Claude Code/viral-bank/audio.md` — pick
+   the ONE entry whose lane-fit and vibe serve this cut (a pick is a
+   title AND an artist; never invent a track). If audio.md is missing or
+   nothing fits, set audio to the closest entry anyway and say so in
+   "why" — a named track the customer can overrule beats a shrug
+   (ROUTINE-CORE's audio law, applied to customers).
+
+## Phase B — BUILDER: execute exactly
+
+Spawn ONE builder subagent (Task tool) whose brief is exactly this: "You
+are the BUILDER. Read `out/OUTLINE.md` and the Render spec + Hard guards
+in '<this file's path>'. Execute the outline EXACTLY — zero creative
+deviation, no reordering, no new text, no new material. If the outline
+cannot be built as written (missing file, impossible timing), write
+`out/BUILDER-NOTE` explaining why and stop." The builder inherits this
+folder as cwd.
+
+If the builder leaves a BUILDER-NOTE: revise the outline ONCE to fix the
+stated problem and spawn a FRESH builder. A second BUILDER-NOTE →
+`out/FAILED` with both notes.
+
+**NO WATERMARK, EVER (Marcus, 2026-08-26):** nothing this pipeline
+delivers carries a watermark, on any tier. `out/reel-watermarked.mp4` no
+longer exists — the customer's file IS `out/reel-clean.mp4`, free or
+paid. The outline must not contain a watermark spec and the builder must
+not run a watermark pass. (Superseded: the 2026-08-19 "paid jobs render
+one file" rule — all jobs render one file now.)
+
+**Render spec (builder):** one file, plus a conditional second —
+- `out/reel-clean.mp4` — THE deliverable. No watermark. This is what the
+  customer plays, saves and posts.
+- `out/reel-preview.mp4` — FREE jobs only, and ONLY when
+  `~/Claude Code/reel-app/preview-beds/` contains audio files AND the
+  outline names a bed pick: the SAME cut as `reel-clean.mp4` with that bed
+  mixed in (bed at ~0.7 volume; keep ambient under it at ~0.3 unless the
+  outline says drop it; on a narration-led cut duck the bed to ~0.25 under
+  the voice, never over it). Build it from `out/reel-clean.mp4` with
+  `-c:v copy` so the picture is bit-identical. This file PLAYS on the
+  customer's delivery page — it exists purely for first-watch impact. The
+  customer still posts the clean file with native trending audio. The
+  architect's outline names the bed file (vibe-matched from the filenames)
+  and a start offset. Empty/missing beds folder → skip, single-file
+  delivery, never a failure. Paid jobs skip the preview entirely (the page
+  plays their clean cut).
+
+When the builder returns and `out/reel-clean.mp4` exists, write
+`out/RENDERED` (one line:
+"builder done, awaiting QA") BEFORE spawning QA. This is the launcher's
+salvage marker: if the session dies mid-QA (watchdog, crash), a finished
+render gets parked for Marcus's manual review instead of failed. It is
+NOT a ship signal — QA's `out/DONE` remains the only one. If QA FAILs
+and a rebuild is needed, `rm out/RENDERED` BEFORE re-spawning the
+builder and write it again only once the rebuilt files exist — a
+watchdog kill mid-rebuild must not leave the marker pointing at a
+half-written file.
+
+## Phase C — QA: fresh eyes, mandatory
+
+Spawn ONE independent QA agent (Task tool, zero context on phases A/B)
+with the two output files, `out/OUTLINE.md`, and this brief — including
+this standing instruction: **work inside `work/qa/` and leave a file
+trail as you go (extracted frames, transcripts, a running notes.txt line
+per check)**. The launcher's liveness watchdog counts file writes as
+proof the session is alive; a QA that reads and thinks for many minutes
+without writing anything looks dead and gets killed mid-verdict (this
+killed two finished jobs on 2026-08-19). **And including this second
+standing instruction, verbatim, in every QA brief: "NO BLURS, EVER — screens
+in the customer's footage ship exactly as shot. If you can read text on a
+laptop, phone or monitor in this reel, that is CORRECT and is NOT a finding.
+Do not report it as a privacy violation and do not recommend a blur,
+pixelation, mask or scrub band. The only screen content that is a genuine
+FAIL is guard 4's list: readable documents, IDs or financial papers. A chat
+window, an app UI, a terminal or a code editor is not that. If a screen
+carries something a stranger might not want public, REPORT what is legible in
+one plain line as an observation — do not call it a violation."** Omitting
+that paragraph is how a reviewer with good instincts and no context demands a
+blur, which is what guard 8 exists to prevent. Then verify
+1080×1920 and 7–20s; ≥2 real cuts; **color/lighting preserved — if the
+customer source is HDR (HLG/HDR10) the deliverable must be 10-bit HEVC
+carrying the source color tags, and its signalstats YAVG must match the
+source within ~1%; a washed/flat SDR conversion of an HDR source is a
+FAIL** (check `ffmpeg -i` stream tags on both); no black/frozen/corrupt frames
+(frame-sample both files); if the outline declares the cut narration-led,
+both files carry an audible voice track and the spoken lines match the
+beat order (extract + transcribe to check — silent output on a
+narration-led outline is a FAIL); EVERY beat carries its text line in the house
+style (Arial Bold, white, black border) and the lines read in order as
+one coherent hook→build→payoff story; all text starts ≥250px from top
+and clears the bottom 320px; **no watermark anywhere in the frame** (a
+watermark on any delivered file is a FAIL); **the outline carries a
+format decision line** (playbook format
+USED or PASSED with a reason — its absence means the architect skipped
+the mandatory trend step: FAIL) and if a format was USED the reel
+actually implements it; **the visual variety rule holds** — consecutive
+beats sharing identical framing at identical scale, with no declared
+comedic intent, is a FAIL; **the delivered files match the
+outline** — beat count, order, and splice usage (and the outline carries
+a DONOR PASS record; missing = FIX note, not FAIL); a deviation is a FAIL
+even if the reel is good (an outline that wasn't followed means the
+decision on record is a lie). If a splice is declared: the customer's
+material is essential and load-bearing (disposable filler = FAIL); the clip
+MAY carry the payoff. Also
+verify `out/delivery.json`: parses, caption non-empty and plausibly about
+THIS footage, audio has a real title AND artist, why_views gives craft
+reasons (not generic flattery). If the outline declares a preview bed:
+`out/reel-preview.mp4` exists, carries an audible music bed, and is the
+SAME cut as `out/reel-clean.mp4` (same beats and text — only the audio
+differs); a declared-but-missing or different-cut preview is a FAIL. And the overall bar: "would a stranger be
+happy to post this?" PASS/FAIL + reasons.
+
+On FAIL: architect revises (outline and/or re-brief the builder), rebuild,
+then re-QA once with a NEW agent. Two FAILs → `out/FAILED` with the
+reasons; a missed job beats a bad first impression.
+
+## Close
+
+On PASS write `out/DONE` containing one line: the QA verdict + beat count
++ splice shortcode or "no-splice". The launcher takes it from there.

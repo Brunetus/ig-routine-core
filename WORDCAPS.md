@@ -37,9 +37,10 @@ well." This file records that exact process so it is repeatable.
      → centered at x=540 (frame center), y=1360 (~71% down, inside the text
      safe zone); pops in 55%→100% scale over 90 ms.
 
-5. **Burn in + watermark.**
+5. **Burn in.**
    - `ffmpeg -i base.mp4 -vf "ass=captions.ass" -c:a copy reel-wordcaps-clean.mp4`
-   - then the standard watermark pass → `reel-wordcaps-watermarked.mp4`.
+   - that clean file IS the deliverable. No watermark pass (Marcus,
+     2026-08-26: nothing ships with a watermark).
 
 6. **QA the caption pass.** Frame-sample at several word-boundary times +
    a contact sheet; verify each word appears on time, spelled correctly,
