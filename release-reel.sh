@@ -178,6 +178,12 @@ release_eclip() {
     echo "Two ways out, both deliberate:"
     echo "  replace that day :  release-reel.sh $ID --replace"
     echo "  ship it tomorrow :  release-reel.sh $ID --day $(date -v+1d +%F)"
+    if [ -n "$(eclip_field "$JOB" revision.round)" ]; then
+      echo ""
+      echo "This job is a REVISION, and a revision keeps the day key of the cut it revises."
+      echo "If that earlier cut already went out, --replace is the answer: it is the same"
+      echo "reel for the same day, edited the way you asked."
+    fi
   fi
   if [ "$RC" -ne 0 ]; then
     echo "$(date): eclip release $ID FAILED in deliver.mjs" >> "$LOG"

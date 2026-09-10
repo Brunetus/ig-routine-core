@@ -513,6 +513,30 @@ Write two more files after QA PASSes and before `out/DONE`:
   entry is the customer's REAL asset key: `job.json`'s `eclip.photo_map` maps
   each photo filename to it. The filenames are sanitised, the map is the truth.
 
+### REVISION jobs — ONLY when `eclip.revision` exists
+
+**This is not a new cut.** The reel in `revision/reel-clean.mp4` is one Marcus
+already likes; he named one thing to change and everything else stays. Do not
+re-architect it, do not go looking for a better concept, do not re-run the
+donor pass for its own sake.
+
+Phase A becomes: read `revision/NOTE.md` (what he asked) and
+`revision/OUTLINE.md` (the cut that exists), watch `revision/reel-clean.mp4`,
+then write `out/OUTLINE.md` as that outline with the note applied. **Every beat
+the note does not name is carried over EXACTLY** — same source clip, same in
+and out, same crop, same card, same order. The change is whatever he asked
+for: add, replace or trim a beat; reword a card; swap the ending; add a donor
+at the payoff if he asked for one and the donor pass allows it. Say in one line
+which beats moved and which did not.
+
+Then Phase B renders it and **Phase C runs in full, with a fresh QA agent, as
+always** — a revision ships to the same customer as a first cut and gets the
+same bar. The caption changes only if the edit made it wrong.
+
+`out/kit.json` and `out/plan.json` as above, and `plan.json` also carries
+`revision_of` (the source job id, from `eclip.revision.of`) and
+`revision_note` (his words, verbatim).
+
 ## Close
 
 On PASS write `out/DONE` containing one line: the QA verdict + beat count
