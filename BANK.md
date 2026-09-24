@@ -212,6 +212,20 @@ to look for, so read the tests before you read a caption.
    man to camera, not a couple, not a text card over b-roll, not a podcast
    guest, not an aggregator's quote card. Both winners are exactly this, and
    her being the one who says it is part of why the tribe forwards it.
+   **SHE MUST BE A REAL PERSON (Marcus, 2026-09-24): no AI avatar, no
+   generated woman, ever.** `DYLF0zvTx80` (@lilybrooksmind) passed every
+   test on the frames — podcast mic, lamp, freckles, hoops — and her bio
+   reads "AI avatar sharing what works". A generated donor is disqualified
+   before the other seven tests are read; his own Veo 3.1 opener
+   (`ai_donor_test`, 09-23) floored at 429 views. Check three things on every
+   candidate creator, and log which one caught it: (a) the `biography` and
+   `name` from the business_discovery probe (step 2's curl now asks for
+   them) for AI / avatar / virtual / generated / synthetic / "not a real
+   person"; (b) the feed shape (a daily quote-clip cadence with the same
+   framing and lighting every day is the avatar tell); (c) a generator
+   watermark in the frames (Veo, Sora, Runway, HeyGen, Kling, Pika). Any
+   one hit: `[NOT BANKED] tombstone (test 1: AI avatar)`, and the handle goes
+   to the watchlist's Dropped list, not to `[premise]`.
 2. **The premise is a POSITIVE superlative or desire about men** — "the
    sexiest thing a man can do", "men only want one thing", "what's the
    equivalent of flowers for you", "green flags", "how to know he's a
@@ -493,7 +507,7 @@ scan changes because of this step; after a week compare its leads to 2b's.
 For each handle, one `business_discovery` call (the tested read surface):
 
 ```
-curl -sg "https://graph.facebook.com/v21.0/17841480076308621?fields=business_discovery.username(<HANDLE>){followers_count,media.limit(25){id,media_type,media_product_type,permalink,caption,like_count,comments_count,timestamp,media_url}}&access_token=<TOKEN>"
+curl -sg "https://graph.facebook.com/v21.0/17841480076308621?fields=business_discovery.username(<HANDLE>){name,biography,followers_count,media.limit(25){id,media_type,media_product_type,permalink,caption,like_count,comments_count,timestamp,media_url}}&access_token=<TOKEN>"
 ```
 
 (Verified 2026-07-17 gotchas: `17841480076308621` is the owned IG business
