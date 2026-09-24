@@ -1,4 +1,5 @@
 # BANK.md — viral clip bank: law for the DAILY scan (daily since 2026-08-21; was Mon+Thu)
+**EXCLUSIVE MODE since 2026-09-17: donor-opener setups only. Read THE GATE before anything else.**
 
 You are the VIRAL AGENT. Your job is to keep the clip bank at
 `~/Claude Code/viral-bank/` stocked with famous/spiking reels and catalogue
@@ -69,7 +70,7 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
    links carrying no account risk, and it does NOT touch ig-fetch.sh's
    cookie budget below, which stays where it is). No paid APIs, no
    scraping, no cookies — the Graph API is the ONLY Instagram surface you
-   touch.
+   touch (plus `ig-fetch.sh` and the read-only `read-saved.sh`, below).
    **COOKIE RULE (revised 2026-08-21, Marcus).** Cookie-driven fetching is
    allowed ONLY through `ig-routine-core/ig-fetch.sh`, which uses a DORMANT
    throwaway account in its own Chrome profile and enforces a daily cap,
@@ -77,14 +78,30 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
    call `yt-dlp` directly, never use a Chrome profile holding an imabgold /
    bambi / maxima session (the script refuses those by name), and never
    raise the caps to finish a bank faster — a bank that takes three days is
-   the point. Use it only for clips whose `media_url` the API withholds;
-   everything else comes from the Graph API. **If `ig-fetch.sh` exits 3
+   the point. Use it only for clips whose `media_url` the API withholds, and
+   (since 2026-09-17) to resolve a creator handle for step 2b's `[premise]`
+   lane, ≤3 resolutions per scan inside the script's configured daily cap
+   (`max_per_day` in `~/.config/ig-fetch/config.json` — 8 since Marcus confirmed
+   it 2026-09-18; the "5" elsewhere in this guard is the 2026-08-21 value) — a gate-passing
+   donor whose media is withheld (step 4) has first call on the budget,
+   resolutions take what is left. Everything else comes from the Graph API.
+   An exit 3 or 4 on EITHER use ends all ig-fetch use for the day. **If `ig-fetch.sh` exits 3
    (daily cap) or 4 (two failures), that is FINAL for today: log
    `download-miss: <shortcode> media withheld (fetch cap)`, substitute the
    next-ranked reel, never retry, never call yt-dlp yourself.** For a
    withheld clip that matters and cannot be fetched today, leave it for
    tomorrow's scan (its tombstone/miss line is the queue) or ask Marcus to
    save it by hand from the IG app.
+   **CARVE-OUT (Marcus, 2026-09-24, for step 1b ONLY — widened the same evening
+   to a headless read):** his private Saved collection may be read with HIS
+   session in exactly one way: `ig-routine-core/read-saved.sh`, which renders the
+   one collection page headlessly from a COPY of his Chrome profile's cookie jar,
+   extracts shortcodes and handles from the grid, and exits. One run per day,
+   page render only, no downloads on his session (downloads stay on the
+   throwaway through ig-fetch.sh), no other URL, no scrolling past the grid, and
+   never `yt-dlp` on his cookies. Any other use of an imabgold / bambi / maxima
+   session stays banned as above. An interactive session on his request may
+   also read the collection through the desktop app's browser pane.
    SUPERSEDED 2026-08-21 — kept as the rationale for why the script exists,
    NOT as a live rule (the live rule is the paragraph above):
    **COOKIE BAN (2026-08-20).** Never run `yt-dlp
@@ -134,13 +151,191 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
      being the whole picture). Tags in `used` may be re-queried freely.
      NEW tags are allowed only while `|used| + new ≤ 30`, and total tags
      queried this scan ≤ 12.
-   - **The standing lane set is FROZEN at daily cadence** (since
-     2026-08-21): re-query the same 12 tags every scan and never swap one
+   - **The standing set is FROZEN at daily cadence** (since 2026-08-21;
+     10 premise tags since 2026-09-17): re-query the same set every scan and never swap one
      on your own judgment — a swap is a new tag charged for 7 days on a
      window ig-pulse also needs. Swaps are Marcus's call, noted in this
      file. A steering tag (step 2b) that would push `|used| + new` past
      30 is DROPPED and logged `steering-defer: #tag (quota)` — steering
      never outranks the hard stop.
+
+## EXCLUSIVE MODE — the donor-opener format is the only thing you bank
+**(Marcus, 2026-09-17. This overrides the lane spread everywhere below.)**
+
+The bank feeds ONE format now: the **donor-opener template** behind every
+hit @imabgold has ever had (`sexiest_said` 39k, `one_thing` 532k views /
+22,778 shares, `midweek_reset` 43 shares in its first 10 hours). Its law
+lives in `imabgold-ig/performance.md`, rules 90-93 plus their four
+refinements; the donor half is reproduced as THE GATE below and is the only
+part you need.
+
+Why this file changed: **not one of the four donors behind those reels ever
+came from this bank.** `@uldouz`, `@abb.davv`, `@thexcelguy` and the
+shortcodes `DZsOX8fxFtc` / `DDz6Y0ZyTqe` appear nowhere in `catalog.md` —
+Marcus hand-picked every one, while the scan banked 170 FRESH entries of
+@pubity animal clips, sports moments and office skits that this format
+cannot use. The bank was stocking a shelf nobody shopped from.
+
+**A candidate that fails the gate is not banked, and there is no second
+lane to fall back on.** A scan that banks ZERO clips because nothing passed
+is a CORRECT scan: log it, write `last-scan.txt`, commit, stop. Do not
+relax a test to fill a slot. Do not bank a general/sports/family clip
+"while you are here". An empty day is the expected shape of this job until
+the `[premise]` watchlist lane fills, and a thin bank of the right shape is
+worth more than 170 entries of the wrong one.
+
+What this costs, knowingly: @bambi.map and the CUSTOMER jobs live off the
+FRESH entries already banked until those age out under step 6, which logs
+`lane-dry:` when a lane empties so Marcus can see the cost accumulating —
+never act on it yourself, and never reopen a lane to fix it.
+
+## THE GATE — eight tests, all of them, on every candidate
+**(the donor half of performance.md rules 90-93 and their refinements. Tests
+1, 7 and 8 carry Marcus's 2026-09-17 wording, which goes further than the
+file: test 1 is new (widened 2026-09-18), test 7 amends rule 93 (2026-09-24: whole-premise copies allowed), test 8
+extends the 09-16 read.
+Where this section and performance.md differ, this section governs the scan.)**
+
+The donor is the OPENER: it is the reel's first frame, someone sets up a man
+in a positive way, and the reel hard-cuts to Marcus's own footage as that man. **You
+are hunting for a SETUP, never for a joke.** This inverts what this bank used
+to look for, so read the tests before you read a caption.
+
+1. **A girl talks straight to camera and states the premise about men.**
+   Marcus's rule, restored 2026-09-18 evening after a one-day widening: the
+   09-17 wording was "hot girl to the camera"; on 09-18 it was widened to "any
+   speaker who sets up a man positively", the scan banked two man-to-camera
+   donors on that (Galloway's "3 things women find attractive", a men's-glowup
+   "4 things girls find attractive", 4.77M and 2.1M plays), and Marcus rejected
+   both the same evening: "these donors suck, girl donors are proven to work."
+   So: a woman speaking to camera, stating a positive premise about men. Not a
+   man to camera, not a couple, not a text card over b-roll, not a podcast
+   guest, not an aggregator's quote card. Both winners are exactly this, and
+   her being the one who says it is part of why the tribe forwards it.
+2. **The premise is a POSITIVE superlative or desire about men** — "the
+   sexiest thing a man can do", "men only want one thing", "what's the
+   equivalent of flowers for you", "green flags", "how to know he's a
+   keeper". REJECT every negative frame: red flags, the ick, signs he's
+   cheating, what men lie about. Under a negative premise the payoff object
+   becomes the thing WRONG with him, and the viewer who owns that object is
+   the butt of the joke instead of the hero.
+   **AUDIENCE FIT (Marcus, 2026-09-18, after the first sweep):** the man
+   being set up must be one the viewer IS. The reach is 85% men 18-34 (38%
+   are 18-24; per-reel audience tab, performance.md 09-16), global (India,
+   Korea, Turkey, Iran), 95% strangers. So the premise has to describe a
+   young man's desire, status or habit — what men want, the sexiest thing a
+   man can do, green flags, flowers for men, what he's like when he's into
+   you. REJECT premises anchored on an age or life stage the viewer has not
+   reached: "older men", "grown men", "a real man vs a boy", husbands,
+   fathers, providers, "a man over 30". `DdcKZ9fPDin` ("three things learned
+   dating older men") passed every other test and was dropped on this one:
+   a 22-year-old watching it is the boy she is comparing against.
+3. **The man is the HERO of her sentence, not the problem.** Test 2 applied
+   to sentences that only sound positive. `astra`'s donor ("things men say
+   when they're 1000% lying") passed a casual read and failed this one: 12
+   shares against `midweek_reset`'s 43 the same night.
+4. **The premise carries a SLOT** — a claim plus its eliminations ("not
+   money. not power.") leaving one blank that a single object fills. A
+   premise with no blank has nothing to answer. This is the fastest test to
+   run while skimming captions, so run it first.
+5. **The setup is readable with the sound off.** The donor carries its own
+   word captions, or a title card that IS the spoken line. A card merely
+   adjacent to the setup fails: `kiss_you` ran "for the men who wanna go
+   from a 5 to a 10" over a spoken "I would make out with you if you did
+   this", and did 921 views. The test is "can a muted viewer read the
+   premise", not "is every word captioned".
+6. **The setup runs 3s MINIMUM, 4-5s ideal, and is the WHOLE setup.**
+   Winners 4.03s and 4.60s; floors 2.03s and 2.37s. Measure it off the
+   frames in step 5 — never estimate it from the caption. A clip that cuts
+   away before the premise finishes is the WRONG COPY of a right donor, which
+   is test 7.
+7. **The copy carries the WHOLE premise — original preferred, second-hand
+   allowed with the chain recorded.** (AMENDED 2026-09-24, Marcus.) This test
+   was written because both floor reels used @thexcelguy reposts that jump
+   to an Excel screen at 2.0-2.4s, so there was no more of her left to use.
+   That is a LENGTH failure in a sourcing costume, and test 6 already catches
+   it. Measured 2026-09-24: @programmergrind's `DaWr4F9OH9q` (57.6k likes)
+   opens on a borrowed woman clip that runs 0.00-4.03s COMPLETE — the same
+   length as this account's two best donors (4.03s, 4.60s). So:
+   - A copy that TRUNCATES the premise before it finishes is rejected: log
+     `repost-skip: <shortcode> (truncated at <t>s, original wanted)` and treat
+     the original creator as a handle lead per step 2b.
+   - A second-hand copy that carries the premise WHOLE (test 6 passes on the
+     copy itself) MAY be banked. The entry must record the chain: `creator:
+     @<original if nameable>` and `copied-from: @<account we took it from>
+     <shortcode>`. The reel's credit names where WE took it from (Marcus:
+     "as long as we quote where we take it from").
+   - The original is still preferred when both exist, because rule 92
+     attaches the ORIGINAL account's audio; when only a copy is banked, the
+     entry's `her-audio:` line must name which account's sound to attach in-app.
+8. **The donor never says Claude, and never names an AI coding tool.**
+   (performance.md's 09-16 read says "must NOT mention Claude"; the tool-name
+   half is the 09-17 extension.) Claude arrives only in Marcus's line. `other_woman`'s donor says Claude at 1.8s and the
+   reel sits in the account's ordinary band.
+
+Two further properties are not pass/fail tests but MUST be recorded in the
+entry, because the architect cuts on them: the setup has to address the same
+person the payoff recognises (a premise aimed at women about a man — "why he
+isn't texting YOU" — orphans both audiences, 975 views), and her audio has
+to be her ORIGINAL sound, since rule 92 attaches it in-app rather than baking
+it.
+
+All eight pass → bank it. One fails → do not spend the download slot. There
+is no "close enough" here: a near-miss donor costs a full build and lands in
+the 700-4,000 band, which is exactly what the last four non-hit reels did.
+
+## THROWAWAY BROWSING — finding donors the way Marcus does (Marcus, 2026-09-18)
+(The "Profile 1 is a hard stop" line below governs browsing sessions. It does not
+cover `read-saved.sh`, which is the guard-4 carve-out and reads Profile 1's cookie
+jar by design.)
+Every donor behind the account's hits was found by scrolling, not by the API,
+and the hashtag API is quota-blocked and popularity-blind. So the dormant
+throwaway (@aureliusnuttus, Chrome "Profile 7", the same account ig-fetch.sh
+uses) MAY browse Instagram's own search to FIND premise donors. This is a new
+surface for that account, and volume is what earns warnings, so the limits
+are the rule, not a guideline:
+- **Profile check first, every session.** Before any instagram.com
+  navigation, confirm the browser is Profile 7 and the signed-in handle is
+  @aureliusnuttus (read it off the page). Any other profile — Default,
+  Profile 1, Profile 6, anything signed into Marcus's Google accounts or an
+  imabgold/bambi/maxima IG session — is a hard stop, same as ig-fetch.sh.
+- **Caps per day:** ≤10 searches, ≤25 page loads total (search pages, reel
+  pages, profile pages all count), 45-90s between navigations, no more than
+  3 reel pages opened in a row without a search or profile page between
+  them. Log every navigation as `throwaway-nav: <url path>`; the log is the
+  counter, and the day's count is read from it before the first move.
+- **Stop signals:** any "suspicious activity", "confirm it's you", challenge,
+  captcha, or rate-limit page ends browsing for the day — log
+  `throwaway-stop: <what the page said>`, do not retry, do not switch
+  profiles. Downloads still go through ig-fetch.sh only (its own cap); a
+  reel found by browsing is fetched by shortcode like any other.
+- **The tool is `ig-routine-core/ig-search.py`** (built 2026-09-18, same guard
+  set as ig-fetch.sh, cap `search_max_per_day` in the ig-fetch config,
+  default 10, state in `~/.config/ig-fetch/search-state.json`, log lines
+  `SEARCH ...` in fetch.log). Two modes, measured the day it was built:
+  `tag <name>` reads IG's own hashtag page (`tags/web_info`) and returns the
+  RANKED top posts with plays, likes, handle and duration — this is the
+  surface the Graph API never had, and it found both of the day's banked
+  donors (4.77M and 2.1M plays) on the first five tags. `kw "<phrase>"`
+  (fbsearch/top_serp) returned HTTP 400 and counts as a failure; do not
+  spend the fail budget re-trying it until someone fixes the call.
+  **Step 2b's Graph hashtag sweep is now SECONDARY:** run the throwaway tag
+  pages first (they do not touch the 30-tag Graph window at all), and use
+  the Graph sweep only for tags already charged. Tag pages that produced
+  on 09-18: greenflags, attractivemen, greenflagsinmen, whatmenwant;
+  boyfriendgoals was couple-content noise.
+- **What to search:** premise phrases in the audience's words, not tags —
+  "the sexiest thing a man can do", "men only want one thing", "green flags
+  in a man", "what men want", "the most attractive thing a man can say",
+  "flowers for men". Read the ranked reels grid: the shortcode from each
+  href (path only) and the creator handle. Screen on the gate from the
+  cover and caption; open a reel page only for a candidate that already
+  passes tests 1/2/3/4/8 on what the grid shows.
+- **Output:** a creator handle → `[premise]` lane (after the same
+  business_discovery probe as step 2b; personal accounts are still
+  unreadable, but a browsed find carries its handle, so it CAN be fetched
+  and banked directly — record `source: @handle (browsed)` in the entry).
+- Never like, follow, comment, save or DM from the throwaway. Reading only.
 
 ## The scan
 
@@ -195,6 +390,105 @@ watchlist-expansion note for Marcus in the log — never a reason for an
 architect to splice a badly-fitting clip (an `OWN-IS-REFERENT` or
 `LITERAL-REFERENT` rejection in the DONOR PASS record covers the gap).
 
+**AMENDED 2026-09-17 (exclusive mode).** One lane produces donors now:
+`[premise]`. Every other lane — tech, general, sports, family — is
+**format-capture only**: you may still read those accounts and write a step-5b
+playbook entry from what you see, but you may NOT spend a download slot on
+them and you may NOT write a catalog entry for them. The paragraph above
+still describes how lanes are *meant* to work and is kept for the day Marcus
+reopens them; until he does, a customer-segment gap is a log note and nothing
+more. The `[premise]` lane starts EMPTY by design — step 2b fills it.
+A `[premise]` line marked unprobed (added by an interactive bank) that returns HTTP 400 on its
+first probe is moved by the scan to `## [saved] lane` marked `(unreadable)` — the one move the
+scan may make on a `[premise]` line, because a line that can never be read is a daily miss.
+**`[saved]` (added 2026-09-24, Marcus): read like `[premise]`.** A `[saved]` handle is a creator
+Marcus saved on Instagram (step 1b). Its reels run THE GATE like any candidate; a gate-passer
+MAY spend a download slot and gets a catalog entry written as `lane: premise` (never
+`lane: saved`), and the creator's watchlist line moves to `[premise]` (readable handles
+only; an HTTP-400 creator stays `[saved]` marked `(unreadable)`). That is the one
+exception to "only `[premise]` produces donors". A `[saved]` reel that fails is a
+tombstone, or a step 5b format entry when the format is the asset.
+
+### 1b. Saved inbox — what Marcus saved on Instagram (added 2026-09-24, Marcus)
+Marcus's rule: **whenever he saves a reel, that creator joins the scan, and the
+reel itself is a candidate.** Every donor behind the account's hits was found by
+him scrolling, not by the hashtag API (see THROWAWAY BROWSING), and on 2026-09-24
+his collection held 12 reels, 12/12 unknown to catalog.md and 11/11 creators
+absent from watchlist.md — including @thegroundedmen, whose clip he had shipped
+two days earlier. This step runs BEFORE 2b, because it is pre-filtered by taste.
+
+**The scan never reads Saved or any `instagram.com/imabgold/*` page ITSELF;
+the one and only read is running `read-saved.sh` in (a) below.** Not with curl,
+not "just to check", not with any cookie. The Graph API, `ig-fetch.sh` and
+`read-saved.sh` (guard 4) are your only Instagram surfaces.
+
+Source of truth: `saved-inbox.md` in the bank directory. Lines under `## inbox`
+are `<shortcode> @<handle> <url>`, one per reel. Who fills it, in this order:
+(a) **`ig-routine-core/read-saved.sh`** — run it FIRST in this step, once. It
+renders Marcus's collection page headlessly from a COPY of his Chrome cookie jar (Marcus's
+allowance, 2026-09-24 evening — guard 4 carve-out ABOVE, in Hard guards), takes only the
+shortcodes and handles off the rendered grid, and appends the new ones to
+`## inbox`. It never downloads, never scrolls past the grid, never runs twice
+a day, and refuses any other URL. Exit 0 = read. Exit 2 = config problem,
+3 = Chrome or cookie-jar problem, 4 = nothing rendered, 5 = the page did not
+identify his session (logged out or a challenge): log `saved-read: exit N
+<reason>`, put the same line in `last-scan.txt` so Marcus sees it, and go on
+with whatever is already in the inbox — never improvise a read another way,
+and never re-run it the same day. (b) Marcus pastes links. (c) An interactive session on his
+request. A line with a bare URL and no handle is still valid: derive the
+shortcode from the URL; the handle comes back from `ig-fetch.sh`'s info-json
+when the reel is fetched in (3). Empty inbox = log `saved-inbox: empty` and go on.
+
+For each `## inbox` line:
+1. **Dedup first.** If the shortcode is already a catalog.md header, or already
+   under `## processed`, move the line to `## processed` as `<date> ... — dup`
+   and stop. Nothing is respent on it.
+2. **Resolve the creator** with ONE business_discovery call (step 2's curl).
+   HTTP 400 = personal account: log `saved-unreadable: @<handle>`; the reel can
+   still be gated (3), but the handle is listed with `(unreadable)` and must
+   never be appended to `[premise]`, only to `[saved]`.
+3. **Run THE GATE**, all eight tests, test 7 as amended. **The candidate may be INSIDE the
+   saved reel**: a creator who opens on a borrowed woman-to-camera clip (e.g.
+   @programmergrind, whose hits open on a ~4s borrowed opener before his own body) is a
+   DONOR SOURCE — gate the borrowed opener itself, and if it passes, bank it as a
+   second-hand copy with `copied-from: @<his handle> <shortcode>` and `creator:` when
+   nameable (Marcus, 2026-09-24). **The account a COPY came from stays under `[saved]`**
+   (a man to camera fails test 1 himself); only a NAMED `creator:` goes to `[premise]`.
+   A donor-source account gets at most ONE fetch per scan, on its single best-ranked new reel. Tests 5 and 6 need
+   frames: saved reels are usually older than the 25 media business_discovery
+   returns, so `media_url` is normally absent and the only route is
+   `ig-fetch.sh` (guard 4). An inbox reel that passes tests 1-4, 7 and 8 on its
+   caption has FIRST call on the day's fetch budget, ahead of step 2b's
+   resolutions (it ties with a withheld gate-passing donor from step 4; take the
+   inbox one first, Marcus chose it). If ig-fetch exits 3 or 4 before it is
+   fetched, leave its line in `## inbox`, log `download-miss: <shortcode> saved
+   inbox (fetch cap)`, and it gets first call tomorrow. Step 3's 10-day recency
+   and 2x-median filters do NOT apply here: Marcus's save is the spike signal.
+4. **Then the watchlist.** A pass: catalog entry per step 5 (`lane: premise`,
+   `status: FRESH`), and the creator goes under `[premise]` — readable handles
+   only; an HTTP-400 creator whose reel passes stays under `[saved]` marked
+   `(unreadable)`, because `[premise]` lines carry a serve rate the probe must
+   supply. A fail: `[NOT BANKED]` tombstone naming the failing test, and the
+   creator goes under `## [saved] lane` if on no lane yet — one line, the date,
+   the shortcode, what they do. A fail whose FORMAT is the asset (e.g. a split-
+   screen structure) also gets a step 5b playbook entry.
+5. Move the line to `## processed` with the date and the verdict
+   (`BANKED` / `tombstone (test N)` / `dup`).
+
+Also read `## re-measure` in saved-inbox.md: each line names a catalog entry
+banked by Marcus's ruling without frames. Fetch it (budget permitting), measure
+tests 5 and 6 off the frames, and EDIT THE EXISTING BLOCK IN PLACE — never
+append a second block with the same header (catalog.md must have one block per
+shortcode). Passes: `status: FRESH`. Under 3s or unreadable muted: `status:
+DO-NOT-SPLICE (<date>) — re-measure failed test N`, file pruned per 6b. Then move
+the line to `## processed` as `re-measured`.
+
+Log `saved-inbox: N read, N banked, N tombstoned, N dup, N handles added`.
+
+Saving is NOT approving: the gate still runs (the first inbox held NVIDIA and a
+Porsche reel). Marcus's sequencing is add-first, cut-later: nothing else in the
+scan changes because of this step; after a week compare its leads to 2b's.
+
 ### 2. Pull each account's recent reels
 For each handle, one `business_discovery` call (the tested read surface):
 
@@ -218,12 +512,44 @@ Build the hashtag pool, ≤12 unique per scan (guard 8), in priority order:
    `?fields=id,name` with the system token — hashtags Marcus searched in
    the IG app in the last 7 days. These are STEERING: always include
    them first. Empty list is normal.
-2. Fill remaining slots from the STANDING lane set — same tags every
-   scan (guard 8: reuse is free, novelty burns the window): tech/AI
-   (#ai, #claudeai, #buildinpublic, #techtok), family
-   (#parentsofinstagram, #dadlife, #toddlermom), general meme (#memes,
-   #reelsviral). Swap a standing tag only when its lane keeps producing
-   nothing bankable, and note the swap in the log.
+2. Fill remaining slots from the STANDING PREMISE SET — same tags every
+   scan (guard 8: reuse is free, novelty burns the window):
+   **#greenflags, #datingadvice, #relationshipadvice, #datingcoach,
+   #streetinterview, #publicinterview, #girltalk, #husbandgoals,
+   #boyfriendgoals, #whatmenwant** (10 tags, seeded 2026-09-17, replacing
+   the tech/family/meme set that exclusive mode retired).
+   Audience-fit note 2026-09-18: #husbandgoals is off-audience (18-34 men,
+   mostly unmarried) and #datingcoach skews to over-30 advice; both are
+   candidates for a swap to a younger tag (#rizz, #datinginyour20s,
+   #situationship) — Marcus's call, not yours.
+   These ten are a HYPOTHESIS about where women-to-camera positive-premise
+   reels live, not a measured set — nothing verifies a tag without charging
+   it for 7 days. Kill rule: a premise tag that yields ZERO gate-passing
+   candidates across 7 consecutive scans is reported in the log as
+   `tag-barren: #tag (7 scans, 0 gate passes)` and swapped by MARCUS, not by
+   you. Two slots of the 12-per-scan ceiling stay free for steering; if more
+   than two steering tags arrive, LEAVE OUT premise tags from the bottom of
+   the list for that scan so the per-scan count stays ≤12 — that is the
+   per-scan cap, and skipping a query there costs nothing.
+   **MEASURED 2026-09-18: the computed window is a FLOOR, not the truth.** At a
+   computed 18/30 the API accepted #greenflags and #datingadvice and refused
+   the third new tag with code 18 / subcode 2207034 ("Hashtag search limit
+   exceeded, retry new hashtag in a week"). Instagram counts something the
+   logs do not see. So: query the premise list IN ORDER, and on the first code
+   18 stop charging new tags for the scan — a refused search is logged
+   `quota-correction: #tag REJECTED (code 18) — NOT charged` right under its
+   `hashtag-query` line, so the window arithmetic never counts it. Re-try the
+   refused tags in order every scan; they enter as the window frees.
+   Transition note: the retired set (#instantregret #fail #claudecode
+   #vibecoding #techtok #programmerhumor #familytravel #toddlertravel
+   #parentsofinstagram #toddlermom #dadlife #memes) stays charged against the
+   rolling 30 until 2026-09-24, so the window runs 28/30 until then and 18/30
+   after (#claudecode and #vibecoding never expire — ig-pulse holds them
+   active). Guard 8's precedence is unchanged: a steering tag that would push
+   |used| + new past 30 is DROPPED and logged `steering-defer`. Skipping a
+   premise tag never helps THIS cap: once charged, a tag stays charged for 7
+   days whether you query it or not. (It does help the ≤12-per-scan ceiling
+   above — the two caps are different things.)
 Steering hygiene: if the steering list is empty or a tag is garbled,
 fall back to the standing set silently. URL-encode every `q` value
 (steering tags can contain non-ASCII).
@@ -244,6 +570,46 @@ lean hard on the guard-7 ad filter. Keep REELS/VIDEO posted within the last
 quota token remains the `hashtag-query` line written before the search,
 guard 8).
 
+**A HASHTAG FIND IS A HANDLE LEAD, NOT A DONOR (2026-09-17).** Hashtag media
+is privacy-stripped: it carries a permalink but NO username (verified
+2026-07-17), and this format cannot use a donor whose creator you cannot
+name — rule 92 attaches her original audio in-app and rule 93 sends you to
+her ORIGINAL when the copy you found cuts short. So a hashtag find is never
+downloaded into `clips/` and never gets a catalog entry. The procedure:
+  1. **Screen on the caption and cover frame with gate tests 1, 2, 3, 4
+     and 8 only.** Tests 5, 6 and 7 need frames and her own account; they
+     are run later, on the `business_discovery` read of her profile. (THE
+     GATE is defined above "The scan", before this step, so you have read it.)
+  2. **Dedup before spending a request.** Skip the lead if its shortcode
+     appears in a `premise-handle:` or `premise-unresolved:` line in the last
+     10 days of `logs/`, or if you can already tell the creator is on the
+     `[premise]` lane. The reel stays in `recent_media` for days; the cookie
+     budget must not be re-spent on it.
+  3. Resolve the creator with `ig-fetch.sh <shortcode> logs/premise-probe/<shortcode>.mp4`
+     (guard 4; ≤3 per scan; the script writes the handle to
+     `<dest>.uploader` and a `UPLOADER` line in `~/.config/ig-fetch/fetch.log`).
+     The probe is a SCRATCH download, never `clips/`: read the handle, then
+     delete the mp4 and its `.uploader`. An exit 3 or 4 ends ALL ig-fetch use
+     for the day — log every remaining lead `premise-unresolved: <shortcode>
+     (#<tag>, fetch cap)` and move on, never retry.
+  4. **Probe the handle with one `business_discovery` call BEFORE writing
+     it anywhere.** Most personal accounts return HTTP 400 (watchlist.md
+     records cormacbuilds/viralhog/caters_news failing exactly this way). On
+     400: log `premise-unreadable: @<handle> (not a business/creator
+     account)` and stop — the handle is not appended. On success, count the
+     reels serving `media_url` out of 25.
+  5. Append the handle to `watchlist.md` under `## [premise] lane` in the
+     file's line shape, with today's date, the shortcode that led you there,
+     and the serve rate; log `premise-handle: @<handle> (via #<tag>,
+     <shortcode>, <N>/25 serving)`.
+From the next scan on, that creator is read through `business_discovery`
+like any watchlist account: handles, full media, back catalogue, no cookie
+budget — and THAT read is where tests 5-7 run and where clips get banked.
+**This is the whole point of the hashtag sweep — it builds the `[premise]`
+lane, it does not fill `clips/`.** A lead that passes screening but cannot
+be resolved today is logged `premise-unresolved: <shortcode> (#<tag>)` and
+left for tomorrow.
+
 ### 3. Rank for spikes
 Per account: engagement = like_count + comments_count; compute the account's
 median engagement across its fetched reels. A **candidate** is a reel posted
@@ -258,12 +624,12 @@ engagement of 0, log `rank-skip: @handle (thin/zero baseline)` and produce
 NO candidates from it — a ratio against a thin or zero median is not a
 spike signal, and `inf`/`NaN` must never reach the catalog.
 
-Hashtag candidates (step 2b) have no account baseline. Since 2b now reads
-`recent_media` (reverse-chronological, no popularity signal), rank these
-candidates among themselves by raw `like_count` — a fresh reel with strong
-absolute likes is the spike proxy here. They enter the candidate pool that
-way (no ratio; the catalog's stats line reads `(hashtag recent_media, no
-account baseline)` in place of a median multiple, per the step-5 template).
+Hashtag candidates (step 2b) have no account baseline and — since
+2026-09-17 — **never enter the download pool at all.** Rank them among
+themselves by raw `like_count` only to decide the ORDER in which step 2b
+resolves handle leads (≤3 per scan). No hashtag find gets a clip file or a
+catalog entry; the retired `(hashtag recent_media, no account baseline)`
+stats line exists only on entries older than 2026-09-18.
 
 **Ad gate first (guard 7, BOTH pools):** before any taste judgment, drop
 every candidate whose caption reads promotional — the watchlist pool too,
@@ -272,15 +638,30 @@ that's the regression this line closes). The taste gate below selects
 only among survivors and can NEVER reinstate an ad, however well it
 "fits".
 
-**Taste gate before spending downloads:** read `taste.md` (if missing or
-empty — e.g. step 0 failed or was time-skipped — degrade to pure
-ranking; never fatal), then pick the
-≤12 downloads across BOTH pools (watchlist + hashtag; aim for a mix when
-both have candidates, never a quota). Prefer candidates whose joke
-mechanism fits what taste.md says works for the accounts; drop a
-higher-ranked candidate for a lower one when the fit is clearly better,
-and say so in the log (`taste-pick: <shortcode> over <shortcode>:
-<one-line reason>`). Numbers propose, taste disposes.
+**THE GATE, before spending downloads (2026-09-17 — this replaces the taste
+gate, which selected for joke mechanism and is the reason the bank filled
+with clips this format cannot use).** Run the ad gate first as above, then
+run all eight tests from THE GATE on every surviving candidate, reading the
+caption and the cover frame. Only gate-passers may be downloaded, and the
+12-slot cap is a ceiling, never a target — if two candidates pass, you
+download two.
+
+**Gate fit outranks the engagement ratio.** The ratio decides order among
+gate-passers and nothing else: a 2.1x candidate that passes all eight beats a
+9x candidate that fails one, every time. Log the choice as
+`gate-pick: <shortcode> (<ratio>x) over <shortcode> (<ratio>x): <which test
+the higher-ranked one failed>`. `taste.md` is still read for context and
+still written by step 0, but it can no longer promote a candidate the gate
+rejected — on this account taste.md's own universal bullet says the
+recognition lives in a premise the feed is already arguing about, which IS
+the gate.
+
+A candidate that fails on a test you cannot judge from the caption and cover
+alone (tests 5 and 6 usually need frames) may have a slot spent on it: if it
+then fails, catalogue it `status: DO-NOT-SPLICE (<today>)` with the failing
+test named, and log `gate-reject: <shortcode> test <N> (<reason>)`. It does
+NOT count as banked, and the tombstone stops a later scan re-spending the
+slot.
 
 A candidate that clears the ad gate but has NO comedic/splice mechanism —
 a sincere talking-head, straight news, a tragedy, anything with no joke to
@@ -288,6 +669,13 @@ lend — is not an ad and not a fit. If you've already spent a download slot
 frame-sampling it to learn this, catalogue it `status: DO-NOT-SPLICE (<today>)` with a
 one-line reason and log `taste-reject: <shortcode> <reason>`, so a later
 scan won't re-spend a slot rediscovering it. It does NOT count as banked.
+
+**INVERTED 2026-09-17:** under exclusive mode a sincere talking-head is no
+longer an automatic reject — a woman stating a positive premise straight to
+camera IS the asset, and she is not telling a joke. What is now rejected is
+the thing this paragraph used to protect: a clip whose value is its own joke.
+The donor supplies the SETUP; the joke is Marcus's line. If a candidate is
+funny on its own and has no premise with a slot, it fails test 4.
 
 ### 4. Download
 Each candidate's `media_url` from the step-2 response is a signed CDN link
@@ -333,6 +721,21 @@ The no-text requirement was too broad. Which test applies depends on where the d
 
 A clip that fails the clean-window test may therefore still be banked **as an opener-only donor**.
 Mark it as such rather than skipping it. A clip that passes is usable in both roles.
+
+**SIMPLIFIED 2026-09-17 (exclusive mode): every donor you bank is an OPENER,
+so the clean-window test never applies to it.** The whole gate is built
+around a donor that opens the reel and whose on-screen setup is doing the
+recognition work — that is test 5, and it is the exact case the OPENER branch
+above exempts. Her burned captions are not a defect to crop around, they are
+the asset. Bank the clip whole, full-bleed, no crop, no upscale, and write
+`clean-window: n/a — OPENER donor (her setup card IS the hook)`.
+
+Do NOT run the row-scan, do not spend time on band measurements, and never
+reject a gate-passing donor for carrying text. The one measurement that
+replaces it is test 6: **time the setup off the frames** and record it in the
+new `setup-length:` field. That number is the single best predictor the
+account has (4.03s and 4.60s won; 2.03s and 2.37s floored), and it is now the
+cheapest measurement in the scan.
 
 For a donor being banked for the PAYOFF role, it passes if it has EITHER:
 - **a clean BAND** — a horizontal strip carrying no burned text, tall enough
@@ -382,15 +785,22 @@ below the header comment):
 
 ```
 ## <shortcode> — <one line: what literally happens in the clip>
-- source: @handle | <permalink>          <- hashtag finds: `#hashtag | <permalink>` (no username on hashtag media)
-- lane: <the watchlist lane tag of the source account>   <- hashtag finds: the lane the hashtag was queried under
+- source: @handle | <permalink>          <- always a watchlist handle since 2026-09-18 (hashtag finds are handle leads, never entries)
+- lane: premise   <- the only lane that produces entries since 2026-09-18
 - first-seen: <today> | status: FRESH
-- stats-at-capture: <likes> likes / <comments> comments (<ratio>x account median)   <- hashtag finds: `(hashtag recent_media, no account baseline)` instead of a ratio
-- joke-structure: <the mechanism, e.g. "hype setup, anticlimax payoff">   <- this line IS the entry's borrowable SHAPE — write it as the recognition trigger (what a scroller clocks in <1s), not a plot summary
-- the-beat: <where the laugh lands + where to cut, e.g. "setup 0:00-0:03, cut on the turn at 0:03">   <- this line IS the entry's PAYOFF — name the turn plainly so an architect can cut on it, borrow it as an element, or replicate it (§6.1)
-- audio-model: <diegetic (bakeable) | trending sound (add in-app) | flexible>
+- stats-at-capture: <likes> likes / <comments> comments (<ratio>x account median)
+- joke-structure: n/a — opener donor   <- since 2026-09-18 a donor carries a SETUP, not a joke (gate test 4). Never invent a mechanism to fill this line; `premise:` and `slot:` carry the entry.
+- the-beat: cut at <N.N>s, the frame her premise finishes on   <- the only cut point an opener donor has; it is the `setup-length:` timestamp, not a laugh
+- audio-model: <original sound (attach in-app, NEVER bake — rule 92) | trending sound (add in-app) — she rides a licensed track, her voice cannot be attached, flag for the architect>   <- must agree with `her-audio:` below; "diegetic (bakeable)" is never valid on an opener donor
+- her-audio: <original sound — attachable in-app | licensed/trending track — rule 92 cannot attach it, note it and let the architect decide>
 - pairs-with: <kinds of user moments this sets up, 1-2 concrete examples>
-- clean-window: <where this clip has NO burned text, and what it costs to cut>   <- step 4b, MANDATORY on every donor entry. Give the text-free vertical band and the resulting 9:16 upscale, and/or the text-free time range. e.g. `band y0-770 of 1280 -> 432x768 crop, 2.5x upscale` or `caption fades at 0:06, 0:06-0:11 is fully clean, no crop needed`. If the clip carries no burned text at all, write `NONE — full frame clean`.
+- premise: <her claim, quoted as she says it>   <- gate test 2. Quote it, never paraphrase: the architect matches a payoff object against her exact words.
+- slot: <the blank her premise leaves + 1-2 payoff objects that would fill it>   <- gate test 4. e.g. `"not money, not power" -> the one thing men want: a Claude 20x Max plan / tokens resetting midweek`
+- setup-length: <seconds, measured off the frames> (<does she finish the premise? yes/cuts at N s>)   <- gate test 6, MANDATORY. Under 3s the entry should not exist; 4-5s is the winning band.
+- hero-test: <one line: is the man the hero of her sentence, or the problem?>   <- gate test 3. Say which, and why, in the architect's words.
+- addresses: <who her setup talks to> / recognises: <who the payoff would flatter>   <- these must be the same person; if they differ, say so plainly, it is the `texting` failure (975 views).
+- original: <yes — creator's own upload | COPY — creator: @<original if nameable>, copied-from: @<account we took it from> <shortcode>>   <- gate test 7 as amended 2026-09-24: a whole-premise copy is bankable; the chain is what the architect credits.
+- clean-window: n/a — OPENER donor (her setup card IS the hook)   <- fixed value since 2026-09-18; no row-scan, no band measurement. The older gloss below applies only to pre-09-18 entries: Give the text-free vertical band and the resulting 9:16 upscale, and/or the text-free time range. e.g. `band y0-770 of 1280 -> 432x768 crop, 2.5x upscale` or `caption fades at 0:06, 0:06-0:11 is fully clean, no crop needed`. If the clip carries no burned text at all, write `NONE — full frame clean`.
 - file: clips/<shortcode>.mp4 (<duration>s)
 ```
 
@@ -413,6 +823,12 @@ Delete the `frames/<shortcode>/` directory after writing the entry (frames
 are working files; clips and catalog are the durable assets).
 
 ### 5b. Format capture — when the FORMAT is the asset, not the footage
+**Since 2026-09-17 the old lanes (tech/general/sports/family) never get a
+download, so for them this step runs WITHOUT frames: judge the format from
+the caption, the cover frame and the permalink alone, and write the playbook
+entry with no clip and no `→ clips/` reference.** The ≤2-per-scan cap and the
+`·scan` ownership rules below apply unchanged. For `[premise]` candidates the
+step runs as written, while frame-sampling.
 While frame-sampling in step 5, ask one extra question per candidate: **is
 the viral asset the footage, or the format?** Format signals: a reusable
 on-screen TEXT TEMPLATE ("Dear Instagram, please connect me with [X]"), a
@@ -459,6 +875,9 @@ Rules:
 - Time box like steps 0/6c: past 08:20 → `format-skip: time`.
 
 ### 6. Freshness sweep
+After demoting, count FRESH entries per lane. A lane at zero that had FRESH
+entries yesterday is logged `lane-dry: <lane>, 0 FRESH under 21d` (this is
+where EXCLUSIVE MODE's cost line gets written; nowhere else owns it).
 Any entry with `first-seen` older than 21 days and `status: FRESH` → edit
 its status to `STALE (<today>)` — the date is what step 6b's 3-day delay
 is measured from (every demotion status carries its date for that reason). Touch nothing else about it.
@@ -572,13 +991,27 @@ Rules now:
 ### 7. Close out
 Write `last-scan.txt`: first line `<today> — scanned N accounts + H
 hashtags, M new clips banked, F formats captured, K entries went stale, P
-entries pruned, A ads skipped, X misses`. Log the same line. Commit the
+entries pruned, A ads skipped, X misses, G gate rejects, R premise handles
+added, S saved-inbox lines read / B banked from it`; then append any `saved-read: exit N <reason>`
+line from step 1b as line 2, never overwrite it. G and R were added 2026-09-17, S and B on 2026-09-24, and are the real health of this
+scan (a literal example: `2026-09-18 — scanned 22 accounts + 10 hashtags, 0
+new clips banked, 1 formats captured, 3 entries went stale, 0 entries
+pruned, 14 ads skipped, 2 misses, 6 gate rejects, 2 premise handles added`). **Zero banked with a non-zero gate-reject count is a healthy
+day, not a failure — say so in the line so the morning notification does not
+read as a broken scan.** Log the same line. Commit the
 bank repo (`git -C ~/Claude\ Code/viral-bank add -A && git commit`) with
 that summary as the message — catalog.md, watchlist.md, taste.md,
 playbook.md and audio.md are tracked (audio.md grows every scan now); clips and logs are gitignored.
 
 ## Consumption law (for architects / daily routines — not the scan)
 
+- **Entries dated 2026-09-18 onward are OPENER donors and nothing else.** They
+  are somebody's setup, not a joke to insert: the reel opens on her, full-bleed
+  and uncropped, her original audio attached in-app (never baked), and hard-cuts
+  to the account's own footage for the payoff. Read `premise:` and `slot:`
+  first — the pick is "which of my payoff objects fills her blank", not "is this
+  clip funny". Entries dated before 2026-09-18 are the old mixed bank and follow
+  the paragraphs below unchanged.
 - `catalog.md` is read-only for you. Reading it is part of the trends step;
   whether to use a clip is decided ON THE RECORD: ARCHITECT-CORE §1's
   DONOR PASS walks the FRESH entries every run and names the top 3 with a
@@ -688,7 +1121,7 @@ comment-rate (not like-count) should be a ranking axis. Comments are now
 ### CONSTRAINT ON ALL OF THE ABOVE
 
 **More API calls is the sanctioned direction. Scale through the Graph API;
-the ONLY cookie path is `ig-fetch.sh` (throwaway account, guard 4).**
+the ONLY cookie path is `ig-fetch.sh` (plus the read-only `read-saved.sh`, guard 4 carve-out) (throwaway account, guard 4).**
 Instagram warned Marcus's account for suspected automated behavior on 2026-08-20
 after ~20 cookie-based yt-dlp pulls over two days. Media the API withholds goes
 through `ig-fetch.sh` up to its daily cap or is recorded as withheld and
