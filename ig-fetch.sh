@@ -13,7 +13,7 @@
 # Config: ~/.config/ig-fetch/config.json
 #   { "chrome_profile": "Profile N",   # the DORMANT account's own profile
 #     "handle": "<dormant handle>",    # for the log only
-#     "max_per_day": 5, "min_gap": 60, "max_gap": 90 }   # cap counts REQUESTS (fails included)
+#     "max_per_day": 8, "min_gap": 60, "max_gap": 90 }   # cap counts REQUESTS (fails included); 8 since 2026-09-18 (Marcus)
 # State/log: ~/.config/ig-fetch/{state.json,fetch.log}
 
 set -u
@@ -101,10 +101,28 @@ while [ $# -ge 2 ]; do
   fi
 
   print -r -- "ig-fetch: $CODE -> $DEST (as @$HANDLE, ${USED}/${MAXDAY} today)"
+  # --write-info-json rides the SAME extraction as the download (no extra
+  # request Instagram sees). BANK.md step 2b needs the creator handle: hashtag
+  # media is privacy-stripped, and the donor-opener format cannot use a donor
+  # whose creator it cannot name (2026-09-17).
   if "$YT" -q --no-warnings --cookies-from-browser "chrome:$PROFILE" \
-       -f "bv*+ba/b" --merge-output-format mp4 -o "$DEST" \
+       -f "bv*+ba/b" --merge-output-format mp4 -o "$DEST" --write-info-json \
        "https://www.instagram.com/reel/$CODE/" 2>>"$LOG"; then
     USED=$(( USED + 1 )); FAILS=0; LAST=$(date +%s); save_state "$LAST"
+    case "$DEST" in *.*) INFO="${DEST%.*}.info.json";; *) INFO="$DEST.info.json";; esac
+    if [ -f "$INFO" ]; then
+      # yt-dlp's Instagram extractor: 'channel' = username (the handle),
+      # 'uploader' = display name, 'uploader_id' = numeric pk. Only 'channel'
+      # is a handle; a fallback to the others would write garbage.
+      UPL=$(/usr/bin/python3 -c "import json,sys,re;d=json.load(open(sys.argv[1]));u=(d.get('channel') or '').lstrip('@');print(u if re.fullmatch(r'[A-Za-z0-9._]{1,30}',u) and not u.isdigit() else '')" "$INFO" 2>/dev/null)
+      rm -f "$INFO"
+      if [ -n "$UPL" ]; then
+        print -r -- "$UPL" > "$DEST.uploader"
+        print -r -- "  uploader: @$UPL"; log "UPLOADER $CODE @$UPL"
+      else
+        log "UPLOADER $CODE unknown"
+      fi
+    fi
     # yt-dlp often yields VP9, which QuickTime can't play — normalise
     if [ -n "$FF" ] && "$FF" -i "$DEST" 2>&1 | grep -q "Video: vp9"; then
       "$FF" -y -i "$DEST" -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
@@ -116,6 +134,7 @@ while [ $# -ge 2 ]; do
     # a failed request is still a request Instagram saw — it counts against the cap
     FAILS=$(( FAILS + 1 )); USED=$(( USED + 1 )); LAST=$(date +%s); save_state "$LAST"
     rm -f "$DEST"
+    case "$DEST" in *.*) rm -f "${DEST%.*}.info.json";; *) rm -f "$DEST.info.json";; esac
     print -r -- "ig-fetch: FAILED $CODE (failure $FAILS of 2 allowed)"
     log "FAIL $CODE"
   fi

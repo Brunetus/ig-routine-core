@@ -530,6 +530,27 @@ Where the donor is the payoff beat, also
 confirm the channel's own material stays load-bearing per REACH mode; declare the
 donor and its source in the notes so QA can verify provenance.
 
+### 6.6 THE SETUP-CAPTION COROLLARY (Marcus, 2026-09-14)
+
+**An uncaptioned spoken setup on a donor is not a reject reason. It is captioned by us, in the channel's winner
+grammar, over the donor's own frames.** Proven on @imabgold the same weekend: the two donor-opener reels whose setup
+line was on screen (`sexiest_said` 36k views, `one_thing` 6.5k at 13h) against the one whose setup was only spoken
+under a static title card (`kiss_you`, 691). A muted or half-watching viewer never got the premise, so the payoff
+landed on nothing. The rule that follows (performance.md rule 90 on that account):
+
+- The SETUP is on screen on the donor beat, and every spoken word is on screen on our beat. If the donor already
+  carries word captions or a title card that says the setup, the donor ships AS SHOT (the untouched donor is what the
+  audience recognises; do not add captions over it, do not remove its card). If it carries nothing, or only a card
+  that is not the setup, the spoken line is captioned in the account's winner caption grammar (on @imabgold: the `sexiest_said` style, SF Semibold 114 + 4 px
+  tracking, baseline 946, 2-3 word chunks, 3-frame pop-in), keyed to the RMS envelope of her audio.
+- This widens the donor pass: podcast and interview clips, which are mostly uncaptioned, are now legal openers.
+  `DONOR-LEGIBILITY` (§6.1) still applies to the PICTURE (is the subject readable at reel speed); it no longer applies
+  to the words.
+- QA checks that a muted viewer can read the premise off the donor beat, and that every spoken word on our beat is on
+  screen. When we do caption a donor line, five chunks in 1.7 s is the floor (0914_texting v2); merge rather than go faster.
+- The channel's own on-screen caption grammar is used, not the donor's (brand.md, 2026-09-13): matching a donor's card
+  style was rejected on sight.
+
 ## 7. THE SHAPE/PAYOFF LAW — REPEALED (trial added 2026-08-28, killed by Marcus 2026-08-29; git keeps the full text)
 
 The trial lasted one day. The law said a proven reel's SHAPE was borrowable

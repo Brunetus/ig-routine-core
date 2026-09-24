@@ -534,8 +534,15 @@ always** — a revision ships to the same customer as a first cut and gets the
 same bar. The caption changes only if the edit made it wrong.
 
 `out/kit.json` and `out/plan.json` as above, and `plan.json` also carries
-`revision_of` (the source job id, from `eclip.revision.of`) and
+`revision_of` (the job id, from `eclip.revision.of`) and
 `revision_note` (his words, verbatim).
+
+**Since 2026-09-13 a revision runs in place, in the same job folder.** The
+job id does not change between rounds. `eclip.revision.round` says which round
+this is, `revision/` holds the round you are editing, and `rounds/<n>/` holds
+every earlier render for the record. Do not read `rounds/`; `revision/` is the
+cut. `out/` is empty when you start and is yours to write, exactly as on a
+first cut. `revision_of` is therefore this job's own id.
 
 ## Close
 

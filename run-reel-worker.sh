@@ -130,6 +130,13 @@ except Exception: pass" 2>/dev/null)
   # The dispatch exception is spent the moment we claim: from here the job's
   # HOLD means exactly what a HOLD means on every other job.
   rm -f "$JOBS_DIR/$ID/ECLIP-QUEUED"
+  # .session-live (our pid inside): from the claim until the park/fail below is
+  # written, nobody may revise or restore this folder (review.mjs refuses
+  # while it exists and the pid is alive). Closes the window where a revise
+  # could disarm a PENDING-RELEASE about to be written, have its fresh queue
+  # marker deleted by the fail POST, or land while the old marcus_note is
+  # being downloaded (audit 2026-09-13).
+  echo $$ > "$JOBS_DIR/$ID/.session-live"
 
   JOB="$JOBS_DIR/$ID"
   mkdir -p "$JOB/photos" "$JOB/out"
@@ -252,6 +259,7 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
     osascript -e "display notification \"UNVERIFIED render: job ${ID:0:8} parked - review then release-reel.sh\" with title \"$NOTIF_TITLE\" sound name \"Basso\"" 2>/dev/null
     curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: Reel rendered but UNVERIFIED" -H "Priority: high" -H "Tags: eyes,warning" \
       -d "Job ${ID:0:8} finished rendering but the session died before QA. It will NOT auto-send under any path. Review jobs/$ID/out/ then run release-reel.sh $ID to ship." > /dev/null 2>&1
+    rm -f "$JOB/.session-live"
     break  # a watchdog kill may be systemic (hung model, full disk) — don't burn another long session this wake
   else
     REASON=$(head -c 300 "$JOB/out/FAILED" 2>/dev/null || echo "session produced no output")
@@ -261,8 +269,10 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
     osascript -e "display notification \"Customer job FAILED - check jobs/$ID\" with title \"$NOTIF_TITLE\" sound name \"Basso\"" 2>/dev/null
     curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: Reel job FAILED" -H "Priority: high" -H "Tags: rotating_light" \
       -d "Job ${ID:0:8} failed ($(echo "$REASON" | head -1 | head -c 60)). Review it and reach out to the customer." > /dev/null 2>&1
+    rm -f "$JOB/.session-live"
     break  # don't chew the queue on a systematic failure; next wake retries nothing (job left failed for Marcus)
   fi
+  rm -f "$JOB/.session-live"
   echo "===== job $ID end $(date) =====" >> "$LOG"
 done
 exit 0

@@ -508,6 +508,12 @@ if [ "$1" = "--scan" ]; then
   for H in "$JOBS_DIR"/*/HOLD(N) "$JOBS_DIR"/*/SALVAGED(N); do
     JOB_DIR="${H:h}"; ID="${JOB_DIR:t}"
     [ -f "$JOB_DIR/RELEASED" ] && continue
+    # Settled or deliberately silent jobs never nag (2026-09-14: the old
+    # one-uuid-per-round chains and rejected cuts kept HOLD and nagged
+    # Marcus every 4 h for days). NO-NAG = "I know it is parked, leave it".
+    [ -f "$JOB_DIR/REJECTED" ] && continue
+    [ -f "$JOB_DIR/SUPERSEDED-BY" ] && continue
+    [ -f "$JOB_DIR/NO-NAG" ] && continue
     HAGE=$((NOW - $(stat -f %m "$H" 2>/dev/null || echo "$NOW")))
     [ "$HAGE" -lt 7200 ] && continue
     LASTNAG=$(cat "$JOB_DIR/.park-nag" 2>/dev/null || echo 0)
