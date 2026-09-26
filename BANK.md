@@ -446,7 +446,7 @@ tombstone, or a step 5b format entry when the format is the asset.
 
 ### 1b. Saved inbox — what Marcus saved on Instagram (added 2026-09-24, Marcus)
 
-**DISABLED 2026-09-25 (Marcus): Instagram flagged "automated behavior" on @imabgold. read-saved.sh uses his logged-in Profile 1 session, so it is switched off (config renamed to saved.json.DISABLED-0925; the script exits 2). Log `saved-read: disabled` and skip this step. NEVER recreate saved.json, never read his Saved collection any other way, and never use Profile 1 cookies for anything (yt-dlp included). Throwaway Profile 7 only.**
+**2026-09-25 (Marcus, after Instagram flagged "automated behavior" on @imabgold): read-saved.sh STAYS ON, it is read-only (one headless page load of his Saved collection per day, capped by saved-state.json). Everything else that touches Instagram as a logged-in user goes through the THROWAWAY (Profile 7, ig-fetch.sh): every clip download, every reel page read. NEVER use Profile 1 cookies for yt-dlp or any download, and never click, type, like, follow or DM as @imabgold.**
 Marcus's rule: **whenever he saves a reel, that creator joins the scan, and the
 reel itself is a candidate.** Every donor behind the account's hits was found by
 him scrolling, not by the hashtag API (see THROWAWAY BROWSING), and on 2026-09-24
