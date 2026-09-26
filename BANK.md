@@ -244,6 +244,15 @@ to look for, so read the tests before you read a caption.
    fathers, providers, "a man over 30". `DdcKZ9fPDin` ("three things learned
    dating older men") passed every other test and was dropped on this one:
    a 22-year-old watching it is the boy she is comparing against.
+   **Second-person sub-case (Marcus, 2026-09-24/25):** a girl to camera
+   addressing the viewer directly ("bruh", "you") with an aspirational line
+   whose hero is the man watching COUNTS, even though she never says "men".
+   `Dao0ESOudKj` ("how do you think those fake motherfuckers are gonna feel
+   when you pull up in a ___") was tombstoned on caption, reversed by Marcus,
+   aired, and called "a donor we should definitely keep going". The slot in
+   this family is usually an OBJECT the cut shows rather than a word the
+   payoff says. Still reject a line with no blank at all ("let them hate",
+   "just start") — motivation without a slot is a mood, not a setup.
 3. **The man is the HERO of her sentence, not the problem.** Test 2 applied
    to sentences that only sound positive. `astra`'s donor ("things men say
    when they're 1000% lying") passed a casual read and failed this one: 12
@@ -404,6 +413,18 @@ watchlist-expansion note for Marcus in the log — never a reason for an
 architect to splice a badly-fitting clip (an `OWN-IS-REFERENT` or
 `LITERAL-REFERENT` rejection in the DONOR PASS record covers the gap).
 
+**DAILY READ CUT (Marcus, 2026-09-25).** Probe ONLY watchlist lines that start
+with `@` (the `[premise]` lane plus the surviving `[saved]` handles, 18 on the
+day of the cut). `dormant …` and `dead …` prose lines are never probed, never
+counted in "scanned N accounts", never re-added by you. Why: on 09-25 the scan
+probed 43 accounts, 40 of which cannot bank, hit the 08:50 guard at 09:10 with
+64 rejects, and skipped the tag pages that are the only surface that has found
+donors. **Order of the morning is now: step 1 → throwaway tag pages (THROWAWAY
+BROWSING, ≤10) → step 2 probes → step 3.** The tag pages run before the probes
+so the time box can never starve them again.
+**Daily target: 2 gate-passing girl-to-camera donors.** A zero day with rejects
+is legal; a day that skipped the tag pages is not.
+
 **AMENDED 2026-09-17 (exclusive mode).** One lane produces donors now:
 `[premise]`. Every other lane — tech, general, sports, family — is
 **format-capture only**: you may still read those accounts and write a step-5b
@@ -424,6 +445,8 @@ exception to "only `[premise]` produces donors". A `[saved]` reel that fails is 
 tombstone, or a step 5b format entry when the format is the asset.
 
 ### 1b. Saved inbox — what Marcus saved on Instagram (added 2026-09-24, Marcus)
+
+**DISABLED 2026-09-25 (Marcus): Instagram flagged "automated behavior" on @imabgold. read-saved.sh uses his logged-in Profile 1 session, so it is switched off (config renamed to saved.json.DISABLED-0925; the script exits 2). Log `saved-read: disabled` and skip this step. NEVER recreate saved.json, never read his Saved collection any other way, and never use Profile 1 cookies for anything (yt-dlp included). Throwaway Profile 7 only.**
 Marcus's rule: **whenever he saves a reel, that creator joins the scan, and the
 reel itself is a candidate.** Every donor behind the account's hits was found by
 him scrolling, not by the hashtag API (see THROWAWAY BROWSING), and on 2026-09-24
@@ -591,7 +614,11 @@ name — rule 92 attaches her original audio in-app and rule 93 sends you to
 her ORIGINAL when the copy you found cuts short. So a hashtag find is never
 downloaded into `clips/` and never gets a catalog entry. The procedure:
   1. **Screen on the caption and cover frame with gate tests 1, 2, 3, 4
-     and 8 only.** Tests 5, 6 and 7 need frames and her own account; they
+     and 8 only** — and spend a fetch slot ONLY when the caption QUOTES her
+     spoken setup or the cover shows a card that is the setup. A hashtag, a
+     comment count, or "read the caption" is not a premise: 09-18's four
+     caption-screened leads all failed on frames, and the week's fetch budget
+     went the same way (1 banked in 7 scans). Tests 5, 6 and 7 need frames and her own account; they
      are run later, on the `business_discovery` read of her profile. (THE
      GATE is defined above "The scan", before this step, so you have read it.)
   2. **Dedup before spending a request.** Skip the lead if its shortcode
