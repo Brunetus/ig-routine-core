@@ -183,6 +183,9 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
   # A re-dispatched folder (re-queued FAILED job, lost fail POST) must never
   # satisfy the salvage/success checks on a PREVIOUS run's artifacts.
   rm -f "$JOB/out/DONE" "$JOB/out/RENDERED" "$JOB/out/FAILED"
+  # Same for the Instagram cover (2026-10-01): a previous run's cover must
+  # never ship beside this run's reel.
+  rm -f "$JOB/out/cover.jpg" "$JOB/out/cover.json"
   # The contact card (written after the session exits, below) must never be
   # present while the session runs — its cwd is this folder and the whole
   # point of the scrub above is that it never sees contact info.
