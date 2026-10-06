@@ -195,7 +195,14 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
   # The ceiling kill must take the whole tree (claude AND its ffmpeg/whisper
   # grandchildren), not just the wrapper — else the runaway keeps burning opus
   # or keeps writing into out/ after the kill.
-  ( CEILING_SECS=5400; WSTART=$(date +%s)
+  # 90 min by default. A job folder may carry its own `CEILING_SECS` (the
+  # eclip watcher writes it from mac/accounts/<ig>.json `ceiling_secs`), and
+  # REEL_CEILING_SECS in the environment overrides the default (Marcus
+  # 2026-10-06: @sendsayai's sessions spend ~85 min in Phase A and were
+  # killed twice with a render on disk and no QA).
+  ( CEILING_SECS=$(cat "$JOB/CEILING_SECS" 2>/dev/null | tr -dc '0-9')
+    [ -n "$CEILING_SECS" ] || CEILING_SECS="${REEL_CEILING_SECS:-5400}"
+    WSTART=$(date +%s)
     while kill -0 $SPID 2>/dev/null; do
       /bin/sleep 60
       kill -0 $SPID 2>/dev/null || break
