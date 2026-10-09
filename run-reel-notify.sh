@@ -11,6 +11,7 @@
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 CORE_DIR="${0:A:h}"
+source "$CORE_DIR/job-who.sh"
 APP_DIR="$HOME/Claude Code/reel-app"
 JOBS_DIR="$APP_DIR/jobs"
 SEEN="$JOBS_DIR/.notify-seen"
@@ -52,7 +53,9 @@ except Exception: sys.exit(1)"; then
   osascript -e "display notification \"Text them now: ${PHONE:-see email} — reel is queued (${ID:0:8})\" with title \"🎬 New reel submitted\" sound name \"Glass\"" 2>/dev/null
   # iPhone push. ntfy.sh drops publishes from Cloudflare's shared egress IPs,
   # so the phone push goes out from here instead of the Pages function.
-  curl -s -m 15 -X POST "$NTFY" -H "Title: New reel submitted" -H "Priority: high" -H "Tags: clapper" \
+  # No job folder yet, so the name comes from the server record (job-who.sh).
+  WHO=$(job_who --json "$JOBJSON")
+  curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · New reel submitted" -H "Priority: high" -H "Tags: clapper" \
     -d "Job ${ID:0:8} is queued. Contact info is in your email, text them now." > /dev/null 2>&1
 done
 

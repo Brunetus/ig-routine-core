@@ -54,7 +54,7 @@ export APP_DIR CLIENTS_DIR JOBS_DIR LOG DRIVE_PY DRIVE_PYTHON NTFY SETTLE_SECS W
 # NOT exec: exec would replace this shell and the EXIT trap above would never
 # fire, leaking the lock dir forever (audit finding, 2026-08-19).
 /usr/bin/python3 - <<'PYEOF'
-import json, os, re, subprocess, sys, time, uuid, glob, shutil, urllib.request
+import base64, json, os, re, subprocess, sys, time, uuid, glob, shutil, urllib.request
 from datetime import datetime, timezone
 
 E = os.environ
@@ -84,6 +84,10 @@ def api(method, path, body=None):
 
 def ntfy(title, msg):
     try:
+        # urllib sends headers as latin-1, which garbles the "·" on the phone.
+        # ntfy decodes RFC 2047, so a non-ASCII title goes encoded.
+        if not title.isascii():
+            title = "=?UTF-8?B?" + base64.b64encode(title.encode()).decode() + "?="
         req = urllib.request.Request(E["NTFY"], data=msg.encode(), method="POST",
                                      headers={"Title": title, "Tags": "inbox_tray"})
         urllib.request.urlopen(req, timeout=15)
@@ -107,6 +111,9 @@ now = time.time()
 for cfg_path in sorted(glob.glob(os.path.join(E["CLIENTS_DIR"], "*", "drive.json"))):
     cdir = os.path.dirname(cfg_path)
     handle = os.path.basename(cdir)
+    # Whose drop this is, at the front of every push title. Same rule as
+    # job-who.sh: a drive-watch job carries only `client`, the folder name.
+    who = handle
     try:
         cfg = json.load(open(cfg_path))
         seen_path = os.path.join(cdir, ".drive-seen")
@@ -122,7 +129,7 @@ for cfg_path in sorted(glob.glob(os.path.join(E["CLIENTS_DIR"], "*", "drive.json
         if oddballs:
             names = ", ".join(f.get("name", "?") for f in oddballs[:5])
             log(f"{handle}: ignoring non-video item(s): {names}")
-            ntfy(f"Drive watch: unusable upload from {handle}",
+            ntfy(f"{who} · Drive watch: unusable upload from {handle}",
                  f"Ignored (not a video file the pipeline takes): {names}. "
                  f"If it's real footage, ask them to re-send as mp4/mov.")
             with open(seen_path, "a") as f:
@@ -157,7 +164,7 @@ for cfg_path in sorted(glob.glob(os.path.join(E["CLIENTS_DIR"], "*", "drive.json
             used = int(n) if d == today and n.strip().isdigit() else 0
         if used + cuts > cap:
             log(f"{handle}: daily cap {cap} would be exceeded ({used} used), holding drop")
-            ntfy(f"Drive watch: {handle} at daily cap",
+            ntfy(f"{who} · Drive watch: {handle} at daily cap",
                  f"New footage is waiting but {used}/{cap} cuts already ran today. "
                  f"It processes tomorrow, or raise max_cuts_per_day in drive.json.")
             continue
@@ -178,7 +185,7 @@ for cfg_path in sorted(glob.glob(os.path.join(E["CLIENTS_DIR"], "*", "drive.json
                     f.write(o["id"] + "\n")
             log(f"{handle}: {skipped + drop_cap} new clips - cutting from the "
                 f"newest {drop_cap}, {skipped} left in Drive (marked seen)")
-            ntfy(f"Drive watch: big drop from {handle}",
+            ntfy(f"{who} · Drive watch: big drop from {handle}",
                  f"{skipped + drop_cap} new clips landed. Cutting from the "
                  f"newest {drop_cap}; the other {skipped} stay in Drive "
                  f"untouched (raise max_clips_per_drop in drive.json to use "
@@ -191,7 +198,7 @@ for cfg_path in sorted(glob.glob(os.path.join(E["CLIENTS_DIR"], "*", "drive.json
         if free_gb - drop_gb < 15:
             log(f"{handle}: HOLDING drop - {drop_gb:.1f}GB download vs "
                 f"{free_gb:.1f}GB free would leave <15GB")
-            ntfy(f"Drive watch: {handle} drop held (disk)",
+            ntfy(f"{who} · Drive watch: {handle} drop held (disk)",
                  f"The drop needs {drop_gb:.1f}GB but the Mac has only "
                  f"{free_gb:.1f}GB free. Clear space; the watcher retries "
                  f"every 15 min.")
@@ -282,7 +289,7 @@ for cfg_path in sorted(glob.glob(os.path.join(E["CLIENTS_DIR"], "*", "drive.json
                 f.write(fobj["id"] + "\n")
         with open(quota_path, "w") as f:
             f.write(f"{today} {used + len(queued)}")
-        ntfy(f"Footage drop: {handle}",
+        ntfy(f"{who} · Footage drop: {handle}",
              f"{len(clips)} clip(s) from {handle}'s Drive folder -> {len(queued)} "
              f"cuts queued. Renders start on the next worker wake.")
         log(f"{handle}: drop {stamp} done, {len(queued)} jobs queued")
@@ -294,5 +301,5 @@ for cfg_path in sorted(glob.glob(os.path.join(E["CLIENTS_DIR"], "*", "drive.json
         last = os.path.getmtime(mark) if os.path.exists(mark) else 0
         if now - last > 3600:
             open(mark, "w").write(str(e)[:300])
-            ntfy(f"Drive watch ERROR: {handle}", str(e)[:300])
+            ntfy(f"{who} · Drive watch ERROR: {handle}", str(e)[:300])
 PYEOF

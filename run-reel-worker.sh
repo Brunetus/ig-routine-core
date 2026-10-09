@@ -11,6 +11,7 @@ export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$HOME/.local/bin:/usr/local/b
 
 CORE_DIR="${0:A:h}"
 source "${0:A:h}/contact-card.sh"
+source "${0:A:h}/job-who.sh"
 APP_DIR="$HOME/Claude Code/reel-app"
 JOBS_DIR="$APP_DIR/jobs"
 NOTIF_TITLE="reel worker"
@@ -224,6 +225,8 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
   # itself stays uuid-named on purpose — see contact-card.sh for why. ----
   write_contact_card "$JOB" "$ID" "$EMAIL" "$PHONE" "$HANDLE" "$CLIENT" "$CREATED" "$STORY" "$WORKER_API/reel?job=$ID" "$MNOTE" \
     || echo "$(date): contact card write FAILED for $ID" >> "$LOG"
+  # Whose job this is, at the front of every push title (job-who.sh).
+  WHO=$(job_who "$JOB" "$EMAIL")
 
   # One deliverable on every tier since 2026-08-26: the clean cut.
   WMREQ="$JOB/out/reel-clean.mp4"
@@ -243,12 +246,12 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
       ECLIP_WHO=$(/usr/bin/python3 -c "import json;print((json.load(open('$JOB/job.json')).get('eclip') or {}).get('username') or '?')" 2>/dev/null)
       echo "render done: $ID parked for review (eclip @$ECLIP_WHO, HELD, no auto-release)" >> "$LOG"
       osascript -e "display notification \"eclip cut ready for @$ECLIP_WHO — nothing sends until you approve\" with title \"$NOTIF_TITLE\" sound name \"Glass\"" 2>/dev/null
-      curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: eclip cut ready for review" -H "Priority: high" -H "Tags: eyes" \
+      curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: $WHO · eclip cut ready for review" -H "Priority: high" -H "Tags: eyes" \
         -d "eclip cut for @$ECLIP_WHO is rendered and HELD. Nothing auto-sends. Watch jobs/$ID/out/reel-clean.mp4, then release-reel.sh $ID to deliver it, or review.mjs reject $ID \"why\"." > /dev/null 2>&1
     else
     echo "render done: $ID parked for review (auto-release in 20 min)" >> "$LOG"
     osascript -e "display notification \"REVIEW WINDOW: job ${ID:0:8} auto-sends in 20 min — jobs/$ID/out/\" with title \"$NOTIF_TITLE\" sound name \"Glass\"" 2>/dev/null
-    curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: Reel rendered - review window open" -H "Priority: high" -H "Tags: eyes" \
+    curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: $WHO · Reel rendered - review window open" -H "Priority: high" -H "Tags: eyes" \
       -d "Job ${ID:0:8} rendered. Auto-sends in 20 min. Review jobs/$ID/out/ - touch HOLD to pause, APPROVED to send now." > /dev/null 2>&1
     fi
     DONE_COUNT=$((DONE_COUNT + 1))
@@ -267,7 +270,7 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
     echo "unverified render: session died before QA ($(date))" > "$JOB/HOLD"
     echo "render SALVAGED: $ID parked - finished render, no QA verdict" >> "$LOG"
     osascript -e "display notification \"UNVERIFIED render: job ${ID:0:8} parked - review then release-reel.sh\" with title \"$NOTIF_TITLE\" sound name \"Basso\"" 2>/dev/null
-    curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: Reel rendered but UNVERIFIED" -H "Priority: high" -H "Tags: eyes,warning" \
+    curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: $WHO · Reel rendered but UNVERIFIED" -H "Priority: high" -H "Tags: eyes,warning" \
       -d "Job ${ID:0:8} finished rendering but the session died before QA. It will NOT auto-send under any path. Review jobs/$ID/out/ then run release-reel.sh $ID to ship." > /dev/null 2>&1
     rm -f "$JOB/.session-live"
     break  # a watchdog kill may be systemic (hung model, full disk) — don't burn another long session this wake
@@ -277,7 +280,7 @@ json.dump(j, open('$JOB/job.json','w'), indent=2)
     echo "" >> "$LOG"
     echo "job FAILED: $REASON" >> "$LOG"
     osascript -e "display notification \"Customer job FAILED - check jobs/$ID\" with title \"$NOTIF_TITLE\" sound name \"Basso\"" 2>/dev/null
-    curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: Reel job FAILED" -H "Priority: high" -H "Tags: rotating_light" \
+    curl -s -m 15 -X POST "https://ntfy.sh/imabgold-reels-x7k2mq94" -H "Title: $WHO · Reel job FAILED" -H "Priority: high" -H "Tags: rotating_light" \
       -d "Job ${ID:0:8} failed ($(echo "$REASON" | head -1 | head -c 60)). Review it and reach out to the customer." > /dev/null 2>&1
     rm -f "$JOB/.session-live"
     break  # don't chew the queue on a systematic failure; next wake retries nothing (job left failed for Marcus)

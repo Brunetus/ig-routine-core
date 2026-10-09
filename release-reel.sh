@@ -59,12 +59,15 @@ AUTH="Authorization: Bearer $WORKER_SECRET"
 api() { curl -s --max-time 120 -H "$AUTH" "$@"; }
 
 DELIVER="$HOME/Claude Code/reels-ios/mac/lib/deliver.mjs"
+# job_who: whose job this is, at the front of every push title.
+source "${0:A:h}/job-who.sh"
 NODE="$HOME/.nvm/versions/node/v20.20.2/bin/node"
 
 # --- flags (the manual eclip path only; --scan takes none of them) ---
 # `shift 2` on a last-position `--day` is a zsh error, not a shift: the loop
 # then spins on the same argument forever. Check the count first.
-DAY_OVERRIDE=""; REPLACE=""; DRYRUN=""
+DAY_OVERRIDE=""; REPLACE=""; DRYRUN=""; NOCOVER=""
+SALVAGED_NOTE=""   # set only when THIS run converts a salvaged job (never inherited from the environment)
 ARGS=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -75,12 +78,15 @@ while [ "$#" -gt 0 ]; do
       DAY_OVERRIDE="$2"; shift 2 ;;
     --replace) REPLACE="1"; shift ;;
     --dry-run) DRYRUN="1"; shift ;;
+    # An eclip reel ships WITH its cover (Marcus, 2026-10-01): releasing it is
+    # his approval of both. --no-cover is the deliberate way to ship one alone.
+    --no-cover) NOCOVER="1"; shift ;;
     # --scan is a MODE, not a flag: it is how run-reel-notify.sh (every 2 min)
     # and run-reel-worker.sh ship every paying customer's reel. It must reach
     # the dispatch below untouched — an "unknown flag" exit here would silently
     # stop the entire auto-release pass.
     --scan)    ARGS+=("$1"); shift ;;
-    --*)       echo "unknown flag '$1' (--day, --replace, --dry-run)"; exit 2 ;;
+    --*)       echo "unknown flag '$1' (--day, --replace, --dry-run, --no-cover)"; exit 2 ;;
     *)         ARGS+=("$1"); shift ;;
   esac
 done
@@ -129,13 +135,14 @@ is_eclip() {
 # rows; this function only decides what to hand it and what to say afterwards.
 release_eclip() {
   local ID="$1" JOB="$JOBS_DIR/$1"
-  local IGID ECLIP_USER DAY
+  local IGID ECLIP_USER DAY WHO
   IGID=$(eclip_field "$JOB" ig_user_id)
   # NOT `USERNAME`: that is one of zsh's own special parameters (the login
   # user), so assigning to it silently does nothing and the handle reads as
   # whoever is logged in.
   ECLIP_USER=$(eclip_field "$JOB" username)
   DAY="${DAY_OVERRIDE:-$(eclip_field "$JOB" day)}"
+  WHO=$(job_who "$JOB")
   if [ -z "$IGID" ]; then
     echo "eclip release $ID BLOCKED: neither job.json nor ECLIP.json carries eclip.ig_user_id."
     echo "$(date): eclip release $ID ABORTED - neither job.json nor ECLIP.json has eclip.ig_user_id" >> "$LOG"; return 1
@@ -153,7 +160,7 @@ release_eclip() {
   if [ ! -f "$JOB/out/kit.json" ]; then
     echo "eclip release $ID BLOCKED: out/kit.json is missing, so the phone would get a reel with no caption. (JOBS.md 'eclip jobs' is what writes it.)"
     echo "$(date): eclip release $ID ABORTED - out/kit.json missing (JOBS.md 'eclip jobs' writes it)" >> "$LOG"
-    curl -s -m 15 -X POST "$NTFY" -H "Title: eclip release BLOCKED" -H "Priority: high" -H "Tags: rotating_light" \
+    curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · eclip release BLOCKED" -H "Priority: high" -H "Tags: rotating_light" \
       -d "Job ${ID:0:8} (@${ECLIP_USER}) has no out/kit.json, so the phone would get a reel with no caption. Parked." > /dev/null 2>&1
     return 1
   fi
@@ -163,6 +170,14 @@ release_eclip() {
                --cut-paths-prefix "reel-app")
   [ -f "$JOB/out/plan.json" ]  && DARGS+=(--plan "$JOB/out/plan.json")
   [ -f "$JOB/out/poster.jpg" ] && DARGS+=(--poster "$JOB/out/poster.jpg")
+  # The Instagram cover (JOBS.md "eclip jobs", 2026-10-01). An eclip reel
+  # ships WITH its cover: releasing it is Marcus's approval of both, so the
+  # paths always go to deliver.mjs with --require-cover and deliver.mjs is
+  # the one judge (no cover, a skipped/warned/recipe-less one, the wrong
+  # style for this account: it refuses before any upload and says why).
+  # --no-cover passes NOTHING: a cover he rejected by eye must not ship just
+  # because it passes the machine checks.
+  [ -z "$NOCOVER" ] && DARGS+=(--cover "$JOB/out/cover.jpg" --cover-meta "$JOB/out/cover.json" --require-cover)
   [ -n "$DAY" ]     && DARGS+=(--day "$DAY")
   [ -n "$REPLACE" ] && DARGS+=(--replace)
   [ -n "$DRYRUN" ]  && DARGS+=(--dry-run)
@@ -208,7 +223,7 @@ release_eclip() {
     # record). Only the queue marker is stuck, so this is a warning, not a
     # rollback — re-shipping would replace the day for nothing.
     echo "$(date): eclip $ID delivered to the app but the worker complete call failed" >> "$LOG"
-    curl -s -m 15 -X POST "$NTFY" -H "Title: eclip delivered, queue not closed" -H "Tags: warning" \
+    curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · eclip delivered, queue not closed" -H "Tags: warning" \
       -d "Reel for @${ECLIP_USER} ${DAY} IS on their phone, but the worker complete call failed so the job is still in the queue. Check jobs/worker log." > /dev/null 2>&1
   fi
 
@@ -217,13 +232,15 @@ release_eclip() {
   printf '%s | eclip @%s | %s | archive %s/%s.mp4\n' \
     "$(date '+%F %H:%M')" "$ECLIP_USER" "${ID:0:8}" "$IGID" "$DAY" >> "$JOBS_DIR/OUTBOX.md"
   osascript -e "display notification \"eclip delivered to @$ECLIP_USER ($DAY)\" with title \"reel worker\" sound name \"Glass\"" 2>/dev/null
-  curl -s -m 15 -X POST "$NTFY" -H "Title: eclip reel delivered" -H "Tags: white_check_mark" \
+  curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · eclip reel delivered" -H "Tags: white_check_mark" \
     -d "delivered to app: @${ECLIP_USER} ${DAY}" > /dev/null 2>&1
   return 0
 }
 
 release_one() {
   local ID="$1" JOB="$JOBS_DIR/$1"
+  local WHO
+  WHO=$(job_who "$JOB")
   if [ -n "$DRYRUN" ]; then
     # A dry run proves the wiring and must leave the folder exactly as it is:
     # no claim, no marker moved, no state to hand back if it fails.
@@ -268,7 +285,7 @@ release_one() {
           # parks it (4h nag loop covers it); a deliberate release-reel.sh <id>
           # still clears the HOLD and forces one attempt per command.
           [ -z "$DRYRUN" ] && echo "blocked by decode/duration check ($(date))" > "$JOB/HOLD"
-          curl -s -m 15 -X POST "$NTFY" -H "Title: Reel release BLOCKED" -H "Priority: high" -H "Tags: rotating_light" \
+          curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · Reel release BLOCKED" -H "Priority: high" -H "Tags: rotating_light" \
             -d "Job ${ID:0:8}: ${F:t} failed the decode/duration check (got '${DUR:-unreadable}'). Likely a truncated render. Parked on HOLD - inspect jobs/$ID/out/." > /dev/null 2>&1
           return 1 ;;
       esac
@@ -288,6 +305,10 @@ release_one() {
     # Re-assert the HOLD: an eclip job that failed to deliver must not be
     # sitting armed for anything, and the 4h park nag will surface it.
     [ -z "$DRYRUN" ] && echo "eclip delivery failed $(date)" > "$JOB/HOLD"
+    # A salvaged render (never QA'd) that did not ship is STILL unverified:
+    # the explicit command consumed its flag, and a blocked release (no
+    # cover, most often) must give it back, or review.mjs calls it "pending".
+    [ -z "$DRYRUN" ] && [ -n "$SALVAGED_NOTE" ] && printf '%s\n' "$SALVAGED_NOTE" > "$JOB/SALVAGED"
     return 1
   fi
 
@@ -310,6 +331,7 @@ release_one() {
   PAID=$(/usr/bin/python3 -c "import json;print('1' if json.load(open('$RAW')).get('paid') else '')" 2>/dev/null)
   CLIENT=$(/usr/bin/python3 -c "import json;print(json.load(open('$RAW')).get('client',''))" 2>/dev/null)
   rm -f "$RAW"
+  WHO=$(job_who "$JOB" "$EMAIL")
 
   local META_ARGS=()
   [ -f "$JOB/out/delivery.json" ] && META_ARGS=(-F "meta=@$JOB/out/delivery.json;type=application/json")
@@ -345,7 +367,7 @@ release_one() {
   if ! printf '%s' "$RES" | grep -q '"ok":true'; then
     # Failed upload: put the job back in pending so the next scan retries.
     mv "$JOB/.RELEASING" "$JOB/PENDING-RELEASE" 2>/dev/null
-    curl -s -m 15 -X POST "$NTFY" -H "Title: Reel release FAILED" -H "Priority: high" -H "Tags: rotating_light" \
+    curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · Reel release FAILED" -H "Priority: high" -H "Tags: rotating_light" \
       -d "Release of job ${ID:0:8} failed at the complete call. It stays pending; check jobs/worker log." > /dev/null 2>&1
     return 1
   fi
@@ -419,7 +441,7 @@ PYNAME
       if [ "$DRIVE_OK" = "1" ]; then
         echo "$(date): release $ID - clean cut + caption copied to $CLIENT's Drive delivery folder" >> "$LOG"
       else
-        curl -s -m 15 -X POST "$NTFY" -H "Title: Drive delivery copy FAILED" -H "Tags: warning"           -d "Reel ${ID:0:8} released fine (email+page), but the copy into $CLIENT's Cut reel folder failed - check jobs/worker log." > /dev/null 2>&1
+        curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · Drive delivery copy FAILED" -H "Tags: warning"           -d "Reel ${ID:0:8} released fine (email+page), but the copy into $CLIENT's Cut reel folder failed - check jobs/worker log." > /dev/null 2>&1
       fi
     fi
   fi
@@ -447,11 +469,11 @@ PYNAME
   fi
   if [ -n "$PAID" ]; then
     osascript -e "display notification \"Paid reel released and emailed (${ID:0:8})\" with title \"reel worker\"" 2>/dev/null
-    curl -s -m 15 -X POST "$NTFY" -H "Title: Paid reel released" -H "Tags: white_check_mark" \
+    curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · Paid reel released" -H "Tags: white_check_mark" \
       -d "Paid cut ${ID:0:8} is live and emailed. Nothing to do." > /dev/null 2>&1
   else
     osascript -e "display notification \"Reel RELEASED — text $PHONE (see jobs/OUTBOX.md)\" with title \"reel worker\" sound name \"Glass\"" 2>/dev/null
-    curl -s -m 15 -X POST "$NTFY" -H "Title: Reel released" -H "Tags: white_check_mark" \
+    curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · Reel released" -H "Tags: white_check_mark" \
       -d "Reel for $PHONE is live and emailed. The text to send them is in jobs/OUTBOX.md." > /dev/null 2>&1
   fi
   return 0
@@ -472,6 +494,7 @@ if [ "$1" = "--scan" ]; then
     [ $((NOW - CLAIMED)) -lt "$ORPHAN_SECS" ] && continue  # release in flight
     if [ -f "$JOB_DIR/RELEASED" ]; then rm -f "$R"; continue; fi
     mv "$R" "$JOB_DIR/PENDING-RELEASE" 2>/dev/null
+    WHO=$(job_who "$JOB_DIR")
     # HOLD guard (2026-08-27). Recovery was the ONE path with no HOLD check.
     # It still hands the claim back to PENDING-RELEASE — a held job must stay
     # visible to `release-reel.sh <id>`, which exits 1 when PENDING-RELEASE is
@@ -482,12 +505,12 @@ if [ "$1" = "--scan" ]; then
     # HOLD exists.
     if [ -f "$JOB_DIR/HOLD" ] || is_eclip "$JOB_DIR"; then
       echo "$(date): recovered orphaned release claim for $ID - HELD, parked (no auto-release while HOLD exists)" >> "$LOG"
-      curl -s -m 15 -X POST "$NTFY" -H "Title: Held reel recovered" -H "Tags: warning" \
+      curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · Held reel recovered" -H "Tags: warning" \
         -d "Job ${ID:0:8} had an interrupted release and is on HOLD. Parked, NOT re-armed. release-reel.sh ${ID} ships it when you're ready." > /dev/null 2>&1
       continue
     fi
     echo "$(date): recovered orphaned release claim for $ID (re-armed)" >> "$LOG"
-    curl -s -m 15 -X POST "$NTFY" -H "Title: Reel release recovered" -H "Tags: warning" \
+    curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · Reel release recovered" -H "Tags: warning" \
       -d "Job ${ID:0:8} had an interrupted release (crash or reboot). Re-armed for auto-release." > /dev/null 2>&1
   done
   for P in "$JOBS_DIR"/*/PENDING-RELEASE(N); do
@@ -519,7 +542,8 @@ if [ "$1" = "--scan" ]; then
     LASTNAG=$(cat "$JOB_DIR/.park-nag" 2>/dev/null || echo 0)
     [ $((NOW - LASTNAG)) -lt 14400 ] && continue
     echo "$NOW" > "$JOB_DIR/.park-nag"
-    curl -s -m 15 -X POST "$NTFY" -H "Title: Reel still parked" -H "Priority: high" -H "Tags: hourglass_flowing_sand" \
+    WHO=$(job_who "$JOB_DIR")
+    curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · Reel still parked" -H "Priority: high" -H "Tags: hourglass_flowing_sand" \
       -d "Job ${ID:0:8} has been parked (${H:t}) for $((HAGE / 3600))h and the customer is still on the waiting page. release-reel.sh $ID ships it. If you fail it instead, delete the HOLD/SALVAGED markers to stop this reminder." > /dev/null 2>&1
   done
   exit 0
@@ -595,6 +619,8 @@ if [ -f "$JOBS_DIR/$ID/SALVAGED" ]; then
   # scan can consume SALVAGED; Marcus's explicit command here IS the approval,
   # so convert it to a normal pending release at this moment.
   if [ -z "$DRYRUN" ]; then
+    SALVAGED_NOTE=$(cat "$JOBS_DIR/$ID/SALVAGED" 2>/dev/null)
+    [ -n "$SALVAGED_NOTE" ] || SALVAGED_NOTE="unverified: salvaged render, release attempted $(date)"
     date +%s > "$JOBS_DIR/$ID/PENDING-RELEASE"
     rm -f "$JOBS_DIR/$ID/SALVAGED"
     echo "$(date): salvaged job $ID converted to pending release by explicit command" >> "$LOG"
