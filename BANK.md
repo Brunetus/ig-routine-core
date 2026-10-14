@@ -1076,7 +1076,8 @@ pruned, 14 ads skipped, 2 misses, 6 gate rejects, 2 premise handles added`). **Z
 day, not a failure — say so in the line so the morning notification does not
 read as a broken scan.** Log the same line. Commit the
 bank repo (`git -C ~/Claude\ Code/viral-bank add -A && git commit`) with
-that summary as the message — catalog.md, watchlist.md, taste.md,
+that summary as the message, then push it (`git -C ~/Claude\ Code/viral-bank push`;
+a failed push goes in the log line, it never blocks the scan) — catalog.md, watchlist.md, taste.md,
 playbook.md and audio.md are tracked (audio.md grows every scan now); clips and logs are gitignored.
 
 ## Consumption law (for architects / daily routines — not the scan)
