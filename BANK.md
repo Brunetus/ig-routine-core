@@ -1064,6 +1064,27 @@ Rules now:
   stripped). Within each shape group order by `confirmed:` descending, so a
   consumer reading the top of a group gets the freshest.
 
+### 6d. CC0 music shelf — beds that can be BAKED into API-posted reels (added 2026-10-14, Marcus)
+
+@bambi.map auto-posts via the Graph API, which cannot attach IG audio, so its
+reels carry a baked-in bed. Those beds come ONLY from `viral-bank/music/`,
+and every file there has a CC0 row in `music/LICENSES.tsv`. This is a separate
+shelf from 6c's audio.md: audio.md names commercial trending tracks for
+in-app use and must NEVER be downloaded or baked into a file.
+
+- Run: `python3 "$HOME/Claude Code/ig-routine-core/music-refill.py"`.
+  It tops the shelf up to 30 tracks, at most +3 per scan, balancing vibes.
+  **One-shot bootstrap:** if `music/BOOTSTRAP-30` exists, run it with
+  `--add 30` instead, then delete the flag (Marcus 2026-10-14: first scan adds 30).
+- The script is the law for what gets in (CC0 re-checked per result, 20-240s,
+  decodes, no sfx/jingle/joke words, no cover/remix/remake words, no title
+  matching any named track in audio.md, no vocals). Do NOT download music any
+  other way, and do not hand-add files without a CC0 LICENSES.tsv row.
+- Commit `music/LICENSES.tsv` (the mp3s are gitignored). Report the line it
+  prints (added N, shelf by vibe) in last-scan.txt.
+- Time box: do not START 6d past 08:40 (`music-skip: time`); the shelf has
+  slack, a skipped day costs nothing.
+
 ### 7. Close out
 Write `last-scan.txt`: first line `<today> — scanned N accounts + H
 hashtags, M new clips banked, F formats captured, K entries went stale, P
