@@ -445,6 +445,23 @@ def build(a):
             size = t.get("size", 56)
             font = ImageFont.truetype(t.get("font", DEFAULT_FONT), size, index=t.get("font_index", 0))
             sentence = " ".join(l for l in (a.line1, a.line2) if l).strip()
+            # Optional accent (2026-10-14, @bambi.map): words wrapped in *stars*
+            # render in text.accent. Only when the style sets an accent; other
+            # styles never see a star (and refuse one, so it can't print).
+            accent_words = []
+            if "*" in sentence:
+                if "accent" not in t:
+                    sys.exit("this style has no text.accent: remove the *stars* from the line")
+                if sentence.count("*") % 2:
+                    sys.exit("unbalanced *stars* in the line")
+                on = False
+                for w in sentence.split():
+                    starts, ends = w.startswith("*"), w.endswith("*") and len(w) > 1
+                    on = on or starts
+                    accent_words.append(on)
+                    if ends or (starts and w.count("*") == 2):
+                        on = False
+                sentence = sentence.replace("*", "")
             if not sentence:
                 sys.exit("this style carries one sentence: pass it in --line1")
             max_width = t.get("max_width", 860)
@@ -492,10 +509,22 @@ def build(a):
                     x1, y1 = (W - lw) / 2 - pad, top + i * lh - pad * 0.45
                     d.rounded_rectangle((x1, y1, x1 + lw + 2 * pad, y1 + asc + desc + pad * 0.9),
                                         radius=radius, fill=rgb(t["box_color"]))
+            wi = 0
             for i, l in enumerate(lines):
-                d.text(((W - d.textlength(l, font=font)) / 2, top + i * lh), l, font=font,
-                       fill=rgb(t.get("color", "FFFFFF")), stroke_width=stroke,
-                       stroke_fill=rgb(t.get("stroke_color", "000000")))
+                x = (W - d.textlength(l, font=font)) / 2
+                if not accent_words:
+                    d.text((x, top + i * lh), l, font=font,
+                           fill=rgb(t.get("color", "FFFFFF")), stroke_width=stroke,
+                           stroke_fill=rgb(t.get("stroke_color", "000000")))
+                    continue
+                for j, w in enumerate(l.split()):
+                    if j:
+                        x += d.textlength(" ", font=font)
+                    d.text((x, top + i * lh), w, font=font,
+                           fill=rgb(t["accent"] if accent_words[wi] else t.get("color", "FFFFFF")),
+                           stroke_width=stroke, stroke_fill=rgb(t.get("stroke_color", "000000")))
+                    x += d.textlength(w, font=font)
+                    wi += 1
             text_box = (top - box_rise, top + lh * len(lines))
 
         if style is None:
