@@ -65,7 +65,7 @@ def slug(s):
 def search(q, page):
     qs = urllib.parse.urlencode({"q": q, "license": "cc0", "page_size": 20, "page": page})
     req = urllib.request.Request(f"{API}?{qs}", headers={"User-Agent": "marcus-ig-routine/1.0"})
-    with urllib.request.urlopen(req, timeout=25) as r:
+    with urllib.request.urlopen(req, timeout=15) as r:
         return json.load(r).get("results", [])
 
 def passes(r, banned):
@@ -121,9 +121,11 @@ def main():
     counts = {v: sum(1 for r in on_shelf if r["vibe"] == v) for v in QUERIES}
     added, rejects = [], {}
     pools = {v: [] for v in QUERIES}
-    for v, qs in QUERIES.items():
+    # bootstrap searches everything; a +3 top-up runs one query per vibe (fits the scan's time box)
+    plan = {v: (qs if a.add else qs[:1]) for v, qs in QUERIES.items()}
+    for v, qs in plan.items():
         for q in qs:
-            for page in (1, 2):
+            for page in ((1, 2) if a.add else (1,)):
                 try:
                     pools[v] += search(q, page)
                 except Exception as e:
