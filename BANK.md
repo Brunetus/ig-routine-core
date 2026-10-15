@@ -442,6 +442,12 @@ architect to splice a badly-fitting clip (an `OWN-IS-REFERENT` or
 with `@` (the `[premise]` lane plus the surviving `[saved]` handles, 18 on the
 day of the cut). `dormant …` and `dead …` prose lines are never probed, never
 counted in "scanned N accounts", never re-added by you.
+**NO LIST-PROMISE OPENERS (Marcus, 2026-10-15).** Reject an opener that
+announces a count or list ("3 things…", "10/10 ways…", "signs he…") as a
+donor for a one-line payoff: a promised list paid off with one item reads as
+bait. Bank it only if tagged `list-opener: N` for a reel that delivers N items.
+Single-blank openers ("the most underrated quality is…", "men only want one
+thing…") are the target.
 **BURNED CREATORS (Marcus, 2026-10-15).** A handle on a watchlist `Dropped …` or
 `dead …` line is also never BANKED: before banking any clip from ANY surface
 (watchlist, Saved, tag pages, borrowed openers), grep watchlist.md for the
