@@ -441,7 +441,12 @@ architect to splice a badly-fitting clip (an `OWN-IS-REFERENT` or
 **DAILY READ CUT (Marcus, 2026-09-25).** Probe ONLY watchlist lines that start
 with `@` (the `[premise]` lane plus the surviving `[saved]` handles, 18 on the
 day of the cut). `dormant …` and `dead …` prose lines are never probed, never
-counted in "scanned N accounts", never re-added by you. Why: on 09-25 the scan
+counted in "scanned N accounts", never re-added by you.
+**BURNED CREATORS (Marcus, 2026-10-15).** A handle on a watchlist `Dropped …` or
+`dead …` line is also never BANKED: before banking any clip from ANY surface
+(watchlist, Saved, tag pages, borrowed openers), grep watchlist.md for the
+creator's handle; if it sits on a Dropped/dead line, skip the clip and log
+`burned-skip: @handle <shortcode>`. First case: @annabellegesson (burned 10-15). Why: on 09-25 the scan
 probed 43 accounts, 40 of which cannot bank, hit the 08:50 guard at 09:10 with
 64 rejects, and skipped the tag pages that are the only surface that has found
 donors. **Order of the morning is now: step 1 → throwaway tag pages (THROWAWAY
