@@ -567,6 +567,33 @@ the owner's words. Limits, all hard:
 narration with first-person cards naming the app and not one frame of it.
 Marcus: the product has to be inside the picture, not only in the copy.
 
+### Who watches this account (Marcus, 2026-10-20) — BINDING, and INTERNAL
+
+The brief's "Who watches this account" section is Instagram's audience read
+(engaged, reached, followers: age, gender, country, city). When it lists
+**Binding audience rules for this cut**, they bind the architect, the builder
+and QA, exactly as written there: the hook speaks to the named audience (a
+prospect, not an insider, when the bio sells a local service), a named place is
+where that audience lives, and the format leans to that audience. They rank
+below the face rules, the owner rules, the customer's standing directives,
+Marcus's rejection notes and his note on the job. When the section says "too
+thin to bind" or "not available", nothing binds.
+
+The numbers are OURS, never the customer's. Not on a card (`plan.json`
+`text_cards`), not in the caption, not in any `kit.json` field (the whole file
+goes to the phone), not in `plan.json`'s `hook_theme`, `concept` or
+`why_views`, and not in the cover's lines: all of those reach the customer's
+app or the database row behind it. Naming the audience's city on a card is
+allowed (that is the Place rule); saying WHY it was chosen is not. Write how each rule was
+met under `## Audience` in `out/OUTLINE.md` and nowhere else. QA checks both:
+the rules met, and no audience reasoning in the kit. The release refuses a kit
+that leaks it (`mac/lib/deliver.mjs`).
+
+*Why:* @crossroads.boxingclub `a5c59df1` (2026-10-20) shipped an in-group
+"5 sounds boxers like the most" for a gym whose engaged audience was 75% under
+35, three in four men, living in Montreal rather than Kahnawake, with a bio
+selling bookings. Marcus wanted the cut aimed at them, and the data kept internal.
+
 ### Whose account this is (Marcus, 2026-09-29) — decide BEFORE you choose a lead
 
 A camera roll is not one person's. An agency owner, a videographer, a coach
