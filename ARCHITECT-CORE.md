@@ -260,6 +260,11 @@ footage lands on it; they do not license skipping the format layer.
   Leave the screens as they are... I want that rule removed"), and 2026-08-26
   settled customer jobs on reel job `0d8e7c1f`, where a stranger's laptop had
   a legible chat window in the hook beat: *"You shouldn't blur this screen."*
+  **Exception, faces only (Marcus, 2026-10-27):** on @bambi.map the BABY's
+  face may and should be cropped out, cut around, or blurred to salvage a
+  clip (ROUTINE-REELS.md "REAL FOOTAGE ONLY"). This law is about SCREENS;
+  it never forbids hiding the baby's face on bambi, and QA must not fail a
+  properly salvaged clip for being cropped or blurred.
   - **The duty that replaces blurring is REPORTING.** Read every visible
     screen at full resolution. If it carries something the owner would
     plausibly want to know is going public — a credentials path, a token, a

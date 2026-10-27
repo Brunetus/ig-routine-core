@@ -143,7 +143,7 @@ probe_photos_export() {
        -e 'end timeout' -e 'end run' "$UUID/L0/001" > /dev/null 2>&1; then
     echo "OK $(date +%H:%M:%S) media-item queries answering" > routine/photos-export-health.txt
   else
-    echo "STALLED $(date +%H:%M:%S) media-item query timed out; do NOT plan an export lane this run - use on-disk footage or the generation lane, and note unexported candidates in the inventory for the next run" > routine/photos-export-health.txt
+    echo "STALLED $(date +%H:%M:%S) media-item query timed out; do NOT plan an export lane this run - use on-disk footage or the account's other lanes (generation only where the account file allows it), and note unexported candidates in the inventory for the next run" > routine/photos-export-health.txt
   fi
   echo "photos-export-health: $(cat routine/photos-export-health.txt)" >> "$LOG"
 }
