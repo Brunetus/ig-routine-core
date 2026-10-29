@@ -224,8 +224,12 @@ def detect_faces(paths):
     out = {}
     for line in subprocess.run([ensure_face_bin(), "--all"] + paths, capture_output=True,
                                text=True).stdout.splitlines():
-        p, *rest = line.split()
-        if len(rest) >= 5 and rest[0].isdigit() and len(rest) == 1 + 4 * int(rest[0]):
+        # the path may contain spaces ("~/Claude Code/..."): take the count + boxes from the end
+        tok = line.split()
+        k = next((k for k in range(1, len(tok)) if tok[k].isdigit() and int(tok[k]) > 0
+                  and len(tok) - k - 1 == 4 * int(tok[k])), None)
+        if k is not None:
+            p, rest = " ".join(tok[:k]), tok[k:]
             nums = list(map(int, rest[1:]))
             boxes = [nums[i:i + 4] for i in range(0, len(nums), 4)]
             out[p] = boxes[0]
