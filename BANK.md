@@ -1105,30 +1105,50 @@ work each lane it lists. It never touches `catalog.md`, never moves a handle
 into `watchlist.md`, never counts toward the donor target or the gate-reject
 count, and never relaxes THE GATE for the donor bank. Its own law:
 - **Where files go:** `~/Claude Code/footage/donors/<lane>/<shortcode>.mp4`
-  (`mkdir -p` it), plus one line per clip in that folder's `manifest.md`:
-  `<today> | @account | <permalink> | <likes> likes | <file or "lead, media withheld" or "candidate"> | <one-line note>`.
-  This folder is the ONLY place outside the bank this step may write. It is
-  not an account folder, so guard 2 is untouched.
-- **Budget:** ≤3 downloads per lane per scan, on `media_url` from the Graph
-  API exactly as step 4 (curl, `file` check, delete junk). These do not count
-  against step 4's 12, and they spend ZERO `ig-fetch.sh` slots: a withheld
-  reel is written to the manifest as a lead and never fetched. A new
-  hashtag here is charged under guard 8 like any other (`hashtag-query:`
-  line BEFORE the call); skip the tag if the 7-day budget is spent.
-- **Filters:** the lane's `wants`, originals only, like_count ≥ the floor in
-  the file, permalink not already in that lane's manifest. Rank by
-  like_count, highest first.
-- **The one yt-dlp exception (Marcus, 2026-10-29):** the `replogle` lane may
-  download ONE c-span.org URL with yt-dlp, no cookies, no browser profile:
-  `"$HOME/Library/Python/3.9/bin/yt-dlp" --no-cookies --socket-timeout 30 -f "best[ext=mp4][height<=720]/best[height<=720]" --max-filesize 1500M -o "<lane folder>/<slug>.%(ext)s" "<url>"`.
-  Only when the lane's `url:` line holds a c-span.org link. With no link,
-  search c-span.org (WebSearch/WebFetch) and write up to 3 `candidate` lines
-  (URL, title, duration); download nothing. After a successful download,
-  change that lane's `url:` line to `done <today> <file>` so it never runs twice.
+  (`mkdir -p` it), plus one line per JUDGED clip in that folder's `manifest.md`:
+  `<today> | @account | <permalink> | <likes> likes | <status> | <one-line note>`,
+  where status is one of `saved <file>`, `lead, media withheld`,
+  `rejected <reason>` or `candidate`. This folder is the ONLY place outside
+  the bank this step may write, and a `rejected` clip's file inside it may be
+  deleted (it is not a bank clip; guard 3 does not cover this folder). It is
+  not an account folder, so guard 2 is untouched. The only edit this step
+  makes to `customer-pickups.md` is the replogle `done` marker below.
+- **Sources: seed ACCOUNTS only**, one `business_discovery` call each, exactly
+  as step 2 (≤25 media). NO Graph hashtag search (never charge a tag for this
+  step), NO `ig-search.py`, NO `ig-fetch.sh`, NO `read-saved.sh`: those
+  budgets belong to the donor bank. A lane with no accounts listed logs
+  `pickup-skip: <lane> no sources` and does nothing.
+- **Budget:** ≤3 downloads per lane per scan, on `media_url` exactly as step 4
+  (curl, `file` check, delete junk). These do not count against step 4's 12.
+  A withheld reel (no `media_url`) goes in the manifest as a lead, never fetched.
+- **Filters, in order:** permalink not already in that lane's manifest (any
+  status: a rejected clip is never judged twice); like_count ≥ the floor in
+  the file; original; the lane's `wants`. Rank by like_count, highest first.
+  **Original** = posted by the account that made or recorded it (a seed
+  outlet's own interview counts, and tagging the speaker, e.g. @rickross, is
+  fine). NOT original: a caption with "via", "credit", "cr:", "repost" or 🎥
+  pointing at another account, or another account's watermark in the frame.
+  A judgement that needs the footage (speech vs music, authentic vs scripted)
+  is made after the download; a failing clip gets a `rejected <reason>` line
+  and its file is deleted.
+- **Replogle, the one yt-dlp exception (Marcus, 2026-10-29):** the `replogle`
+  lane may download ONE URL with yt-dlp, and only if the `url:` line's host is
+  exactly `www.c-span.org` or `c-span.org` (parse the host; a substring match
+  is not enough). Any other value that is not `(none…)` or `done…`: log
+  `pickup-skip: replogle non-cspan url` and do nothing. Run it as ONE Bash
+  call with the tool's 600000 ms timeout, the URL single-quoted:
+  `"$HOME/Library/Python/3.9/bin/yt-dlp" --no-cookies --socket-timeout 30 -f "best[ext=mp4][height<=720]/best[height<=720]" --max-filesize 1500M -o "$HOME/Claude Code/footage/donors/replogle/%(title).60B.%(ext)s" '<url>'`.
+  On success, rewrite the `url:` line to `done <today> <file>` so it never
+  runs again; on any failure or timeout, delete `*.part` files in that folder
+  and log `pickup-miss: replogle <reason>` (tomorrow retries).
+  With `(none…)` in the url line: if the manifest has NO `candidate` lines
+  yet, search c-span.org (WebSearch/WebFetch) once and write up to 3
+  `candidate` lines (URL, title, duration); download nothing. If candidates
+  are already listed, do nothing (`pickup: replogle waiting on Marcus's pick`).
   yt-dlp stays forbidden for Instagram and for everything else.
 - **Time box:** do not START 6e past 08:45 (`pickup-skip: time`). A skipped
   day costs nothing; the manifest is the queue.
-- **Log** one line per lane: `pickup: <lane> — N downloaded, L leads, C candidates, R rejected (<top reasons>)`.
+- **Log** one line per lane: `pickup: <lane> — N saved, L leads, C candidates, R rejected (<top reasons>)`.
 
 ### 7. Close out
 Write `last-scan.txt`: first line `<today> — scanned N accounts + H
