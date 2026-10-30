@@ -85,7 +85,8 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
    (`max_per_day` in `~/.config/ig-fetch/config.json` — 8 since Marcus confirmed
    it 2026-09-18; the "5" elsewhere in this guard is the 2026-08-21 value) — a gate-passing
    donor whose media is withheld (step 4) has first call on the budget,
-   resolutions take what is left. Everything else comes from the Graph API.
+   resolutions take what is left, and step 6e's Bubba clips (≤3 per scan) take
+   what is left after that. Everything else comes from the Graph API.
    An exit 3 or 4 on EITHER use ends all ig-fetch use for the day. **If `ig-fetch.sh` exits 3
    (daily cap) or 4 (two failures), that is FINAL for today: log
    `download-miss: <shortcode> media withheld (fetch cap)`, substitute the
@@ -1116,12 +1117,13 @@ count, and never relaxes THE GATE for the donor bank. Its own law:
   makes to `customer-pickups.md` is the replogle `done`/`failed` marker below.
 - **Sources: seed ACCOUNTS only** (apart from the Evora YouTube read below), one `business_discovery` call each, exactly
   as step 2 (≤25 media). NO Graph hashtag search (never charge a tag for this
-  step), NO `ig-search.py`, NO `ig-fetch.sh`, NO `read-saved.sh`: those
-  budgets belong to the donor bank. A lane with no accounts listed logs
+  step), NO `ig-search.py`, NO `ig-fetch.sh` (sole exception: the Bubba fetch
+  below), NO `read-saved.sh`: those budgets belong to the donor bank. A lane with no accounts listed logs
   `pickup-skip: <lane> no sources` and does nothing.
 - **Budget:** ≤3 downloads per lane per scan, on `media_url` exactly as step 4
   (curl, `file` check, delete junk). These do not count against step 4's 12.
-  A withheld reel (no `media_url`) goes in the manifest as a lead, never fetched.
+  A withheld reel (no `media_url`) goes in the manifest as a lead, never fetched
+  (sole exception: the Bubba fetch below; Evora stays links-only).
 - **Filters, in order:** permalink not already in that lane's manifest (any
   status: a rejected clip is never judged twice); like_count ≥ the floor in
   the file; original; the lane's `wants`. Rank by like_count, highest first.
@@ -1177,6 +1179,31 @@ count, and never relaxes THE GATE for the donor bank. Its own law:
   `<today> | youtube:<channel> | https://www.youtube.com/watch?v=<id> | <views> views | lead, youtube not downloaded | <title with any | removed>, <whole seconds>s, search median <n>, judged on the title only`.
   A fail is the same line with status `rejected <reason>`. Leads count in evora's
   `pickup:` line.
+- **Bubba fetch, withheld leads only (Marcus via Grok relay, 2026-10-30):** the
+  `bubba` lane, and no other, may fetch its withheld leads through `ig-fetch.sh`.
+  Run this LAST in the scan's fetching, after step 4 has fetched every donor it
+  picked, so the donor bank always has first call; the caps are never raised.
+  Skip it with `pickup-skip: bubba fetch ended` if `ig-fetch.sh` itself exited 3
+  or 4 today (an `ig-search.py` 429 ends browsing, not this). Take this lane's
+  `lead, media withheld` lines (older ones too, they are the queue) without a
+  `fetch-miss <today>` note, highest like count first. At most 3 requests per
+  scan and at most 3 downloads for the lane including any `media_url` ones: the
+  log is the counter across a retry, so first read today's log and subtract its
+  `bubba-fetch:` lines, then append one `bubba-fetch: <shortcode>` per lead to the
+  log BEFORE calling. Make ONE Bash call with the tool's 600000 ms timeout and
+  every lead in it, so the script's pacing and stop-after-2 apply:
+  `ig-fetch.sh <shortcode> "$HOME/Claude Code/footage/donors/bubba/<shortcode>.mp4" [<shortcode> <dest> ...]`.
+  Afterwards, in that folder delete every `<shortcode>*` file except a complete
+  `<shortcode>.mp4` (`.uploader`, `.part`, `.fNNN`, `.h264.mp4`, info.json). For
+  each lead with its mp4, judge the footage against the lane's `wants`, then change
+  ONLY that line's status field to `saved <file>`, or to `rejected <reason>` and
+  delete the mp4; its permalink, like count and median stay. Results by exit code:
+  exit 0 with a lead's mp4 missing means that lead failed, so add `fetch-miss
+  <today>` to its note, and a second `fetch-miss` makes it `rejected fetch failed
+  twice`. Any other exit (3 or 4 end all ig-fetch use for the day as in guard 4;
+  1 or a timeout may be an expired session or a block) marks no lead: log
+  `pickup-miss: bubba ig-fetch exit <n>`, and unfetched leads wait for the next
+  scan with nothing retried.
 - **Time box:** do not START 6e past 08:45 (`pickup-skip: time`). A skipped
   day costs nothing; the manifest is the queue.
 - **Log** one line per lane: `pickup: <lane> — N saved, L leads, C candidates, R rejected (<top reasons>)`.
