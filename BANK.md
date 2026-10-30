@@ -75,7 +75,8 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
    allowed ONLY through `ig-routine-core/ig-fetch.sh`, which uses a DORMANT
    throwaway account in its own Chrome profile and enforces a daily cap,
    randomized human-pace spacing, and a stop-after-2-failures rule. Never
-   call `yt-dlp` directly, never use a Chrome profile holding an imabgold /
+   call `yt-dlp` directly (sole exception: step 6e's one c-span.org pickup,
+   no cookies), never use a Chrome profile holding an imabgold /
    bambi / maxima session (the script refuses those by name), and never
    raise the caps to finish a bank faster — a bank that takes three days is
    the point. Use it only for clips whose `media_url` the API withholds, and
@@ -200,6 +201,8 @@ What this costs, knowingly: @bambi.map and the CUSTOMER jobs live off the
 FRESH entries already banked until those age out under step 6, which logs
 `lane-dry:` when a lane empties so Marcus can see the cost accumulating —
 never act on it yourself, and never reopen a lane to fix it.
+(Step 6e's customer pickups are Marcus's own carve-out, 2026-10-29: they are
+not a bank lane, they write nothing to catalog.md, and they do not reopen one.)
 
 ## THE GATE — seven tests (numbered 1-8, test 5 retired 2026-09-27), all of them, on every candidate
 **(the donor half of performance.md rules 90-93 and their refinements. Tests
@@ -1096,12 +1099,43 @@ in-app use and must NEVER be downloaded or baked into a file.
 - Time box: do not START 6d past 08:40 (`music-skip: time`); the shelf has
   slack, a skipped day costs nothing.
 
+### 6e. Customer pickups — clips for named client reels (added 2026-10-30, Marcus)
+A side job, NOT the donor bank. Read `customer-pickups.md` in the bank and
+work each lane it lists. It never touches `catalog.md`, never moves a handle
+into `watchlist.md`, never counts toward the donor target or the gate-reject
+count, and never relaxes THE GATE for the donor bank. Its own law:
+- **Where files go:** `~/Claude Code/footage/donors/<lane>/<shortcode>.mp4`
+  (`mkdir -p` it), plus one line per clip in that folder's `manifest.md`:
+  `<today> | @account | <permalink> | <likes> likes | <file or "lead, media withheld" or "candidate"> | <one-line note>`.
+  This folder is the ONLY place outside the bank this step may write. It is
+  not an account folder, so guard 2 is untouched.
+- **Budget:** ≤3 downloads per lane per scan, on `media_url` from the Graph
+  API exactly as step 4 (curl, `file` check, delete junk). These do not count
+  against step 4's 12, and they spend ZERO `ig-fetch.sh` slots: a withheld
+  reel is written to the manifest as a lead and never fetched. A new
+  hashtag here is charged under guard 8 like any other (`hashtag-query:`
+  line BEFORE the call); skip the tag if the 7-day budget is spent.
+- **Filters:** the lane's `wants`, originals only, like_count ≥ the floor in
+  the file, permalink not already in that lane's manifest. Rank by
+  like_count, highest first.
+- **The one yt-dlp exception (Marcus, 2026-10-29):** the `replogle` lane may
+  download ONE c-span.org URL with yt-dlp, no cookies, no browser profile:
+  `"$HOME/Library/Python/3.9/bin/yt-dlp" --no-cookies --socket-timeout 30 -f "best[ext=mp4][height<=720]/best[height<=720]" --max-filesize 1500M -o "<lane folder>/<slug>.%(ext)s" "<url>"`.
+  Only when the lane's `url:` line holds a c-span.org link. With no link,
+  search c-span.org (WebSearch/WebFetch) and write up to 3 `candidate` lines
+  (URL, title, duration); download nothing. After a successful download,
+  change that lane's `url:` line to `done <today> <file>` so it never runs twice.
+  yt-dlp stays forbidden for Instagram and for everything else.
+- **Time box:** do not START 6e past 08:45 (`pickup-skip: time`). A skipped
+  day costs nothing; the manifest is the queue.
+- **Log** one line per lane: `pickup: <lane> — N downloaded, L leads, C candidates, R rejected (<top reasons>)`.
+
 ### 7. Close out
 Write `last-scan.txt`: first line `<today> — scanned N accounts + H
 hashtags, M new clips banked, F formats captured, K entries went stale, P
 entries pruned, A ads skipped, X misses, G gate rejects, R premise handles
 added, S saved-inbox lines read / B banked from it`; then append any `saved-read: exit N <reason>`
-line from step 1b as line 2, never overwrite it. G and R were added 2026-09-17, S and B on 2026-09-24, and are the real health of this
+line from step 1b as line 2, never overwrite it, and after it each step-6e `pickup:` line. G and R were added 2026-09-17, S and B on 2026-09-24, and are the real health of this
 scan (a literal example: `2026-09-18 — scanned 22 accounts + 10 hashtags, 0
 new clips banked, 1 formats captured, 3 entries went stale, 0 entries
 pruned, 14 ads skipped, 2 misses, 6 gate rejects, 2 premise handles added`). **Zero banked with a non-zero gate-reject count is a healthy
