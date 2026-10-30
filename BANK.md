@@ -75,8 +75,8 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
    allowed ONLY through `ig-routine-core/ig-fetch.sh`, which uses a DORMANT
    throwaway account in its own Chrome profile and enforces a daily cap,
    randomized human-pace spacing, and a stop-after-2-failures rule. Never
-   call `yt-dlp` directly (sole exceptions: step 6e's one c-span.org pickup
-   and its Evora YouTube read, both no cookies), never use a Chrome profile holding an imabgold /
+   call `yt-dlp` directly (sole exception: step 6e's one c-span.org pickup,
+   no cookies), never use a Chrome profile holding an imabgold /
    bambi / maxima session (the script refuses those by name), and never
    raise the caps to finish a bank faster — a bank that takes three days is
    the point. Use it only for clips whose `media_url` the API withholds, and
@@ -1109,13 +1109,12 @@ count, and never relaxes THE GATE for the donor bank. Its own law:
   (`mkdir -p` it), plus one line per JUDGED clip in that folder's `manifest.md`:
   `<today> | @account | <permalink> | <likes> likes | <status> | <one-line note>`,
   where status is one of `saved <file>`, `lead, media withheld`,
-  `lead, youtube not downloaded`,
   `rejected <reason>` or `candidate`. This folder is the ONLY place outside
   the bank this step may write, and a `rejected` clip's file inside it may be
   deleted (it is not a bank clip; guard 3 does not cover this folder). It is
   not an account folder, so guard 2 is untouched. The only edit this step
   makes to `customer-pickups.md` is the replogle `done`/`failed` marker below.
-- **Sources: seed ACCOUNTS only** (apart from the Evora YouTube read below), one `business_discovery` call each, exactly
+- **Sources: seed ACCOUNTS only**, one `business_discovery` call each, exactly
   as step 2 (≤25 media). NO Graph hashtag search (never charge a tag for this
   step), NO `ig-search.py`, NO `ig-fetch.sh` (sole exception: the Bubba fetch
   below), NO `read-saved.sh`: those budgets belong to the donor bank. A lane with no accounts listed logs
@@ -1134,7 +1133,7 @@ count, and never relaxes THE GATE for the donor bank. Its own law:
   A judgement that needs the footage (speech vs music, authentic vs scripted)
   is made after the download; a failing clip gets a `rejected <reason>` line
   and its file is deleted.
-- **Replogle, the one yt-dlp download exception (Marcus, 2026-10-29):** the `replogle`
+- **Replogle, the one yt-dlp exception (Marcus, 2026-10-29):** the `replogle`
   lane may download ONE URL with yt-dlp, and only if the `url:` line's host is
   exactly `www.c-span.org` or `c-span.org` (parse the host; a substring match
   is not enough). The url is the first token after `url:`. A line starting `done` or `failed` means do nothing. Any other value that is not `(none…)`: log
@@ -1150,35 +1149,7 @@ count, and never relaxes THE GATE for the donor bank. Its own law:
   yet, search c-span.org (WebSearch/WebFetch) once and write up to 3
   `candidate` lines (URL, title, duration); download nothing. If candidates
   are already listed, do nothing (`pickup: replogle waiting on Marcus's pick`).
-  yt-dlp stays forbidden for Instagram and for everything else except the
-  Evora YouTube read below.
-- **Evora YouTube read, links and view counts only (Grok relay, 2026-10-30):**
-  for each channel on the `youtube:` line in `customer-pickups.md` (it must match
-  `^@[A-Za-z0-9_.-]+$`, otherwise log `pickup-skip: evora youtube bad channel` and
-  skip it), run ONE Bash call with a 120000 ms timeout, exactly this and nothing else:
-  `"$HOME/Library/Python/3.9/bin/yt-dlp" --ignore-config --no-cookies --no-warnings --socket-timeout 20 --retries 1 --extractor-retries 1 --skip-download --flat-playlist --playlist-end 30 --print "%(id)s|%(view_count)s|%(duration)s|%(title)s" 'https://www.youtube.com/<channel>/search?query=rick+ross'`.
-  It reads metadata and DOWNLOADS NOTHING. Never add a format flag, never drop
-  `--skip-download`, and never fetch any YouTube video in this step: past Ross
-  downloads were each Marcus's own yes in chat (third-party footage on a
-  customer's account), so that stays his call per clip.
-  **Floor:** 2x the median of ALL rows with a numeric `view_count` from that
-  channel's read, computed before any dedup (YouTube's channel listing returns no
-  counts, so this is the median of this search, not of the whole channel). A row
-  with no number is skipped. A failed call, or a read with zero numeric rows, logs
-  `pickup-miss: evora youtube <channel> <reason>`, is not retried that scan, and
-  never stops the rest of the scan.
-  **Judging:** pool the rows over their channel's floor whose link is not already
-  in the evora manifest, then walk them from most views down and stop once 3
-  leads are logged; rows not reached wait for another day. The title must show
-  Rick Ross himself speaking (an interview, or a clip of him talking), in a North
-  American context, meeting the lane's `wants`. Fail: titles about him that others
-  are talking about ("X explains", "X goes off", news recaps), videos where he is
-  not named, music videos, track or album promos, show promos and trailers, and
-  watch-show or brand segments. Every row judged gets one manifest line, so it is
-  never judged twice. A pass:
-  `<today> | youtube:<channel> | https://www.youtube.com/watch?v=<id> | <views> views | lead, youtube not downloaded | <title with any | removed>, <whole seconds>s, search median <n>, judged on the title only`.
-  A fail is the same line with status `rejected <reason>`. Leads count in evora's
-  `pickup:` line.
+  yt-dlp stays forbidden for Instagram and for everything else.
 - **Bubba fetch, withheld leads only (Marcus via Grok relay, 2026-10-30):** the
   `bubba` lane, and no other, may fetch its withheld leads through `ig-fetch.sh`.
   Run this LAST in the scan's fetching, after step 4 has fetched every donor it
