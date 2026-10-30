@@ -1112,7 +1112,7 @@ count, and never relaxes THE GATE for the donor bank. Its own law:
   the bank this step may write, and a `rejected` clip's file inside it may be
   deleted (it is not a bank clip; guard 3 does not cover this folder). It is
   not an account folder, so guard 2 is untouched. The only edit this step
-  makes to `customer-pickups.md` is the replogle `done` marker below.
+  makes to `customer-pickups.md` is the replogle `done`/`failed` marker below.
 - **Sources: seed ACCOUNTS only**, one `business_discovery` call each, exactly
   as step 2 (≤25 media). NO Graph hashtag search (never charge a tag for this
   step), NO `ig-search.py`, NO `ig-fetch.sh`, NO `read-saved.sh`: those
@@ -1134,13 +1134,15 @@ count, and never relaxes THE GATE for the donor bank. Its own law:
 - **Replogle, the one yt-dlp exception (Marcus, 2026-10-29):** the `replogle`
   lane may download ONE URL with yt-dlp, and only if the `url:` line's host is
   exactly `www.c-span.org` or `c-span.org` (parse the host; a substring match
-  is not enough). Any other value that is not `(none…)` or `done…`: log
+  is not enough). The url is the first token after `url:`. A line starting `done` or `failed` means do nothing. Any other value that is not `(none…)`: log
   `pickup-skip: replogle non-cspan url` and do nothing. Run it as ONE Bash
   call with the tool's 600000 ms timeout, the URL single-quoted:
   `"$HOME/Library/Python/3.9/bin/yt-dlp" --no-cookies --socket-timeout 30 -f "best[ext=mp4][height<=720]/best[height<=720]" --max-filesize 1500M -o "$HOME/Claude Code/footage/donors/replogle/%(title).60B.%(ext)s" '<url>'`.
   On success, rewrite the `url:` line to `done <today> <file>` so it never
-  runs again; on any failure or timeout, delete `*.part` files in that folder
-  and log `pickup-miss: replogle <reason>` (tomorrow retries).
+  runs again; on any failure or timeout, delete `*.part` files in that folder,
+  rewrite the `url:` line to `failed <today> <reason> <the url>` and log
+  `pickup-miss: replogle <reason>`. A `failed` line is never retried: Marcus
+  saves it by hand or puts a new link in.
   With `(none…)` in the url line: if the manifest has NO `candidate` lines
   yet, search c-span.org (WebSearch/WebFetch) once and write up to 3
   `candidate` lines (URL, title, duration); download nothing. If candidates
