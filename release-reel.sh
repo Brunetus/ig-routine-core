@@ -35,10 +35,14 @@
 #   - still calls the worker `complete` route, so the server job leaves the
 #     queue exactly like every other finished job.
 #
-#   release-reel.sh <id> [--day yyyy-MM-dd] [--replace] [--dry-run]
+#   release-reel.sh <id> [--day yyyy-MM-dd] [--replace] [--dry-run] [--no-push]
 #     --day      override the day key recorded at enqueue
 #     --replace  overwrite a day this account already has a reel for
 #     --dry-run  eclip only: prove the wiring, upload nothing, write nothing
+#     --no-push  eclip only: this redo answers a feedback note, so no "reel is
+#                ready" push; reels-ios/mac/tools/feedback-reply.mjs sends the
+#                one nudge (Marcus, 2026-10-31). deliver.mjs refuses it unless
+#                the day already has a reel, so a first delivery is never silent.
 
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
@@ -66,7 +70,7 @@ NODE="$HOME/.nvm/versions/node/v20.20.2/bin/node"
 # --- flags (the manual eclip path only; --scan takes none of them) ---
 # `shift 2` on a last-position `--day` is a zsh error, not a shift: the loop
 # then spins on the same argument forever. Check the count first.
-DAY_OVERRIDE=""; REPLACE=""; DRYRUN=""; NOCOVER=""
+DAY_OVERRIDE=""; REPLACE=""; DRYRUN=""; NOCOVER=""; NOPUSH=""
 SALVAGED_NOTE=""   # set only when THIS run converts a salvaged job (never inherited from the environment)
 ARGS=()
 while [ "$#" -gt 0 ]; do
@@ -81,12 +85,13 @@ while [ "$#" -gt 0 ]; do
     # An eclip reel ships WITH its cover (Marcus, 2026-10-01): releasing it is
     # his approval of both. --no-cover is the deliberate way to ship one alone.
     --no-cover) NOCOVER="1"; shift ;;
+    --no-push) NOPUSH="1"; shift ;;
     # --scan is a MODE, not a flag: it is how run-reel-notify.sh (every 2 min)
     # and run-reel-worker.sh ship every paying customer's reel. It must reach
     # the dispatch below untouched — an "unknown flag" exit here would silently
     # stop the entire auto-release pass.
     --scan)    ARGS+=("$1"); shift ;;
-    --*)       echo "unknown flag '$1' (--day, --replace, --dry-run, --no-cover)"; exit 2 ;;
+    --*)       echo "unknown flag '$1' (--day, --replace, --dry-run, --no-cover, --no-push)"; exit 2 ;;
     *)         ARGS+=("$1"); shift ;;
   esac
 done
@@ -181,6 +186,7 @@ release_eclip() {
   [ -n "$DAY" ]     && DARGS+=(--day "$DAY")
   [ -n "$REPLACE" ] && DARGS+=(--replace)
   [ -n "$DRYRUN" ]  && DARGS+=(--dry-run)
+  [ -n "$NOPUSH" ]  && DARGS+=(--no-push)
 
   local OUT RC
   OUT=$("$NODE" "$DELIVER" "${DARGS[@]}" 2>&1); RC=$?
@@ -191,7 +197,7 @@ release_eclip() {
   if [ "$RC" -ne 0 ] && printf '%s' "$OUT" | grep -q "already has a reel for"; then
     echo ""
     echo "Two ways out, both deliberate:"
-    echo "  replace that day :  release-reel.sh $ID --replace"
+    echo "  replace that day :  release-reel.sh $ID --replace${NOPUSH:+ --no-push}"
     echo "  ship it tomorrow :  release-reel.sh $ID --day $(date -v+1d +%F)"
     if [ -n "$(eclip_field "$JOB" revision.round)" ]; then
       echo ""
@@ -233,7 +239,12 @@ release_eclip() {
     "$(date '+%F %H:%M')" "$ECLIP_USER" "${ID:0:8}" "$IGID" "$DAY" >> "$JOBS_DIR/OUTBOX.md"
   osascript -e "display notification \"eclip delivered to @$ECLIP_USER ($DAY)\" with title \"reel worker\" sound name \"Glass\"" 2>/dev/null
   curl -s -m 15 -X POST "$NTFY" -H "Title: $WHO · eclip reel delivered" -H "Tags: white_check_mark" \
-    -d "delivered to app: @${ECLIP_USER} ${DAY}" > /dev/null 2>&1
+    -d "delivered to app: @${ECLIP_USER} ${DAY}${NOPUSH:+. No push sent: the feedback reply is still owed}" > /dev/null 2>&1
+  if [ -n "$NOPUSH" ]; then
+    echo ""
+    echo "No push sent, and the customer has not been told yet. Answer their note:"
+    echo "  node \"$HOME/Claude Code/reels-ios/mac/tools/feedback-reply.mjs\" --ig-user-id $IGID --day $DAY --body <what changed>"
+  fi
   return 0
 }
 
@@ -551,7 +562,7 @@ fi
 
 ID="$1"
 if [ -z "$ID" ] || [ ! -d "$JOBS_DIR/$ID" ]; then
-  echo "usage: release-reel.sh <job-id> [--day yyyy-MM-dd] [--replace] [--dry-run]"
+  echo "usage: release-reel.sh <job-id> [--day yyyy-MM-dd] [--replace] [--dry-run] [--no-push]"
   echo "       release-reel.sh --scan"
   exit 1
 fi
@@ -566,6 +577,7 @@ if ! is_eclip "$JOBS_DIR/$ID"; then
   [ -n "$DRYRUN" ]       && BAD="--dry-run"
   [ -n "$REPLACE" ]      && BAD="${BAD:+$BAD }--replace"
   [ -n "$DAY_OVERRIDE" ] && BAD="${BAD:+$BAD }--day"
+  [ -n "$NOPUSH" ]       && BAD="${BAD:+$BAD }--no-push"
   if [ -n "$BAD" ]; then
     echo "$BAD is eclip-only, and $ID is not an eclip job."
     echo "A web job has no dry path: releasing it emails the customer and copies to Drive."
