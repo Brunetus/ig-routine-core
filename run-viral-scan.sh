@@ -81,6 +81,10 @@ fi
 
 echo "===== viral scan start $(date) =====" >> "$LOG"
 
+# ---- Keep the Mac awake until this script exits (Nov 4 scan stalled in idle sleep).
+# -s only holds on AC power, and a closed lid still sleeps the Mac.
+caffeinate -i -s -w $$ &
+
 # ---- Run the session; retry once on an API drop ----
 STATUS=1
 for ATTEMPT in 1 2; do
