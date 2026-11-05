@@ -36,6 +36,9 @@ prefs=os.path.expanduser(f"~/Library/Application Support/Google/Chrome/{profile}
 if not os.path.exists(prefs): die("no such profile")
 emails=" ".join(a.get("email","") for a in json.load(open(prefs)).get("account_info",[]))
 if any(e in emails for e in OWNER_EMAILS): die("REFUSING: profile holds one of Marcus's Google accounts")
+try:
+    import plistlib; CHROME_MAJOR=plistlib.load(open("/Applications/Google Chrome.app/Contents/Info.plist","rb"))["CFBundleShortVersionString"].split(".")[0]
+except Exception: CHROME_MAJOR="156"
 from yt_dlp.cookies import extract_cookies_from_browser
 jar=extract_cookies_from_browser("chrome",profile,logger=logging.getLogger("q"))
 ck={c.name:c.value for c in jar if "instagram.com" in c.domain}
@@ -72,14 +75,26 @@ def fetch(q):
     if mode=="kw": url="https://www.instagram.com/api/v1/fbsearch/top_serp/?enable_metadata=true&query="+urllib.parse.quote(q)
     elif mode=="profile": url="https://www.instagram.com/api/v1/users/web_profile_info/?username="+urllib.parse.quote(q)
     else: url="https://www.instagram.com/api/v1/tags/web_info/?tag_name="+urllib.parse.quote(q)
+    # Present as the Chrome that holds the session: a hardcoded Chrome/140 UA went
+    # stale against Chrome 156 and tags/web_info answered non-JSON from 2026-11-03.
+    referer="https://www.instagram.com/explore/tags/"+urllib.parse.quote(q)+"/" if mode=="tag" else "https://www.instagram.com/explore/"
     req=urllib.request.Request(url,headers={
-     "user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+     "user-agent":f"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{CHROME_MAJOR}.0.0.0 Safari/537.36",
+     "sec-ch-ua":f'"Chromium";v="{CHROME_MAJOR}", "Google Chrome";v="{CHROME_MAJOR}", "Not_A Brand";v="99"',
+     "sec-ch-ua-mobile":"?0","sec-ch-ua-platform":'"macOS"',
+     "sec-fetch-site":"same-origin","sec-fetch-mode":"cors","sec-fetch-dest":"empty",
      "x-ig-app-id":"936619743392459","x-csrftoken":ck["csrftoken"],"x-requested-with":"XMLHttpRequest",
-     "referer":"https://www.instagram.com/explore/","accept":"*/*",
+     "x-asbd-id":"129477","x-ig-www-claim":"0","accept-language":"en-US,en;q=0.9",
+     "referer":referer,"accept":"*/*",
      "cookie":"; ".join(f"{k}={v}" for k,v in ck.items())})
     st["count"]+=1; st["last"]=time.time()
     try:
-        data=json.loads(urllib.request.urlopen(req,timeout=30).read().decode("utf-8","replace"))
+        r=urllib.request.urlopen(req,timeout=30); body=r.read().decode("utf-8","replace")
+        try: data=json.loads(body)
+        except ValueError:
+            # keep what Instagram actually sent so the next fix isn't a guess
+            open(f"{CFG_DIR}/last-nonjson.txt","w").write(f"{r.status} {r.geturl()}\n{r.headers.get('content-type')}\n\n{body[:20000]}")
+            raise ValueError(f"non-JSON {r.status} {r.headers.get('content-type','?')[:30]} at {r.geturl()[:80]}: {' '.join(body[:120].split())}")
         st["fails"]=0; json.dump(st,open(STATE,"w")); return data,st
     except urllib.error.HTTPError as e:
         if mode=="profile" and e.code==404:
@@ -97,7 +112,7 @@ def fetch(q):
         if st["fails"]>=2: sys.exit(4)
         return None,st
     except Exception as e:
-        st["fails"]+=1; json.dump(st,open(STATE,"w")); log(f"FAIL {mode} {q!r} {type(e).__name__} {str(e)[:80]}")
+        st["fails"]+=1; json.dump(st,open(STATE,"w")); log(f"FAIL {mode} {q!r} {type(e).__name__} {str(e)[:300]}")
         print(f"ig-search: request failed on {q!r}: {e}",file=sys.stderr)
         if st["fails"]>=2: sys.exit(4)
         return None,st
