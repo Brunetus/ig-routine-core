@@ -371,6 +371,14 @@ are the rule, not a guideline:
   donors (4.77M and 2.1M plays) on the first five tags. `kw "<phrase>"`
   (fbsearch/top_serp) returned HTTP 400 and counts as a failure; do not
   spend the fail budget re-trying it until someone fixes the call.
+  **Tag mode is EMPTY since 2026-11-02:** `tags/web_info` now answers
+  `{"count":0,"data":null,"status":"ok"}` for every tag (datingadvice gave 30
+  posts on 11-01 and 0 on 11-05), and the Nov 3-5 JSONDecodeErrors were a stale
+  Chrome/140 UA, fixed 11-05 (the UA is now read from the installed Chrome).
+  `fbsearch/web/top_serp?query=%23tag` is a 404. Until someone finds the
+  hashtag page's new request (it needs a look at the page in Profile 7), do
+  NOT spend searches on `tag`: it costs a search and returns nothing. Use the
+  Graph hashtag sweep for now.
   **Step 2b's Graph hashtag sweep is now SECONDARY:** run the throwaway tag
   pages first (they do not touch the 30-tag Graph window at all), and use
   the Graph sweep only for tags already charged. Tag pages that produced

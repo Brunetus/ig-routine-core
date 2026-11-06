@@ -74,6 +74,8 @@ def fetch(q):
     if st["last"] and since<gap: time.sleep(gap-since)
     if mode=="kw": url="https://www.instagram.com/api/v1/fbsearch/top_serp/?enable_metadata=true&query="+urllib.parse.quote(q)
     elif mode=="profile": url="https://www.instagram.com/api/v1/users/web_profile_info/?username="+urllib.parse.quote(q)
+    # tags/web_info answers {"count":0,"data":null,"status":"ok"} since 2026-11-02, and
+    # fbsearch/web/top_serp?query=%23tag is a 404; the replacement is not known yet
     else: url="https://www.instagram.com/api/v1/tags/web_info/?tag_name="+urllib.parse.quote(q)
     # Present as the Chrome that holds the session: a hardcoded Chrome/140 UA went
     # stale against Chrome 156 and tags/web_info answered non-JSON from 2026-11-03.
@@ -155,5 +157,6 @@ for q in qs:
             "video":bool(m.get("video_versions") or m.get("media_type")==2),"duration":m.get("video_duration"),
             "taken_at":datetime.datetime.fromtimestamp(m["taken_at"]).strftime("%Y-%m-%d") if m.get("taken_at") else None,
             "caption":cap[:200].replace("\n"," ")}),flush=True)
+    if n==0: json.dump(data,open(f"{CFG_DIR}/last-empty.json","w"))  # keep the shape for the next fix
     log(f"OK {mode} {q!r} -> {n} media as @{handle} ({st['count']}/{maxday})")
     print(f"ig-search: {mode} {q!r} -> {n} media ({st['count']}/{maxday} today)",file=sys.stderr)
