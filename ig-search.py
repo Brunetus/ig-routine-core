@@ -136,7 +136,8 @@ for q in qs:
             print(f"ig-search: profile {q!r} -> not found ({st['count']}/{maxday} today)",file=sys.stderr); continue
         print(json.dumps({"profile":q,"found":True,"username":u.get("username"),"full_name":u.get("full_name"),
             "is_business":u.get("is_business_account"),"is_professional":u.get("is_professional_account"),"is_private":u.get("is_private"),
-            "followers":(u.get("edge_followed_by") or {}).get("count"),"posts":(u.get("edge_owner_to_timeline_media") or {}).get("count")}),flush=True)
+            "followers":(u.get("edge_followed_by") or {}).get("count"),"posts":(u.get("edge_owner_to_timeline_media") or {}).get("count"),
+            "bio":(u.get("biography") or "")[:300].replace("\n"," "),"category":u.get("category_name"),"link":u.get("external_url")}),flush=True)
         for ed in (u.get("edge_owner_to_timeline_media") or {}).get("edges",[]):
             n=ed.get("node",{}); capn=((n.get("edge_media_to_caption") or {}).get("edges") or [{}])
             cap=(capn[0].get("node",{}).get("text","") if capn else "")
