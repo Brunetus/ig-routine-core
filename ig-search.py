@@ -11,6 +11,8 @@ likes, follows, saves, or DMs.
   ig-search.py tag <tag> [<tag> ...] hashtag pages, one request per tag, paced
   ig-search.py profile <handle> [...] a creator's profile + recent posts (the
                                     fallback when business_discovery misses)
+A profile NOT FOUND (404 or empty user) is printed as unconfirmed; a second one
+in a row the same day is read as a block, counts as two failures and exits 4.
 Tag names are validated BEFORE any request: a name with a space, '#', or
 anything outside [A-Za-z0-9_] is refused with exit 2 and costs nothing (no
 count, no failure). Added 2026-09-27 after a scan passed ten tags as ONE
@@ -65,6 +67,7 @@ today=datetime.date.today().isoformat()
 def load_state():
     st=json.load(open(STATE)) if os.path.exists(STATE) else {}
     if st.get("date")!=today: st={"date":today,"count":0,"fails":0,"last":0}
+    st.setdefault("nf",0)  # consecutive profile NOT FOUNDs today
     return st
 def fetch(q):
     st=load_state()
@@ -97,14 +100,12 @@ def fetch(q):
             # keep what Instagram actually sent so the next fix isn't a guess
             open(f"{CFG_DIR}/last-nonjson.txt","w").write(f"{r.status} {r.geturl()}\n{r.headers.get('content-type')}\n\n{body[:20000]}")
             raise ValueError(f"non-JSON {r.status} {r.headers.get('content-type','?')[:30]} at {r.geturl()[:80]}: {' '.join(body[:120].split())}")
-        st["fails"]=0; json.dump(st,open(STATE,"w")); return data,st
+        st["fails"]=0
+        if mode=="profile" and isinstance(data,dict) and (data.get("data") or {}).get("user"): st["nf"]=0
+        json.dump(st,open(STATE,"w")); return data,st
     except urllib.error.HTTPError as e:
         if mode=="profile" and e.code==404:
-            # a missing profile is an ANSWER, not a bot signal: counted, not a failure
-            st["fails"]=0; json.dump(st,open(STATE,"w")); log(f"OK profile {q!r} -> NOT FOUND (404) as @{handle} ({st['count']}/{maxday})")
-            print(json.dumps({"profile":q,"found":False}),flush=True)
-            print(f"ig-search: profile {q!r} -> not found on Instagram ({st['count']}/{maxday} today)",file=sys.stderr)
-            return None,st
+            not_found(q,st,"404"); return None,st
         if e.code==429:
             # Instagram's rate limit is a STOP signal (BANK.md): end browsing for the day, no retry
             st["fails"]=2; json.dump(st,open(STATE,"w")); log(f"STOP 429 rate-limited on {mode} {q!r} — browsing ends for today")
@@ -118,6 +119,22 @@ def fetch(q):
         print(f"ig-search: request failed on {q!r}: {e}",file=sys.stderr)
         if st["fails"]>=2: sys.exit(4)
         return None,st
+def not_found(q,st,why):
+    # One NOT FOUND can be a missing account. Two in a row is the endpoint, not the
+    # accounts: on 2026-11-06 web_profile_info 404'd ten handles that had commented on
+    # @imabgold that week. The second one counts as the day's two failures and stops.
+    st["nf"]+=1
+    if st["nf"]>=2:
+        st["fails"]=2; json.dump(st,open(STATE,"w"))
+        log(f"STOP profile endpoint returning {why} for known accounts ({q!r} is NOT FOUND #{st['nf']} in a row) — all throwaway browsing ends for today")
+        print(json.dumps({"profile":q,"found":None,"blocked":True}),flush=True)
+        print(f"ig-search: BLOCKED, not a missing account: {st['nf']} profiles in a row came back NOT FOUND ({why}), "
+              f"so Instagram is blocking or has changed the profile endpoint. Do not conclude {q!r} (or the one before it) "
+              f"does not exist. All throwaway browsing (profile, tag, kw) is over for today; do not retry.",file=sys.stderr); sys.exit(4)
+    json.dump(st,open(STATE,"w")); log(f"OK profile {q!r} -> NOT FOUND ({why}) as @{handle} ({st['count']}/{maxday}), unconfirmed")
+    print(json.dumps({"profile":q,"found":False,"unconfirmed":True}),flush=True)
+    print(f"ig-search: profile {q!r} -> NOT FOUND ({why}), unconfirmed: one miss can't tell a missing account from a block; "
+          f"a second miss in a row stops the run ({st['count']}/{maxday} today)",file=sys.stderr)
 def walk(o):
     if isinstance(o,dict):
         if "code" in o and "user" in o and ("like_count" in o or "play_count" in o): yield o
@@ -130,10 +147,7 @@ for q in qs:
     if data is None: continue
     if mode=="profile":
         u=(data.get("data") or {}).get("user") or {}
-        if not u:
-            print(json.dumps({"profile":q,"found":False}),flush=True)
-            log(f"OK profile {q!r} -> NOT FOUND (empty user) as @{handle} ({st['count']}/{maxday})")
-            print(f"ig-search: profile {q!r} -> not found ({st['count']}/{maxday} today)",file=sys.stderr); continue
+        if not u: not_found(q,st,"empty user"); continue
         print(json.dumps({"profile":q,"found":True,"username":u.get("username"),"full_name":u.get("full_name"),
             "is_business":u.get("is_business_account"),"is_professional":u.get("is_professional_account"),"is_private":u.get("is_private"),
             "followers":(u.get("edge_followed_by") or {}).get("count"),"posts":(u.get("edge_owner_to_timeline_media") or {}).get("count"),

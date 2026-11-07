@@ -126,9 +126,17 @@ you append via step 5b), `clips/` (mp4s), `logs/` (today's log),
    before the tag pages spend it). Log `watchlist-fallback: @handle via
    throwaway (<N> posts)`, then gate its recent reels exactly like a Graph
    read; withheld videos go through ig-fetch.sh as usual. If the throwaway
-   also finds no such profile, log `handle-gone: @handle (not found on IG
-   either)` and leave the line for Marcus — a renamed creator is his call
-   to re-point. Old-lane `dormant` lines never get a fallback. The rest of
+   also finds no such profile (`"found": false, "unconfirmed": true`), log
+   `handle-gone: @handle (not found on IG either, unconfirmed)` and leave
+   the line for Marcus — a renamed creator is his call to re-point. Two
+   NOT FOUNDs in a row the same day mean the profile endpoint is blocked,
+   not that the accounts are gone (2026-11-06: ten live commenters all
+   404'd): ig-search prints `"blocked": true` and exits 4. Log
+   `watchlist-miss: @handle (throwaway profile endpoint blocked)`, never
+   `handle-gone`, and also rewrite today's most recent `handle-gone`
+   line (the first miss of the pair) to that `watchlist-miss` form. A
+   block counts as the day's two failures, so ALL throwaway reads (tag
+   pages and kw too) are over for that day. Old-lane `dormant` lines never get a fallback. The rest of
    the old rule stands:
    skipped — never fatal, never removed from the watchlist by you.
 6. Stay lean: the whole scan should finish well before 9:00 AM when the
