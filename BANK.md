@@ -373,7 +373,7 @@ are the rule, not a guideline:
   set as ig-fetch.sh, cap `search_max_per_day` in the ig-fetch config,
   default 10, state in `~/.config/ig-fetch/search-state.json`, log lines
   `SEARCH ...` in fetch.log). Two modes, measured the day it was built:
-  `tag <name>` reads IG's own hashtag page (`tags/web_info`) and returns the
+  `tag <name>` reads IG's own hashtag results (keyword search on "#tag", see below) and returns the
   RANKED top posts with likes, handle and duration (plays until 2026-11-02) — this is the
   surface the Graph API never had, and it found both of the day's banked
   donors (4.77M and 2.1M plays) on the first five tags. `kw "<phrase>"`
