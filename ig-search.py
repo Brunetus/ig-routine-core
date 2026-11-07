@@ -69,7 +69,20 @@ def load_state():
     if st.get("date")!=today: st={"date":today,"count":0,"fails":0,"last":0}
     st.setdefault("nf",0)  # consecutive profile NOT FOUNDs today
     return st
-def fetch(q):
+# Hashtag pages now redirect to keyword search on "#tag", and the posts come from a
+# GraphQL call (xdt_fbsearch__top_serp_graphql) that needs the page's fb_dtsg/lsd. So
+# tag mode loads the search page ONCE per run for tokens, then POSTs once per tag.
+# Both count against the daily cap. doc_id rotates with Instagram deploys: when it
+# breaks, read the new one off the page in Profile 7 and set "search_doc_id" in config.
+DOC_ID=str(cfg.get("search_doc_id","28656899673911396")); TOK=None
+def page_tokens(q):
+    html=fetch(q,page=True)[0]
+    if html is None: return None
+    t={k:(re.search(r'"%s",\[\],\{"token":"([^"]+)"'%k,html) or [None,None])[1] for k in ("DTSGInitialData","LSD")}
+    if not t["DTSGInitialData"] or not t["LSD"]:
+        open(f"{CFG_DIR}/last-nonjson.txt","w").write(html[:20000]); log(f"FAIL tag page has no fb_dtsg/lsd (saved last-nonjson.txt)"); return None
+    return {"fb_dtsg":t["DTSGInitialData"],"lsd":t["LSD"],"jazoest":"2"+str(sum(map(ord,t["DTSGInitialData"])))}
+def fetch(q,page=False):
     st=load_state()
     if st["count"]>=maxday: print(f"ig-search: daily cap {maxday} reached, {q!r} and the rest wait",file=sys.stderr); log("CAP hit"); sys.exit(3)
     if st["fails"]>=2: print("ig-search: two consecutive failures today, stopped",file=sys.stderr); sys.exit(4)
@@ -77,13 +90,18 @@ def fetch(q):
     if st["last"] and since<gap: time.sleep(gap-since)
     if mode=="kw": url="https://www.instagram.com/api/v1/fbsearch/top_serp/?enable_metadata=true&query="+urllib.parse.quote(q)
     elif mode=="profile": url="https://www.instagram.com/api/v1/users/web_profile_info/?username="+urllib.parse.quote(q)
-    # tags/web_info answers {"count":0,"data":null,"status":"ok"} since 2026-11-02, and
-    # fbsearch/web/top_serp?query=%23tag is a 404; the replacement is not known yet
-    else: url="https://www.instagram.com/api/v1/tags/web_info/?tag_name="+urllib.parse.quote(q)
+    # tags/web_info answers {"count":0,"data":null,"status":"ok"} since 2026-11-02
+    elif page: url="https://www.instagram.com/explore/search/keyword/?q="+urllib.parse.quote("#"+q)
+    else: url="https://www.instagram.com/api/graphql"
     # Present as the Chrome that holds the session: a hardcoded Chrome/140 UA went
     # stale against Chrome 156 and tags/web_info answered non-JSON from 2026-11-03.
-    referer="https://www.instagram.com/explore/tags/"+urllib.parse.quote(q)+"/" if mode=="tag" else "https://www.instagram.com/explore/"
-    req=urllib.request.Request(url,headers={
+    referer="https://www.instagram.com/explore/search/keyword/?q="+urllib.parse.quote("#"+q) if mode=="tag" else "https://www.instagram.com/explore/"
+    post=None
+    if mode=="tag" and not page:
+        post=urllib.parse.urlencode({"av":ck.get("ds_user_id",""),"__user":"0","__a":"1","__comet_req":"7",**TOK,
+            "fb_api_caller_class":"RelayModern","server_timestamps":"true","doc_id":DOC_ID,
+            "variables":json.dumps({"query":"#"+q,"first":24,"search_session_id":str(uuid.uuid4()),"serp_session_id":str(uuid.uuid4())})}).encode()
+    req=urllib.request.Request(url,data=post,headers={
      "user-agent":f"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{CHROME_MAJOR}.0.0.0 Safari/537.36",
      "sec-ch-ua":f'"Chromium";v="{CHROME_MAJOR}", "Google Chrome";v="{CHROME_MAJOR}", "Not_A Brand";v="99"',
      "sec-ch-ua-mobile":"?0","sec-ch-ua-platform":'"macOS"',
@@ -92,9 +110,16 @@ def fetch(q):
      "x-asbd-id":"129477","x-ig-www-claim":"0","accept-language":"en-US,en;q=0.9",
      "referer":referer,"accept":"*/*",
      "cookie":"; ".join(f"{k}={v}" for k,v in ck.items())})
+    if page:
+        for k in ("x-ig-app-id","x-csrftoken","x-requested-with","x-asbd-id","x-ig-www-claim"): req.remove_header(k.capitalize())
+        req.add_header("Accept","text/html,application/xhtml+xml"); req.add_header("Sec-fetch-mode","navigate"); req.add_header("Sec-fetch-dest","document"); req.add_header("Sec-fetch-site","none")
+    if post:
+        req.add_header("Content-type","application/x-www-form-urlencoded"); req.add_header("X-fb-lsd",TOK["lsd"]); req.add_header("X-asbd-id","359341")
     st["count"]+=1; st["last"]=time.time()
     try:
         r=urllib.request.urlopen(req,timeout=30); body=r.read().decode("utf-8","replace")
+        if page:
+            st["fails"]=0; json.dump(st,open(STATE,"w")); log(f"PAGE keyword search '#{q}' for tokens ({st['count']}/{maxday})"); return body,st
         try: data=json.loads(body)
         except ValueError:
             # keep what Instagram actually sent so the next fix isn't a guess
@@ -141,8 +166,11 @@ def walk(o):
         for v in o.values(): yield from walk(v)
     elif isinstance(o,list):
         for v in o: yield from walk(v)
-import urllib.error
+import urllib.error, uuid
 for q in qs:
+    if mode=="tag" and TOK is None:
+        TOK=page_tokens(q)
+        if TOK is None: print("ig-search: could not read the search page's tokens, stopped",file=sys.stderr); sys.exit(4)
     data,st=fetch(q)
     if data is None: continue
     if mode=="profile":
@@ -168,7 +196,7 @@ for q in qs:
         seen.add(m["code"]); n+=1
         cap=(m.get("caption") or {}).get("text","") if isinstance(m.get("caption"),dict) else ""
         print(json.dumps({"tag":q if mode=="tag" else None,"code":m["code"],"username":(m.get("user") or {}).get("username"),"likes":m.get("like_count"),
-            "comments":m.get("comment_count"),"plays":m.get("play_count") or m.get("ig_play_count"),
+            "comments":m.get("comment_count"),"plays":m.get("play_count") or m.get("ig_play_count") or m.get("view_count"),
             "video":bool(m.get("video_versions") or m.get("media_type")==2),"duration":m.get("video_duration"),
             "taken_at":datetime.datetime.fromtimestamp(m["taken_at"]).strftime("%Y-%m-%d") if m.get("taken_at") else None,
             "caption":cap[:200].replace("\n"," ")}),flush=True)
