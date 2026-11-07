@@ -374,19 +374,22 @@ are the rule, not a guideline:
   default 10, state in `~/.config/ig-fetch/search-state.json`, log lines
   `SEARCH ...` in fetch.log). Two modes, measured the day it was built:
   `tag <name>` reads IG's own hashtag page (`tags/web_info`) and returns the
-  RANKED top posts with plays, likes, handle and duration — this is the
+  RANKED top posts with likes, handle and duration (plays until 2026-11-02) — this is the
   surface the Graph API never had, and it found both of the day's banked
   donors (4.77M and 2.1M plays) on the first five tags. `kw "<phrase>"`
   (fbsearch/top_serp) returned HTTP 400 and counts as a failure; do not
   spend the fail budget re-trying it until someone fixes the call.
-  **Tag mode is EMPTY since 2026-11-02:** `tags/web_info` now answers
-  `{"count":0,"data":null,"status":"ok"}` for every tag (datingadvice gave 30
-  posts on 11-01 and 0 on 11-05), and the Nov 3-5 JSONDecodeErrors were a stale
-  Chrome/140 UA, fixed 11-05 (the UA is now read from the installed Chrome).
-  `fbsearch/web/top_serp?query=%23tag` is a 404. Until someone finds the
-  hashtag page's new request (it needs a look at the page in Profile 7), do
-  NOT spend searches on `tag`: it costs a search and returns nothing. Use the
-  Graph hashtag sweep for now.
+  **Tag mode changed 2026-11-07 (working again):** Instagram retired hashtag
+  pages on 2026-11-02 (`tags/web_info` went empty; /explore/tags/X/ now
+  redirects to keyword search on "#X"). `tag` now loads that search page ONCE
+  per run for its tokens, then makes one GraphQL call per tag, and BOTH count
+  against the 10/day cap (so one run fits 9 tags). Results carry likes and
+  comments but **no plays** (`plays` is null): rank by likes. If it breaks with
+  a GraphQL error, the `doc_id` rotated: read the new one off the search page in
+  Profile 7 and set `search_doc_id` in the ig-fetch config. Profile 7 must hold
+  no Google account: signing in to the Claude extension there with "Continue
+  with Google" adds one and the tool refuses to run (2026-11-07); use the email
+  code instead, and sign Google out at accounts.google.com if it happens.
   **Step 2b's Graph hashtag sweep is now SECONDARY:** run the throwaway tag
   pages first (they do not touch the 30-tag Graph window at all), and use
   the Graph sweep only for tags already charged. Tag pages that produced
