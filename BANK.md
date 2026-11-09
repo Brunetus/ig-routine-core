@@ -589,8 +589,20 @@ scan changes because of this step; after a week compare its leads to 2b's.
 For each handle, one `business_discovery` call (the tested read surface):
 
 ```
-curl -sg "https://graph.facebook.com/v21.0/17841480076308621?fields=business_discovery.username(<HANDLE>){name,biography,followers_count,media.limit(25){id,media_type,media_product_type,permalink,caption,like_count,comments_count,timestamp,media_url}}&access_token=<TOKEN>"
+curl -sg "https://graph.facebook.com/v21.0/17841480076308621?fields=business_discovery.username(<HANDLE>){name,biography,followers_count,media.limit(25){id,media_type,media_product_type,permalink,caption,like_count,comments_count,timestamp,media_url,thumbnail_url}}&access_token=<TOKEN>"
 ```
+
+**ONE probe pass per scan (2026-11-09, after a second pass to add covers hit Meta's
+app limit and overwrote 38 good reads).** The field list above already carries
+`thumbnail_url` for cover screening, so nothing ever needs re-probing. Rules:
+- Each handle is called at most once per scan, plus one retry only if that call
+  itself failed. Never re-run the pass to add a field, re-sort or "refresh".
+- Save each response to its own file and never overwrite a file that holds a good
+  response. A failed retry leaves the earlier good file in place.
+- On `(#4) Application request limit reached` (or codes 17/32/613), stop calling
+  Graph for the rest of the probe pass. The handles already read are gated as
+  normal, and the rest are logged as `watchlist-miss: ... Graph code 4`. The app is
+  shared with ig-pulse and the pickups (step 6e), so never keep calling into the limit.
 
 (Verified 2026-07-17 gotchas: `17841480076308621` is the owned IG business
 node the query anchors on — the queried HANDLE is what varies. Host must be
